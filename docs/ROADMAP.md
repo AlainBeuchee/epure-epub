@@ -34,22 +34,22 @@
 ## Jalon 0 — Mise en place
 
 - [ ] Créer le dépôt `epure-epub` (public), copier `CLAUDE.md`, `SPEC.md`, `ROADMAP.md`, `CHARTE.md` dans `docs/` et à la racine comme indiqué dans `CHARTE.md` A.11.
-- [ ] Créer `docs/DECISIONS.md` (modèle d'entrée en tête) et y consigner les décisions de cadrage : identité (DEC-EE-0001 : `applicationId` `com.alain.epure.epub`), licence GPL v3, relation avec Épure PDF.
-- [ ] Projet Android Studio : Kotlin, Compose, `minSdk` 31, `targetSdk` / `compileSdk` 36, `applicationId` `com.alain.epure.epub`, nom technique `EpureEpub`.
-- [ ] `app_name` = « Épure EPUB » dans `strings.xml`.
-- [ ] Reprendre le thème d'Épure PDF : `Color.kt` (trois jetons), `Theme.kt` (schéma sombre), `Type.kt` (échelle en `sp`), `themes.xml` (fond noir, pas de flash blanc).
-- [ ] Créer les paquets `ui/`, `data/`, `system/`, `domain/` et la classe `AppContainer`.
-- [ ] Manifeste : une seule activité, `allowBackup="false"`, aucune permission, aucun `INTERNET`.
+- [x] Créer `docs/DECISIONS.md` (modèle d'entrée en tête) et y consigner les décisions de cadrage : identité (DEC-EE-0001 : `applicationId` `com.alain.epure.epub`), licence GPL v3, relation avec Épure PDF.
+- [x] Projet Android Studio : Kotlin, Compose, `minSdk` 31, `targetSdk` / `compileSdk` 36, `applicationId` `com.alain.epure.epub`, nom technique `EpureEpub`.
+- [x] `app_name` = « Épure EPUB » dans `strings.xml`.
+- [x] Reprendre le thème d'Épure PDF : `Color.kt` (trois jetons), `Theme.kt` (schéma sombre), `Type.kt` (échelle en `sp`), `themes.xml` (fond noir, pas de flash blanc).
+- [x] Créer les paquets `ui/`, `data/`, `system/`, `domain/` et la classe `AppContainer`.
+- [x] Manifeste : une seule activité, `allowBackup="false"`, aucune permission, aucun `INTERNET`.
 - [ ] `LICENSE` (GPL v3) et `.gitignore` Android (`*.jks`, `*.keystore`, `local.properties`, livres de test).
-- [ ] README : présentation, section Confidentialité et sécurité (pas d'accès à Internet, livre traité comme non fiable, permission absente du manifeste, données sur l'appareil), licence.
+- [x] README : présentation, section Confidentialité et sécurité (pas d'accès à Internet, livre traité comme non fiable, permission absente du manifeste, données sur l'appareil), licence.
 - [ ] Constituer le jeu de test **hors du dépôt** (`SPEC.md` annexe A).
-- [ ] Premier build, tests, lint ; app vide lancée sur l'appareil (écran noir, aucun flash blanc).
-- [ ] Premier commit (adresse « noreply »). Pas de `git push` sans demande explicite.
+- [x] Premier build, tests, lint ; app vide lancée sur l'appareil (écran noir, aucun flash blanc).
+- [x] Premier commit (adresse « noreply »). Pas de `git push` sans demande explicite.
 
 ### Contrôles du jalon 0
 
-- [ ] L'app s'installe et s'ouvre sur un écran noir.
-- [ ] « Infos sur l'application » (One UI) → « Autorisations » : aucune autorisation listée.
+- [x] L'app s'installe et s'ouvre sur un écran noir.
+- [x] « Infos sur l'application » (One UI) → « Autorisations » : aucune autorisation listée.
 
 ---
 
