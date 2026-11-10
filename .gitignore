@@ -15,3 +15,5 @@
 local.properties
 *.jks
 *.keystore
+# Test books: never versioned (CLAUDE.md §10, SPEC.md annexe A)
+*.epub

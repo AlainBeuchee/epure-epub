@@ -46,7 +46,7 @@ Facile | Moyenne | Difficile — et ce qu'il faudrait refaire.
 ## DEC-EE-0001 — Identité de l'application
 
 - Date : 10/11/2026
-- Statut : Proposée
+- Statut : Adoptée
 - Jalon : 0
 - Exigences concernées : `SPEC.md` §1.2
 
@@ -73,7 +73,7 @@ Nom affiché : facile. `applicationId` : difficile après publication.
 ## DEC-EE-0002 — Application distincte d'Épure PDF
 
 - Date : 10/11/2026
-- Statut : Proposée
+- Statut : Adoptée
 - Jalon : 0
 - Exigences concernées : `SPEC.md` §1.2 ; DEC-0037 d'Épure PDF
 
@@ -101,7 +101,7 @@ Facile tant qu'aucune version n'est publiée.
 ## DEC-EE-0003 — Licence GPL v3
 
 - Date : 10/11/2026
-- Statut : Proposée
+- Statut : Adoptée
 - Jalon : 0
 
 **Décision (proposée)** : code publié sous GPL v3. Fichier `LICENSE` présent dès le premier commit.
@@ -120,7 +120,7 @@ Difficile une fois du code de contributeurs extérieurs intégré.
 ## DEC-EE-0004 — Pile technique reprise d'Épure PDF
 
 - Date : 10/11/2026
-- Statut : Proposée
+- Statut : Adoptée
 - Jalon : 0
 - Exigences concernées : T-9, T-10, T-12
 
@@ -146,7 +146,7 @@ Moyenne.
 ## DEC-EE-0005 — Aucune permission réseau
 
 - Date : 10/11/2026
-- Statut : Proposée
+- Statut : Adoptée
 - Jalon : 0
 - Exigences concernées : T-1, T-2
 
@@ -167,7 +167,7 @@ Facile techniquement, mais contraire au principe fondateur : toute révision exi
 ## DEC-EE-0006 — Accès aux fichiers par le Storage Access Framework seulement
 
 - Date : 10/11/2026
-- Statut : Proposée
+- Statut : Adoptée
 - Jalon : 0
 - Exigences concernées : F-1, T-3
 
@@ -184,7 +184,7 @@ Facile.
 ## DEC-EE-0007 — Aucun service en arrière-plan, aucune notification
 
 - Date : 10/11/2026
-- Statut : Proposée
+- Statut : Adoptée
 - Jalon : 0
 - Exigences concernées : T-4
 
@@ -198,7 +198,7 @@ Facile.
 ## DEC-EE-0008 — Le livre est traité comme un fichier non fiable
 
 - Date : 10/11/2026
-- Statut : Proposée
+- Statut : Adoptée
 - Jalon : 0
 - Exigences concernées : T-13, S-1 à S-7, F-14, F-15
 
@@ -254,7 +254,7 @@ Moyenne : l'interface du moteur dans `system/` isole ce choix du reste de l'app.
 ## DEC-EE-0010 — Ancre de position : format maison
 
 - Date : 10/11/2026
-- Statut : Proposée
+- Statut : Adoptée
 - Jalon : 2
 - Exigences concernées : F-5.1, F-10.2
 
@@ -271,7 +271,7 @@ Moyenne : un changement de format demanderait une migration des positions enregi
 ## DEC-EE-0011 — Contenu du livre : couleurs et polices ignorées par défaut
 
 - Date : 10/11/2026
-- Statut : Proposée
+- Statut : Adoptée
 - Jalon : 3
 - Exigences concernées : F-3.2, F-3.3, F-8.2, F-8.3
 
@@ -306,6 +306,38 @@ Facile.
 
 **Réversibilité**
 Moyenne : change la gestion des positions et des gestes.
+
+---
+
+## DEC-EE-0013 — Permission interne ajoutée par AndroidX conservée
+
+- Date : 10/11/2026
+- Statut : Adoptée
+- Jalon : 0
+- Exigences concernées : T-1 (`SPEC.md` §8), `CLAUDE.md` §4 (permissions injectées par une bibliothèque)
+
+**Contexte**
+Le fusionnement du manifeste ajoute `com.alain.epure.epub.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` (niveau `signature`). Elle vient de `androidx.core` 1.18.0, dépendance transitive d'AndroidX, et apparaît dans la sortie de `aapt2 dump permissions`. Elle n'est liée ni au réseau, ni aux fichiers, ni à l'utilisateur, et aucune autre application ne peut l'obtenir.
+
+**Options**
+- (a) Conserver la permission telle qu'elle est ajoutée.
+- (b) La retirer avec `tools:node="remove"`. Risque : casser l'enregistrement dynamique de récepteurs utilisé par AndroidX, sans bénéfice pour la confidentialité.
+- (c) Écarter la bibliothèque. Impossible sans renoncer à AndroidX, dont dépendent Compose et l'activité.
+
+**Décision**
+(a) : la permission est conservée. Elle est une exception documentée à T-1 pour une permission injectée par une bibliothèque, à condition qu'elle reste de niveau `signature` et interne à l'app.
+
+**Justification**
+Les trois autres options ont un coût supérieur au bénéfice. La permission ne donne aucun accès à l'extérieur de l'app et n'apparaît pas dans « Autorisations » (contrôle du jalon 0 validé sur l'appareil).
+
+**Conséquences**
+- `aapt2 dump permissions` affiche cette permission après chaque build : c'est attendu, et tout autre résultat doit être signalé.
+- Toute permission **autre** que celle-ci reste interdite sans nouvelle entrée.
+- `SPEC.md` n'est pas modifié (règle A.11) : l'écart est signalé ici et doit être reconnu lors de la prochaine relecture de T-1.
+- À réexaminer à chaque mise à jour d'AndroidX : si la permission disparaît, rien à faire.
+
+**Réversibilité**
+Facile : ajouter `tools:node="remove"` dans le manifeste, puis vérifier sur l'appareil que l'app se lance et que la lecture fonctionne.
 
 ---
 

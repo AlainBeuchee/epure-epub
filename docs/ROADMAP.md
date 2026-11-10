@@ -33,7 +33,7 @@
 
 ## Jalon 0 — Mise en place
 
-- [ ] Créer le dépôt `epure-epub` (public), copier `CLAUDE.md`, `SPEC.md`, `ROADMAP.md`, `CHARTE.md` dans `docs/` et à la racine comme indiqué dans `CHARTE.md` A.11.
+- [x] Créer le dépôt `epure-epub` (public), copier `SPEC.md`, `ROADMAP.md`, `CHARTE.md` dans `docs/` et `CLAUDE.md` à la racine, comme indiqué dans `CHARTE.md` A.11.
 - [x] Créer `docs/DECISIONS.md` (modèle d'entrée en tête) et y consigner les décisions de cadrage : identité (DEC-EE-0001 : `applicationId` `com.alain.epure.epub`), licence GPL v3, relation avec Épure PDF.
 - [x] Projet Android Studio : Kotlin, Compose, `minSdk` 31, `targetSdk` / `compileSdk` 36, `applicationId` `com.alain.epure.epub`, nom technique `EpureEpub`.
 - [x] `app_name` = « Épure EPUB » dans `strings.xml`.
