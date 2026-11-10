@@ -1,0 +1,235 @@
+# Feuille de route — Épure EPUB
+
+> Version 0.1 — 10 novembre 2026. Déclinaison de la feuille de route d'Épure PDF.
+> Règle : une tâche n'est cochée qu'**après validation sur l'appareil** par le porteur du projet (`CHARTE.md` A.13). Aucune case n'est cochée à la rédaction de ce document.
+> Références : `SPEC.md` (exigences), `DECISIONS.md` (décisions, à créer au jalon 0), `CHARTE.md` (règles visuelles et de sécurité).
+
+---
+
+## État d'avancement
+
+| Jalon | Contenu | État |
+|---|---|---|
+| 0 | Mise en place du projet, dépôt, licence, documents | À faire |
+| 1 | Lecteur de base : choix du moteur (prototype), ouverture par le sélecteur, texte, pagination, sécurité minimale | À faire |
+| 2 | Ouverture depuis d'autres apps, récents, reprise, « À propos » | À faire |
+| 3 | Confort : commandes, taille du texte, mode nuit, écran allumé, partage | À faire |
+| 4 | Table des matières, marque-pages, recherche | À faire |
+| 5 | Robustesse et sécurité : archives malveillantes, EPUB mal formés, mémoire | À faire |
+| — | Livres protégés par DRM, mise en page fixe, autres formats | Hors feuille de route |
+
+---
+
+## Contrôles communs à toutes les tâches (`CHARTE.md` A.13)
+
+- [ ] `./gradlew assembleDebug` sans erreur.
+- [ ] `./gradlew testDebugUnitTest` au vert.
+- [ ] `./gradlew lint` sans nouvelle erreur.
+- [ ] `aapt2 dump permissions app/build/outputs/apk/debug/app-debug.apk` : aucune permission, sauf celles de `SPEC.md` §8.
+- [ ] Relecture des règles de sécurité du contenu (`CHARTE.md` B.11, `SPEC.md` S-1 à S-7).
+- [ ] Vérification sur l'appareil (Samsung SM-A536B, Android 16 / One UI 8.0).
+
+---
+
+## Jalon 0 — Mise en place
+
+- [ ] Créer le dépôt `epure-epub` (public), copier `CLAUDE.md`, `SPEC.md`, `ROADMAP.md`, `CHARTE.md` dans `docs/` et à la racine comme indiqué dans `CHARTE.md` A.11.
+- [ ] Créer `docs/DECISIONS.md` (modèle d'entrée en tête) et y consigner les décisions de cadrage : identité (DEC-EE-0001 : `applicationId` `com.alain.epure.epub`), licence GPL v3, relation avec Épure PDF.
+- [ ] Projet Android Studio : Kotlin, Compose, `minSdk` 31, `targetSdk` / `compileSdk` 36, `applicationId` `com.alain.epure.epub`, nom technique `EpureEpub`.
+- [ ] `app_name` = « Épure EPUB » dans `strings.xml`.
+- [ ] Reprendre le thème d'Épure PDF : `Color.kt` (trois jetons), `Theme.kt` (schéma sombre), `Type.kt` (échelle en `sp`), `themes.xml` (fond noir, pas de flash blanc).
+- [ ] Créer les paquets `ui/`, `data/`, `system/`, `domain/` et la classe `AppContainer`.
+- [ ] Manifeste : une seule activité, `allowBackup="false"`, aucune permission, aucun `INTERNET`.
+- [ ] `LICENSE` (GPL v3) et `.gitignore` Android (`*.jks`, `*.keystore`, `local.properties`, livres de test).
+- [ ] README : présentation, section Confidentialité et sécurité (pas d'accès à Internet, livre traité comme non fiable, permission absente du manifeste, données sur l'appareil), licence.
+- [ ] Constituer le jeu de test **hors du dépôt** (`SPEC.md` annexe A).
+- [ ] Premier build, tests, lint ; app vide lancée sur l'appareil (écran noir, aucun flash blanc).
+- [ ] Premier commit (adresse « noreply »). Pas de `git push` sans demande explicite.
+
+### Contrôles du jalon 0
+
+- [ ] L'app s'installe et s'ouvre sur un écran noir.
+- [ ] « Infos sur l'application » (One UI) → « Autorisations » : aucune autorisation listée.
+
+---
+
+## Jalon 1 — Lecteur de base
+
+### Session 1a — Prototype comparatif des moteurs (§6 de `SPEC.md`)
+
+- [ ] Prototype jetable, sur une branche séparée, de l'option A (WebView configurée selon S-1 à S-7).
+- [ ] Prototype jetable de l'option C (rendu maison en texte seul), sur une autre branche.
+- [ ] Option B (Readium) : **proposition seulement**, à justifier dans `DECISIONS.md` avant ajout ; ne pas l'ajouter sans décision.
+- [ ] Mesures sur le jeu de test (annexe A) : poids de l'APK, temps d'ouverture (documents 1, 2, 9), mémoire, fidélité du rendu (documents 1, 3, 4).
+- [ ] Vérifier sur l'appareil : JavaScript non exécuté (document 5), ressources distantes non chargées (document 6), liens externes non ouverts (document 7).
+- [ ] Vérifier le manifeste fusionné de chaque prototype (aucune permission réseau).
+- [ ] Entrée `DECISIONS.md` : moteur retenu, mesures, tests de sécurité.
+- [ ] Mettre à jour `SPEC.md` (retirer le `[À DÉCIDER]` du §6, consigner les `[À VÉRIFIER]` tranchés) — par le porteur.
+
+### Session 1b — Ouverture et affichage
+
+- [ ] Interface du moteur dans `system/` (le reste de l'app n'en dépend pas directement).
+- [ ] Accueil minimal : titre, action « Ouvrir un fichier » (F-1.1).
+- [ ] Sélecteur système filtré sur `application/epub+zip` ; autorisation persistante demandée.
+- [ ] Lecture de l'archive hors du fil principal : validation des chemins, des tailles et du `mimetype` (S-4).
+- [ ] Lecture du package (titre, spine) et du XML sans entités externes (S-5).
+- [ ] Texte du chapitre courant affiché, pagination selon F-2.2 retenu, marges et interligne (F-2.1, F-2.3).
+- [ ] Chargement à la demande d'un chapitre ; page vide de bonne proportion pendant le chargement, sans indicateur animé (F-2.5).
+- [ ] Plein écran immersif (F-2.4).
+- [ ] Retour : ramène à l'accueil (F-6.4, version simple).
+- [ ] Messages d'erreur de base, sans plantage (F-1.5).
+- [ ] Rotation : position conservée (F-2.6).
+
+### Session 1c — Navigation de base et sécurité du contenu
+
+- [ ] Liens internes à l'archive : déplacent la lecture ; liens externes : non ouverts, message (F-14.1, F-14.2).
+- [ ] Blocage de toute requête hors de l'archive (S-2) et du JavaScript (S-1).
+- [ ] Tests unitaires `domain/` : validation des chemins d'archive, limites de taille et de nombre d'entrées, politique des URL.
+
+### Contrôles du jalon 1 (sur l'appareil)
+
+- [ ] Ouvrir le document 1 depuis « Mes fichiers » via le sélecteur : affichage correct, lecture fluide.
+- [ ] Document 2 (EPUB 2, sans `nav`) : chapitres lisibles jusqu'à la fin.
+- [ ] Document 4 (tableaux, listes) : mise en forme conforme à F-2.1.
+- [ ] Document 5 (JavaScript) : le texte s'affiche, aucun script exécuté.
+- [ ] Document 6 (ressources distantes) : aucune requête réseau ; images manquantes signalées sans plantage.
+- [ ] Document 7 (lien externe) : message, aucun navigateur lancé.
+- [ ] Document 8 (`../` dans l'archive) : refus, message, pas de plantage.
+- [ ] Document 11 (corrompu) et 12 (non EPUB) : message, pas de plantage.
+- [ ] Rotation au milieu d'un livre : même passage.
+- [ ] Annuler le sélecteur : retour à l'accueil sans message.
+- [ ] Aucune permission dans « Infos sur l'application » ; contrôle `aapt2` passé.
+
+---
+
+## Jalon 2 — Ouverture depuis d'autres apps, récents, reprise
+
+### Session 2a — Intents `VIEW` et `SEND`
+
+- [ ] Filtres `VIEW` et `SEND` (`application/epub+zip`, schéma `content`) (F-1.2).
+- [ ] Vérifier sur l'appareil la persistance des droits et le type de descripteur selon la source (F-1.3, F-1.4) ; consigner les résultats.
+- [ ] Copie temporaire ou message, selon la décision (F-1.4).
+- [ ] Retour depuis le lecteur ouvert par `VIEW` : retour à l'app d'origine.
+
+### Session 2b — Récents et reprise
+
+- [ ] Persistance (`data/`, DataStore, `org.json`) : dernier livre, position (F-5.1, §7).
+- [ ] Accueil : le dernier livre, avec « 42 % lu » ; aucune entrée si rien n'a été ouvert (F-4.1).
+- [ ] Menu d'appui long : « Retirer de la liste » (libère l'autorisation, efface la position ; le fichier reste) (F-4.4).
+- [ ] Récent illisible : message « Fichier inaccessible… », entrée conservée (F-1.3).
+- [ ] Reprise à la dernière position, écriture différée après une pause de lecture (F-5.2, F-5.3).
+- [ ] Tests unitaires : ancre de position, restauration hors limites, identification par nom (F-5.5, F-4.5).
+
+### Session 2c — Paramètres et « À propos »
+
+- [ ] Écran Paramètres minimal avec « À propos » (F-16.2) : version, licence, dépôt, confidentialité et sécurité, moteur et sa licence.
+- [ ] Réglage « Liste des livres » (désactivé par défaut) et liste limitée à 10 livres (F-4.2, F-16.1).
+
+### Contrôles du jalon 2 (sur l'appareil)
+
+- [ ] « Ouvrir avec » Épure EPUB depuis « Mes fichiers », Gmail ou WhatsApp : le livre s'ouvre.
+- [ ] Retour après ouverture par `VIEW` : retour à l'app d'origine.
+- [ ] Fermer au chapitre 12, rouvrir depuis les récents : même passage.
+- [ ] Redémarrer le téléphone, rouvrir le récent : il s'ouvre.
+- [ ] Déplacer ou supprimer le fichier récent : message, pas de plantage.
+- [ ] « Retirer de la liste » : l'entrée disparaît ; le fichier existe toujours.
+- [ ] Forcer l'arrêt de l'app pendant la lecture puis la relancer : position conservée.
+- [ ] « À propos » : lien du dépôt ouvert dans le navigateur ; aucune permission ajoutée.
+
+---
+
+## Jalon 3 — Confort de lecture
+
+### Session 3a — Commandes et réglages du texte
+
+- [ ] Commandes au toucher central, masquage automatique et au défilement (F-6.1, F-6.2).
+- [ ] Barre du haut : titre ; barre du bas : progression, « Table », « Rechercher », « Marque-page », « Plus » (F-6.3).
+- [ ] Menu « Plus » : « Taille du texte », « Mode nuit », « Partager », « Écran allumé ».
+- [ ] Taille du texte à cinq paliers, mémorisée, avec conservation du passage (F-3.1).
+- [ ] Police et couleurs du livre selon les décisions F-3.2 et F-3.3.
+- [ ] Pages précédente et suivante, si la pagination est retenue (F-6.5).
+
+### Session 3b — Mode nuit, écran allumé, partage
+
+- [ ] Mode nuit par styles imposés au contenu, global, désactivé par défaut (F-8).
+- [ ] Images en mode nuit selon F-8.3 retenu.
+- [ ] Réglage « Écran allumé pendant la lecture », activé par défaut (F-9).
+- [ ] « Partager » dans le menu « Plus » et dans le menu d'appui long d'un récent (F-13).
+- [ ] « Retour au passage » après un lien interne, si retenu (F-14.1).
+
+### Contrôles du jalon 3 (sur l'appareil)
+
+- [ ] Changement de taille du texte : le passage lu reste affiché.
+- [ ] Mode nuit : fond noir, texte clair, y compris sur un livre aux couleurs imposées (document 1, document 4).
+- [ ] Commandes : apparition et disparition immédiates, sans animation.
+- [ ] Écran qui reste allumé pendant la lecture, et s'éteint à la sortie.
+
+---
+
+## Jalon 4 — Table des matières, marque-pages, recherche
+
+### Session 4a — Table des matières et marque-pages
+
+- [ ] Table des matières à partir du `nav` ou du `NCX` (F-12.1).
+- [ ] « Aucune table des matières » si absente ; liens hors archive ignorés (F-12.2, F-12.3).
+- [ ] Marque-pages : ajout, retrait, écran listé, retrait immédiat (F-10).
+
+### Session 4b — Recherche
+
+- [ ] Champ de recherche, clavier ouvert à l'arrivée (F-11.1).
+- [ ] Portée de la recherche selon F-11.3 retenu ; lecture chapitre par chapitre sans stockage du texte.
+- [ ] Compteur à la fin de la recherche, « Précédent » et « Suivant », « Aucun résultat » (F-11.4).
+- [ ] Insensibilité aux accents selon F-11.2 retenu, vérifiée sur l'appareil.
+- [ ] Interruption possible par Retour ; pas d'indicateur animé (F-11.5).
+- [ ] Livre sans texte : « Ce livre ne contient pas de texte. » (F-11.6).
+
+### Contrôles du jalon 4 (sur l'appareil)
+
+- [ ] Table des matières du document 1 : appui sur un titre, saut au bon passage.
+- [ ] Table du document 2 (NCX) : fonctionnelle.
+- [ ] Marque-page ajouté, puis rouvert depuis la liste : même passage.
+- [ ] Recherche sur le document 1 : compteur juste, navigation correcte.
+- [ ] Recherche sur le document 3 (images) : message de fin, pas de plantage.
+
+---
+
+## Jalon 5 — Robustesse et sécurité
+
+### Session 5a — Archives malveillantes et EPUB mal formés
+
+- [ ] Limites de taille et de nombre d'entrées, rapport de compression (S-4) ; valeurs confirmées par mesure.
+- [ ] Refus strict d'un `mimetype` incorrect, selon la décision de S-4.
+- [ ] Protection contre les entités externes dans les XML (S-5).
+- [ ] Livre protégé par DRM : message F-15.1, aucune tentative de déchiffrement.
+- [ ] Chapitre mal formé : message à sa place, lecture continue (F-15.2).
+- [ ] Ressource manquante : « Image indisponible », pas de plantage (F-15.3).
+
+### Session 5b — Mémoire et gros livres
+
+- [ ] Un seul chapitre complet chargé à la fois ; taille maximale d'un chapitre (T-6).
+- [ ] Cache borné en octets, valeur confirmée par mesure.
+- [ ] Message « Ce chapitre ne peut pas être affiché. » pour un chapitre trop grand ; pas de plantage.
+- [ ] Mesure de la mémoire sur les documents 3 et 9.
+
+### Session 5c — Vérifications finales
+
+- [ ] Protocole de sécurité complet (annexe A, documents 5 à 10) : chaque protection vérifiée, consignée dans `DECISIONS.md`.
+- [ ] Manifeste fusionné final : aucune permission réseau, y compris via la WebView si retenue.
+- [ ] Points `[À VÉRIFIER]` de `SPEC.md` §9.2 : résultats consignés.
+
+### Contrôles du jalon 5 (sur l'appareil)
+
+- [ ] Document 8 (zip slip) : refus, message, aucun fichier écrit en dehors de l'app.
+- [ ] Document 9 (bombe ZIP) : refus rapide, message, pas de plantage ni de blocage.
+- [ ] Document 10 (entité externe) : pas de lecture externe, pas de plantage.
+- [ ] Document 13 (DRM) : message, pas de plantage.
+- [ ] Document 3 et 9 : défilement et changement de chapitre sans plantage.
+- [ ] Arrêt forcé pendant la lecture d'un gros livre, puis relance : position conservée.
+
+---
+
+## Hors feuille de route
+
+- Livres protégés par DRM (Adobe ADEPT, LCP) : hors périmètre.
+- Mise en page fixe (« fixed layout ») : à réévaluer après le jalon 5 (`SPEC.md` §9.1).
+- Autres formats (PDF, CBZ, CBR) : applications séparées (DEC-0037).
