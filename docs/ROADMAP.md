@@ -98,7 +98,7 @@
 - [x] Document 11 (corrompu) et 12 (non EPUB) : message, pas de plantage.
 - [x] Rotation au milieu d'un livre : même passage.
 - [x] Annuler le sélecteur : retour à l'accueil sans message.
-- [ ] Aucune permission dans « Infos sur l'application » ; contrôle `aapt2` passé.
+- [x] Aucune permission dans « Infos sur l'application » ; contrôle `aapt2` passé.
 
 ---
 
