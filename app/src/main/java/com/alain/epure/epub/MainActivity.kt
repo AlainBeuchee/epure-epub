@@ -1,6 +1,7 @@
 package com.alain.epure.epub
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -72,6 +73,10 @@ private fun EpureApp() {
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
+        // Asks for a lasting read right on the file; a source that refuses it is still read (copy).
+        runCatching {
+            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
         message = null
         opening = true
         // Copy and validation take time: they run outside the main thread.

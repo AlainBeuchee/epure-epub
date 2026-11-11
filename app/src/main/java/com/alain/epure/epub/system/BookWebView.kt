@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Color
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.View
 import android.webkit.CookieManager
 import android.webkit.MimeTypeMap
 import android.webkit.WebResourceRequest
@@ -23,7 +24,9 @@ enum class TapSide { LEFT, RIGHT, CENTER }
  * It shows one chapter of an open book. Only files of that archive can be loaded.
  */
 @SuppressLint("ViewConstructor")
-class BookWebView(context: Context, private val onTap: (TapSide) -> Unit) : WebView(context) {
+class BookWebView(context: Context, private val onTap: (TapSide) -> Unit) : WebView(context), ChapterRenderer {
+
+    override val view: View get() = this
 
     private var book: OpenBook? = null
 
@@ -65,7 +68,7 @@ class BookWebView(context: Context, private val onTap: (TapSide) -> Unit) : WebV
     }
 
     /** Shows the chapter at [chapterPath] of [openBook] from the top. */
-    fun show(openBook: OpenBook, chapterPath: String) {
+    override fun show(openBook: OpenBook, chapterPath: String) {
         book = openBook
         val bytes = openBook.readEntry(chapterPath)
         if (bytes == null) {
@@ -97,7 +100,7 @@ class BookWebView(context: Context, private val onTap: (TapSide) -> Unit) : WebV
     }
 
     /** Forgets the book: nothing of it stays loaded in the WebView. */
-    fun release() {
+    override fun release() {
         book = null
         loadUrl("about:blank")
     }
