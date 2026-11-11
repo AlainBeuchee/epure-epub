@@ -30,14 +30,18 @@ import com.alain.epure.epub.domain.LinkTarget
 import com.alain.epure.epub.domain.ReadingPosition
 import com.alain.epure.epub.domain.ReadingRules
 import com.alain.epure.epub.domain.RecentBook
+import com.alain.epure.epub.domain.RecentList
 import com.alain.epure.epub.domain.RefusalReason
+import com.alain.epure.epub.data.AppSettings
 import com.alain.epure.epub.data.RecentStore
 import com.alain.epure.epub.system.BookCopy
 import com.alain.epure.epub.system.EpubReader
 import com.alain.epure.epub.system.OpenBook
 import com.alain.epure.epub.system.TapSide
+import com.alain.epure.epub.ui.AboutScreen
 import com.alain.epure.epub.ui.HomeScreen
 import com.alain.epure.epub.ui.ReaderScreen
+import com.alain.epure.epub.ui.SettingsScreen
 import com.alain.epure.epub.ui.theme.EpureTheme
 import java.io.File
 
@@ -79,6 +83,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/** Screens shown when no book is open. */
+private enum class Page { HOME, SETTINGS, ABOUT }
+
+/** The app version name, as written in the build (for « À propos »). */
+private fun versionNameOf(context: Context): String =
+    runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: ""
+
 /** A book being read: its open archive, the private copy it is read from, and where it was read to. */
 private class ReadingSession(
     val book: OpenBook,
@@ -115,13 +126,16 @@ private fun EpureApp(
     var opening by remember { mutableStateOf(false) }
     // Short message about the last link clicked in the book (string resource), or null.
     var notice by remember { mutableStateOf<Int?>(null) }
-    // The last book opened, shown on the start screen (F-4.1).
-    var recent by remember { mutableStateOf(RecentStore.load(context)) }
+    // The books opened, most recent first, shown on the start screen (F-4.1, F-4.2).
+    var recents by remember { mutableStateOf(RecentStore.load(context)) }
+    var listEnabled by remember { mutableStateOf(AppSettings.isBookListEnabled(context)) }
+    var page by remember { mutableStateOf(Page.HOME) }
+    val versionName = remember { versionNameOf(context) }
 
     fun save(reading: ReadingSession) {
-        val saved = reading.toRecent()
-        RecentStore.save(context, saved)
-        recent = saved
+        val updated = RecentList.upsert(recents, reading.toRecent(), RecentList.limit(listEnabled))
+        RecentStore.save(context, updated)
+        recents = updated
     }
 
     val saveLater = remember {
@@ -156,7 +170,7 @@ private fun EpureApp(
             handler.post {
                 opening = false
                 result.onSuccess { reading ->
-                    val known = recent?.takeIf { it.matches(reading.uri, reading.fileName) }
+                    val known = recents.firstOrNull { it.matches(reading.uri, reading.fileName) }
                     val spineSize = reading.book.book.spine.size
                     val place = ReadingRules.restore(known?.position, spineSize)
                     reading.position = place
@@ -200,28 +214,51 @@ private fun EpureApp(
         if (openedFromOutside) onFinish()
     }
 
+    // Settings and « À propos » are reached from the start screen; back returns one step.
+    BackHandler(enabled = session == null && page != Page.HOME) {
+        page = if (page == Page.ABOUT) Page.SETTINGS else Page.HOME
+    }
+
     val current = session
     if (current == null) {
-        HomeScreen(
-            message = message,
-            opening = opening,
-            recent = recent,
-            onOpen = { picker.launch(arrayOf("application/epub+zip")) },
-            onOpenRecent = { recent?.let { openBook(it.uri.toUri(), fromRecent = true) } },
-            onRemoveRecent = {
-                // Removes the entry and the right to read the file; the file itself is never deleted (F-4.4).
-                recent?.let {
+        when (page) {
+            Page.HOME -> HomeScreen(
+                message = message,
+                opening = opening,
+                recents = recents,
+                listEnabled = listEnabled,
+                onOpen = { picker.launch(arrayOf("application/epub+zip")) },
+                onOpenRecent = { openBook(it.uri.toUri(), fromRecent = true) },
+                onRemoveRecent = { book ->
+                    // Removes the entry and the right to read the file; the file itself is never deleted (F-4.4).
                     runCatching {
                         context.contentResolver.releasePersistableUriPermission(
-                            it.uri.toUri(),
+                            book.uri.toUri(),
                             Intent.FLAG_GRANT_READ_URI_PERMISSION,
                         )
                     }
-                }
-                RecentStore.clear(context)
-                recent = null
-            },
-        )
+                    recents = RecentList.remove(recents, book.uri)
+                    RecentStore.save(context, recents)
+                },
+                onOpenSettings = { page = Page.SETTINGS },
+            )
+            Page.SETTINGS -> SettingsScreen(
+                bookListEnabled = listEnabled,
+                onToggleBookList = {
+                    // Turning the list off keeps only the last book (F-4.2).
+                    listEnabled = !listEnabled
+                    AppSettings.setBookListEnabled(context, listEnabled)
+                    recents = RecentList.trim(recents, RecentList.limit(listEnabled))
+                    RecentStore.save(context, recents)
+                },
+                onOpenAbout = { page = Page.ABOUT },
+                onBack = { page = Page.HOME },
+            )
+            Page.ABOUT -> AboutScreen(
+                versionName = versionName,
+                onBack = { page = Page.SETTINGS },
+            )
+        }
     } else {
         ReaderScreen(
             book = current.book,
