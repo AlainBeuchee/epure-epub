@@ -177,6 +177,8 @@ object EpubReader {
 
     private fun newParser(bytes: ByteArray): XmlPullParser {
         val parser = Xml.newPullParser()
+        // S-5: no DTD and no entity declarations are processed, so no external entity can be read.
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_DOCDECL, false)
         parser.setInput(StringReader(bytes.toString(Charsets.UTF_8)))
         return parser
     }
