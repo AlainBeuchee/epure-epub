@@ -82,9 +82,9 @@
 
 ### Session 1c — Navigation de base et sécurité du contenu
 
-- [ ] Liens internes à l'archive : déplacent la lecture ; liens externes : non ouverts, message (F-14.1, F-14.2).
-- [ ] Blocage de toute requête hors de l'archive (S-2) et du JavaScript (S-1).
-- [ ] Tests unitaires `domain/` : validation des chemins d'archive, limites de taille et de nombre d'entrées, politique des URL.
+- [x] Liens internes à l'archive : déplacent la lecture ; liens externes : non ouverts, message (F-14.1, F-14.2).
+- [x] Blocage de toute requête hors de l'archive (S-2) et du JavaScript (S-1).
+- [x] Tests unitaires `domain/` : validation des chemins d'archive, limites de taille et de nombre d'entrées, politique des URL.
 
 ### Contrôles du jalon 1 (sur l'appareil)
 
@@ -92,8 +92,8 @@
 - [x] Document 2 (EPUB 2, sans `nav`) : chapitres lisibles jusqu'à la fin.
 - [x] Document 4 (tableaux, listes) : mise en forme conforme à F-2.1.
 - [x] Document 5 (JavaScript) : le texte s'affiche, aucun script exécuté.
-- [ ] Document 6 (ressources distantes) : aucune requête réseau ; images manquantes signalées sans plantage.
-- [ ] Document 7 (lien externe) : message, aucun navigateur lancé.
+- [x] Document 6 (ressources distantes) : aucune requête réseau ; images manquantes signalées sans plantage.
+- [x] Document 7 (lien externe) : message, aucun navigateur lancé.
 - [x] Document 8 (`../` dans l'archive) : refus, message, pas de plantage.
 - [x] Document 11 (corrompu) et 12 (non EPUB) : message, pas de plantage.
 - [x] Rotation au milieu d'un livre : même passage.

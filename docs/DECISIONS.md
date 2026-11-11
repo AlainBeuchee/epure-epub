@@ -553,6 +553,29 @@ Facile : remplacer la copie par une relecture de l'archive (DEC-EE-0018 (b)), au
 
 ---
 
+## DEC-EE-0019 — Changement de chapitre aussi par glisser horizontal
+
+- Date : 11/11/2026
+- Statut : Adoptée (demandée par le porteur après test sur l'appareil, 11/11/2026)
+- Jalon : 1 (session 1c)
+- Exigences concernées : F-6.5, F-2.2 ; complète DEC-EE-0016 ; `CHARTE.md` B.6 (interaction) : dérogation à confirmer
+
+**Contexte**
+DEC-EE-0016 prévoit le changement de chapitre par un toucher sur le côté droit ou gauche de l'écran. Au test sur l'appareil, le porteur a demandé que le glisser horizontal le fasse aussi.
+
+**Décision**
+Un glisser horizontal d'au moins 96 dp (vers la gauche : chapitre suivant ; vers la droite : chapitre précédent) change de chapitre. Un glisser vertical reste au moteur de rendu, qui fait défiler le chapitre. Un glisser plus horizontal que vertical, à vitesse suffisante, est seul pris en compte.
+
+**Conséquences**
+- Le toucher sur les côtés reste en place. Les deux gestes ont la même action.
+- Risque : un geste horizontal involontaire change de chapitre. Le seuil de 96 dp limite ce risque ; à ajuster après test.
+- Dérogation à `CHARTE.md` B.6, à confirmer par le porteur.
+
+**Réversibilité**
+Facile : retirer la méthode `onFling` de `BookWebView`.
+
+---
+
 ## Décisions en attente
 
 La liste à jour des points `[À DÉCIDER]` est tenue dans `SPEC.md` §9.1, avec le jalon auquel chacun doit être tranché. Les premiers à trancher sont :
