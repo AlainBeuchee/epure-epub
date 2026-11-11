@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Épure EPUB</string>
+    <string name="home_start">Ouvrez un livre au format EPUB.</string>
+    <string name="home_open_file">Ouvrir un fichier</string>
+    <string name="home_opening">Ouverture…</string>
+    <string name="warning_mimetype">Ce fichier ne respecte pas tout à fait le format EPUB : la mise en forme peut différer.</string>
+    <string name="error_not_epub">Ce fichier n\'est pas un EPUB lisible.</string>
+    <string name="error_unsafe_path">Ce livre contient un chemin non autorisé et n\'est pas ouvert.</string>
+    <string name="error_too_large">Ce livre est trop volumineux ou mal construit pour être ouvert.</string>
+    <string name="error_no_text">Ce livre ne contient pas de texte lisible.</string>
+    <string name="error_file_unreadable">Accès au fichier retiré.</string>
 </resources>
