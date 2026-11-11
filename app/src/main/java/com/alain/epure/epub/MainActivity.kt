@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.OpenableColumns
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -21,10 +22,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.IntentCompat
+import androidx.core.net.toUri
 import com.alain.epure.epub.domain.BookRefusal
 import com.alain.epure.epub.domain.LinkTarget
+import com.alain.epure.epub.domain.ReadingPosition
+import com.alain.epure.epub.domain.ReadingRules
+import com.alain.epure.epub.domain.RecentBook
 import com.alain.epure.epub.domain.RefusalReason
+import com.alain.epure.epub.data.RecentStore
 import com.alain.epure.epub.system.BookCopy
 import com.alain.epure.epub.system.EpubReader
 import com.alain.epure.epub.system.OpenBook
@@ -33,6 +40,9 @@ import com.alain.epure.epub.ui.HomeScreen
 import com.alain.epure.epub.ui.ReaderScreen
 import com.alain.epure.epub.ui.theme.EpureTheme
 import java.io.File
+
+/** Delay after the last scroll before the position is written to disk (SPEC.md F-5.2). */
+private const val SAVE_DELAY_MS = 1000L
 
 class MainActivity : ComponentActivity() {
 
@@ -69,8 +79,24 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/** A book being read: its open archive and the private copy it is read from. */
-private class ReadingSession(val book: OpenBook, val copy: File)
+/** A book being read: its open archive, the private copy it is read from, and where it was read to. */
+private class ReadingSession(
+    val book: OpenBook,
+    val copy: File,
+    val uri: String,
+    val fileName: String?,
+) {
+    var position = ReadingPosition(0, 0)
+    var progress = 0
+
+    fun toRecent() = RecentBook(
+        uri = uri,
+        fileName = fileName,
+        title = book.book.title,
+        position = position,
+        progressPercent = progress,
+    )
+}
 
 @Composable
 private fun EpureApp(
@@ -80,21 +106,38 @@ private fun EpureApp(
     onFinish: () -> Unit,
 ) {
     val context = LocalContext.current
+    val recentUnreadable = stringResource(R.string.recent_unreadable)
     val handler = remember { Handler(Looper.getMainLooper()) }
     var session by remember { mutableStateOf<ReadingSession?>(null) }
     var index by remember { mutableIntStateOf(0) }
+    var startScrollY by remember { mutableIntStateOf(0) }
     var message by remember { mutableStateOf<String?>(null) }
     var opening by remember { mutableStateOf(false) }
     // Short message about the last link clicked in the book (string resource), or null.
     var notice by remember { mutableStateOf<Int?>(null) }
+    // The last book opened, shown on the start screen (F-4.1).
+    var recent by remember { mutableStateOf(RecentStore.load(context)) }
+
+    fun save(reading: ReadingSession) {
+        val saved = reading.toRecent()
+        RecentStore.save(context, saved)
+        recent = saved
+    }
+
+    val saveLater = remember {
+        Runnable { session?.let { save(it) } }
+    }
 
     fun closeBook() {
         session?.let {
+            handler.removeCallbacks(saveLater)
+            save(it)
             it.book.close()
             BookCopy.delete(it.copy)
         }
         session = null
         index = 0
+        startScrollY = 0
         notice = null
     }
 
@@ -103,19 +146,32 @@ private fun EpureApp(
         onDispose { closeBook() }
     }
 
-    // Copies the book, validates it, then shows it. Copy and validation run outside the main thread.
-    fun openBook(uri: Uri) {
+    // Copies the book, validates it, then shows it at the saved place if it is the same book (F-5.3, F-4.5).
+    // Copy and validation run outside the main thread.
+    fun openBook(uri: Uri, fromRecent: Boolean) {
         message = null
         opening = true
         Thread {
             val result = runCatching { openCopy(context, uri) }
             handler.post {
                 opening = false
-                result.onSuccess {
-                    session = it
-                    index = 0
-                }.onFailure {
-                    message = errorText(context, it)
+                result.onSuccess { reading ->
+                    val known = recent?.takeIf { it.matches(reading.uri, reading.fileName) }
+                    val spineSize = reading.book.book.spine.size
+                    val place = ReadingRules.restore(known?.position, spineSize)
+                    reading.position = place
+                    reading.progress = ReadingRules.progressPercent(place.spineIndex, spineSize, 0f)
+                    session = reading
+                    index = place.spineIndex
+                    startScrollY = place.scrollY
+                    save(reading)
+                }.onFailure { error ->
+                    // A book from the list that can no longer be read keeps its entry (F-1.3).
+                    message = if (fromRecent && error !is BookRefusal) {
+                        recentUnreadable
+                    } else {
+                        errorText(context, error)
+                    }
                 }
             }
         }.start()
@@ -127,14 +183,14 @@ private fun EpureApp(
         runCatching {
             context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        openBook(uri)
+        openBook(uri, fromRecent = false)
     }
 
     // A book sent by another app is opened once, as soon as the screen is shown.
     LaunchedEffect(incoming) {
         val uri = incoming ?: return@LaunchedEffect
         onIncomingConsumed()
-        openBook(uri)
+        openBook(uri, fromRecent = false)
     }
 
     // Back from a book returns to the start screen instead of closing the app.
@@ -149,12 +205,28 @@ private fun EpureApp(
         HomeScreen(
             message = message,
             opening = opening,
+            recent = recent,
             onOpen = { picker.launch(arrayOf("application/epub+zip")) },
+            onOpenRecent = { recent?.let { openBook(it.uri.toUri(), fromRecent = true) } },
+            onRemoveRecent = {
+                // Removes the entry and the right to read the file; the file itself is never deleted (F-4.4).
+                recent?.let {
+                    runCatching {
+                        context.contentResolver.releasePersistableUriPermission(
+                            it.uri.toUri(),
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                        )
+                    }
+                }
+                RecentStore.clear(context)
+                recent = null
+            },
         )
     } else {
         ReaderScreen(
             book = current.book,
             index = index,
+            startScrollY = startScrollY,
             notice = notice,
             onTap = { side ->
                 notice = null
@@ -177,6 +249,18 @@ private fun EpureApp(
                     LinkTarget.Unavailable -> notice = R.string.link_unavailable
                 }
             },
+            onPosition = { chapterIndex, scrollY, fraction ->
+                session?.let { reading ->
+                    reading.position = ReadingPosition(chapterIndex, scrollY)
+                    reading.progress = ReadingRules.progressPercent(
+                        chapterIndex,
+                        reading.book.book.spine.size,
+                        fraction,
+                    )
+                    handler.removeCallbacks(saveLater)
+                    handler.postDelayed(saveLater, SAVE_DELAY_MS)
+                }
+            },
         )
     }
 }
@@ -185,12 +269,24 @@ private fun EpureApp(
 private fun openCopy(context: Context, uri: Uri): ReadingSession {
     val copy = BookCopy.copy(context, uri)
     return try {
-        ReadingSession(EpubReader.open(copy), copy)
+        ReadingSession(
+            book = EpubReader.open(copy),
+            copy = copy,
+            uri = uri.toString(),
+            fileName = displayNameOf(context, uri),
+        )
     } catch (e: Throwable) {
         BookCopy.delete(copy)
         throw e
     }
 }
+
+/** The file name the source gives to [uri], or null if it gives none. */
+private fun displayNameOf(context: Context, uri: Uri): String? = runCatching {
+    context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) cursor.getString(0) else null
+    }
+}.getOrNull()
 
 private fun errorText(context: Context, error: Throwable): String {
     val id = when ((error as? BookRefusal)?.reason) {

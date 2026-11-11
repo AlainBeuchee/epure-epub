@@ -32,11 +32,15 @@ class BookWebView(
     context: Context,
     private val onTap: (TapSide) -> Unit,
     private val onLink: (LinkTarget) -> Unit,
+    private val onPosition: (scrollY: Int, fraction: Float) -> Unit,
 ) : WebView(context), ChapterRenderer {
 
     override val view: View get() = this
 
     private var book: OpenBook? = null
+
+    /** Offset to apply once the chapter is loaded (reopening a book, F-5.3). */
+    private var pendingScrollY = 0
 
     private val minSwipeDistance = SWIPE_DISTANCE_DP * context.resources.displayMetrics.density
     private val minSwipeVelocity = ViewConfiguration.get(context).scaledMinimumFlingVelocity
@@ -89,9 +93,25 @@ class BookWebView(
         }
     }
 
-    /** Shows the chapter at [chapterPath] of [openBook] from the top. */
-    override fun show(openBook: OpenBook, chapterPath: String) {
+    // Every scroll is reported; the caller decides when to save it (SPEC.md F-5.2).
+    override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
+        super.onScrollChanged(l, t, oldl, oldt)
+        if (book != null) onPosition(scrollY, scrollFraction())
+    }
+
+    /** Fraction of the chapter already scrolled, from 0.0 to 1.0. */
+    private fun scrollFraction(): Float {
+        val range = (contentHeight * scale - height).coerceAtLeast(1f)
+        return (scrollY / range).coerceIn(0f, 1f)
+    }
+
+    /**
+     * Shows the chapter at [chapterPath] of [openBook]. The chapter starts at the top,
+     * or at [startScrollY] when the book is reopened at a saved place.
+     */
+    override fun show(openBook: OpenBook, chapterPath: String, startScrollY: Int) {
         book = openBook
+        pendingScrollY = startScrollY.coerceAtLeast(0)
         val bytes = openBook.readEntry(chapterPath)
         if (bytes == null) {
             loadDataWithBaseURL(BASE_URL, "", "text/html", "utf-8", null)
@@ -128,6 +148,14 @@ class BookWebView(
     }
 
     private inner class BookClient : WebViewClient() {
+
+        // Once the chapter is laid out, the saved offset can be applied (F-5.3).
+        override fun onPageFinished(view: WebView?, url: String?) {
+            if (pendingScrollY > 0) {
+                this@BookWebView.scrollTo(0, pendingScrollY)
+                pendingScrollY = 0
+            }
+        }
 
         // The engine never navigates by itself. A clicked link is classified (LinkPolicy) and handed to the
         // reader: a chapter of the book moves the reading, anything else is not opened (F-14.1, F-14.2).

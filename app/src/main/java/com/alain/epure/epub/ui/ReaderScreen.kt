@@ -37,13 +37,17 @@ import com.alain.epure.epub.ui.theme.TextSecondary
 fun ReaderScreen(
     book: OpenBook,
     index: Int,
+    startScrollY: Int,
     notice: Int?,
     onTap: (TapSide) -> Unit,
     onLink: (LinkTarget) -> Unit,
+    onPosition: (chapterIndex: Int, scrollY: Int, fraction: Float) -> Unit,
 ) {
     val path = book.book.spine[index]
     val currentOnTap by rememberUpdatedState(onTap)
     val currentOnLink by rememberUpdatedState(onLink)
+    val currentOnPosition by rememberUpdatedState(onPosition)
+    val currentIndex by rememberUpdatedState(index)
     ImmersiveSystemBars()
     Column(
         modifier = Modifier
@@ -72,13 +76,16 @@ fun ReaderScreen(
                     context,
                     onTap = { side -> currentOnTap(side) },
                     onLink = { target -> currentOnLink(target) },
+                    onPosition = { scrollY, fraction -> currentOnPosition(currentIndex, scrollY, fraction) },
                 ).view
             },
             // Load the chapter only when its path changes, not at every recomposition.
+            // Only the first chapter shown uses the saved offset; later chapters start at the top.
             update = { view ->
                 if (view.tag != path) {
+                    val first = view.tag == null
                     view.tag = path
-                    view.renderer().show(book, path)
+                    view.renderer().show(book, path, if (first) startScrollY else 0)
                 }
             },
             // Nothing of the book stays in the engine once the screen is left.

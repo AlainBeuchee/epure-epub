@@ -113,12 +113,12 @@
 
 ### Session 2b — Récents et reprise
 
-- [ ] Persistance (`data/`, DataStore, `org.json`) : dernier livre, position (F-5.1, §7).
-- [ ] Accueil : le dernier livre, avec « 42 % lu » ; aucune entrée si rien n'a été ouvert (F-4.1).
-- [ ] Menu d'appui long : « Retirer de la liste » (libère l'autorisation, efface la position ; le fichier reste) (F-4.4).
-- [ ] Récent illisible : message « Fichier inaccessible… », entrée conservée (F-1.3).
-- [ ] Reprise à la dernière position, écriture différée après une pause de lecture (F-5.2, F-5.3).
-- [ ] Tests unitaires : ancre de position, restauration hors limites, identification par nom (F-5.5, F-4.5).
+- [x] Persistance (`data/`, DataStore, `org.json`) : dernier livre, position (F-5.1, §7).
+- [x] Accueil : le dernier livre, avec « 42 % lu » ; aucune entrée si rien n'a été ouvert (F-4.1).
+- [x] Menu d'appui long : « Retirer de la liste » (libère l'autorisation, efface la position ; le fichier reste) (F-4.4).
+- [x] Récent illisible : message « Fichier inaccessible… », entrée conservée (F-1.3).
+- [x] Reprise à la dernière position, écriture différée après une pause de lecture (F-5.2, F-5.3).
+- [x] Tests unitaires : ancre de position, restauration hors limites, identification par nom (F-5.5, F-4.5).
 
 ### Session 2c — Paramètres et « À propos »
 
@@ -127,13 +127,13 @@
 
 ### Contrôles du jalon 2 (sur l'appareil)
 
-- [ ] « Ouvrir avec » Épure EPUB depuis « Mes fichiers », Gmail ou WhatsApp : le livre s'ouvre.
-- [ ] Retour après ouverture par `VIEW` : retour à l'app d'origine.
-- [ ] Fermer au chapitre 12, rouvrir depuis les récents : même passage.
-- [ ] Redémarrer le téléphone, rouvrir le récent : il s'ouvre.
-- [ ] Déplacer ou supprimer le fichier récent : message, pas de plantage.
-- [ ] « Retirer de la liste » : l'entrée disparaît ; le fichier existe toujours.
-- [ ] Forcer l'arrêt de l'app pendant la lecture puis la relancer : position conservée.
+- [x] « Ouvrir avec » Épure EPUB depuis « Mes fichiers », Gmail ou WhatsApp : le livre s'ouvre.
+- [x] Retour après ouverture par `VIEW` : retour à l'app d'origine.
+- [x] Fermer au chapitre 12, rouvrir depuis les récents : même passage.
+- [x] Redémarrer le téléphone, rouvrir le récent : il s'ouvre.
+- [x] Déplacer ou supprimer le fichier récent : message, pas de plantage.
+- [x] « Retirer de la liste » : l'entrée disparaît ; le fichier existe toujours.
+- [x] Forcer l'arrêt de l'app pendant la lecture puis la relancer : position conservée.
 - [ ] « À propos » : lien du dépôt ouvert dans le navigateur ; aucune permission ajoutée.
 
 ---
