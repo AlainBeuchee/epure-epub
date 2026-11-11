@@ -11,4 +11,8 @@
     <string name="error_file_unreadable">Accès au fichier retiré.</string>
     <string name="link_external">Ce lien mène hors du livre. Il n\'est pas ouvert.</string>
     <string name="link_unavailable">Ce lien ne mène à aucun passage du livre.</string>
+    <string name="recent_untitled">Livre sans titre</string>
+    <string name="recent_progress">%1$s — %2$d %% lu</string>
+    <string name="recent_remove">Retirer de la liste</string>
+    <string name="recent_unreadable">Fichier inaccessible. Ouvre-le à nouveau depuis l\'application où il a été ouvert initialement.</string>
 </resources>

@@ -13,16 +13,23 @@ interface ChapterRenderer {
     /** The Android view that shows the chapter. */
     val view: View
 
-    /** Shows the chapter at [chapterPath] of [book], from the top. */
-    fun show(book: OpenBook, chapterPath: String)
+    /**
+     * Shows the chapter at [chapterPath] of [book]. It starts at the top, or at [startScrollY]
+     * when the book is reopened at a saved place.
+     */
+    fun show(book: OpenBook, chapterPath: String, startScrollY: Int = 0)
 
     /** Forgets the book: nothing of it stays loaded in the engine. */
     fun release()
 }
 
-/** Creates the engine used by the reading screen. */
+/**
+ * Creates the engine used by the reading screen.
+ * [onPosition] receives the vertical offset and the fraction of the chapter read, once scrolling settles.
+ */
 fun newChapterRenderer(
     context: Context,
     onTap: (TapSide) -> Unit,
     onLink: (LinkTarget) -> Unit,
-): ChapterRenderer = BookWebView(context, onTap, onLink)
+    onPosition: (scrollY: Int, fraction: Float) -> Unit,
+): ChapterRenderer = BookWebView(context, onTap, onLink, onPosition)

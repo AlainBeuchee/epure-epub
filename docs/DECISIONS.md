@@ -576,6 +576,32 @@ Facile : retirer la méthode `onFling` de `BookWebView`.
 
 ---
 
+## DEC-EE-0020 — Stockage des récents et des positions : préférences Android et org.json
+
+- Date : 11/11/2026
+- Statut : Adoptée (choix validé par le porteur, 11/11/2026) ; écart à `SPEC.md` §7 à confirmer
+- Jalon : 2 (session 2b)
+- Exigences concernées : §7 (données stockées), F-4.1 à F-4.5, F-5.1 à F-5.5, T-2 ; `CLAUDE.md` §4 (dépendances)
+
+**Contexte**
+`SPEC.md` §7 prévoit DataStore Preferences, avec les données sérialisées en `org.json`. Ajouter DataStore est une nouvelle bibliothèque, soumise à décision avant ajout (`CLAUDE.md` §4).
+
+**Décision**
+Les données (dernier livre, position, progression) sont stockées dans les préférences privées de l'application (`SharedPreferences`, intégré à Android), sous forme d'un objet JSON sérialisé avec `org.json`. Aucune bibliothèque ajoutée.
+
+**Justification**
+Pas de dépendance nouvelle ; les données tiennent dans un petit objet (un seul récent par défaut, F-4.2). `org.json` est déjà fourni par Android.
+
+**Conséquences**
+- Écart à `SPEC.md` §7 (DataStore) : le porteur doit consigner le changement dans `SPEC.md` (CLAUDE.md §5 : je ne modifie pas `SPEC.md`).
+- Une seule entrée est conservée : ouvrir un autre livre remplace le récent précédent (F-4.2, réglage « Liste des livres » reporté à la session 2c).
+- Les positions sont mesurées en pixels de défilement : elles restent valables sur le même appareil, pas forcément après un changement de taille de texte (session 3a).
+
+**Réversibilité**
+Facile : remplacer `RecentStore` par DataStore, sans changer les données métier.
+
+---
+
 ## Décisions en attente
 
 La liste à jour des points `[À DÉCIDER]` est tenue dans `SPEC.md` §9.1, avec le jalon auquel chacun doit être tranché. Les premiers à trancher sont :
