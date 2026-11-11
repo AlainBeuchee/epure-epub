@@ -122,8 +122,8 @@
 
 ### Session 2c — Paramètres et « À propos »
 
-- [ ] Écran Paramètres minimal avec « À propos » (F-16.2) : version, licence, dépôt, confidentialité et sécurité, moteur et sa licence.
-- [ ] Réglage « Liste des livres » (désactivé par défaut) et liste limitée à 10 livres (F-4.2, F-16.1).
+- [x] Écran Paramètres minimal avec « À propos » (F-16.2) : version, licence, dépôt, confidentialité et sécurité, moteur et sa licence.
+- [x] Réglage « Liste des livres » (désactivé par défaut) et liste limitée à 10 livres (F-4.2, F-16.1).
 
 ### Contrôles du jalon 2 (sur l'appareil)
 
@@ -134,7 +134,7 @@
 - [x] Déplacer ou supprimer le fichier récent : message, pas de plantage.
 - [x] « Retirer de la liste » : l'entrée disparaît ; le fichier existe toujours.
 - [x] Forcer l'arrêt de l'app pendant la lecture puis la relancer : position conservée.
-- [ ] « À propos » : lien du dépôt ouvert dans le navigateur ; aucune permission ajoutée.
+- [x] « À propos » : lien du dépôt ouvert dans le navigateur ; aucune permission ajoutée.
 
 ---
 

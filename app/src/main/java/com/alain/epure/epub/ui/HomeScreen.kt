@@ -23,21 +23,26 @@ import com.alain.epure.epub.R
 import com.alain.epure.epub.domain.RecentBook
 import com.alain.epure.epub.ui.theme.Black
 import com.alain.epure.epub.ui.theme.TextPrimary
+import com.alain.epure.epub.ui.theme.TextSecondary
 
 /**
- * Start screen: a message, the choice of a file, and the last book opened (SPEC.md F-4.1).
- * A long press on the last book opens a menu with « Retirer de la liste » (F-4.4).
+ * Start screen: a message, the choice of a file, the books opened (SPEC.md F-4.1, F-4.2)
+ * and the settings. Without the « Liste des livres » setting, only the last book is shown.
+ * A long press on a book opens a menu with « Retirer de la liste » (F-4.4).
  */
 @Composable
 fun HomeScreen(
     message: String?,
     opening: Boolean,
-    recent: RecentBook?,
+    recents: List<RecentBook>,
+    listEnabled: Boolean,
     onOpen: () -> Unit,
-    onOpenRecent: () -> Unit,
-    onRemoveRecent: () -> Unit,
+    onOpenRecent: (RecentBook) -> Unit,
+    onRemoveRecent: (RecentBook) -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
-    var menuOpen by remember { mutableStateOf(false) }
+    var menuFor by remember { mutableStateOf<RecentBook?>(null) }
+    val shown = if (listEnabled) recents else recents.take(1)
 
     Column(
         modifier = Modifier
@@ -61,32 +66,40 @@ fun HomeScreen(
         ) {
             Text(stringResource(R.string.home_open_file), color = TextPrimary)
         }
-        if (recent != null && !opening) {
-            val title = recent.title ?: recent.fileName ?: stringResource(R.string.recent_untitled)
-            Text(
-                text = stringResource(R.string.recent_progress, title, recent.progressPercent),
-                color = TextPrimary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 48.dp)
-                    .combinedClickable(onClick = onOpenRecent, onLongClick = { menuOpen = true })
-                    .padding(vertical = 12.dp),
-            )
+        if (!opening) {
+            shown.forEach { book ->
+                val title = book.title ?: book.fileName ?: stringResource(R.string.recent_untitled)
+                Text(
+                    text = stringResource(R.string.recent_progress, title, book.progressPercent),
+                    color = TextPrimary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp)
+                        .combinedClickable(onClick = { onOpenRecent(book) }, onLongClick = { menuFor = book })
+                        .padding(vertical = 12.dp),
+                )
+            }
+        }
+        TextButton(
+            onClick = onOpenSettings,
+            modifier = Modifier.heightIn(min = 48.dp),
+        ) {
+            Text(stringResource(R.string.settings_title), color = TextSecondary)
         }
     }
 
-    if (menuOpen && recent != null) {
-        val title = recent.title ?: recent.fileName ?: stringResource(R.string.recent_untitled)
+    menuFor?.let { book ->
+        val title = book.title ?: book.fileName ?: stringResource(R.string.recent_untitled)
         AlertDialog(
-            onDismissRequest = { menuOpen = false },
+            onDismissRequest = { menuFor = null },
             containerColor = Black,
             title = { Text(title, color = TextPrimary) },
             text = null,
             confirmButton = {
                 TextButton(
                     onClick = {
-                        menuOpen = false
-                        onRemoveRecent()
+                        menuFor = null
+                        onRemoveRecent(book)
                     },
                     modifier = Modifier.heightIn(min = 48.dp),
                 ) {

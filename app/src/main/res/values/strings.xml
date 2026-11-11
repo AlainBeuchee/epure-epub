@@ -14,5 +14,18 @@
     <string name="recent_untitled">Livre sans titre</string>
     <string name="recent_progress">%1$s — %2$d %% lu</string>
     <string name="recent_remove">Retirer de la liste</string>
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_book_list">Liste des livres</string>
+    <string name="settings_on">Activée</string>
+    <string name="settings_off">Désactivée</string>
+    <string name="settings_about">À propos</string>
+    <string name="action_back">Retour</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_license">Licence : GPL v3</string>
+    <string name="about_repository">Dépôt GitHub</string>
+    <string name="about_privacy_title">Confidentialité et sécurité</string>
+    <string name="about_privacy_text">Aucune donnée ne quitte l\'appareil. Aucune bibliothèque d\'analytics, de suivi de plantage ou de publicité. L\'app ne demande aucune permission d\'accès à Internet ni au stockage. Le livre est traité comme un fichier non fiable : aucun script n\'est exécuté, aucune ressource n\'est chargée hors du livre, aucun lien externe n\'est ouvert.</string>
+    <string name="about_licenses_title">Licences</string>
+    <string name="about_licenses_text">Moteur de rendu : WebView, composant système Android. Bibliothèques : Jetpack Compose, AndroidX et Kotlin, sous licence Apache 2.0. Application : GPL v3.</string>
     <string name="recent_unreadable">Fichier inaccessible. Ouvre-le à nouveau depuis l\'application où il a été ouvert initialement.</string>
 </resources>
