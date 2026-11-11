@@ -6,6 +6,8 @@ import android.graphics.Color
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
+import kotlin.math.abs
 import android.webkit.CookieManager
 import android.webkit.MimeTypeMap
 import android.webkit.WebResourceRequest
@@ -36,6 +38,9 @@ class BookWebView(
 
     private var book: OpenBook? = null
 
+    private val minSwipeDistance = SWIPE_DISTANCE_DP * context.resources.displayMetrics.density
+    private val minSwipeVelocity = ViewConfiguration.get(context).scaledMinimumFlingVelocity
+
     private val taps = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onSingleTapUp(e: MotionEvent): Boolean {
             val width = width.takeIf { it > 0 } ?: return false
@@ -47,6 +52,17 @@ class BookWebView(
                     else -> TapSide.CENTER
                 }
             )
+            return true
+        }
+
+        // A horizontal swipe changes chapter (F-6.5): swipe left goes forward, like a tap on the right side.
+        // Vertical flings stay with the WebView, which scrolls the chapter.
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+            val start = e1 ?: return false
+            val dx = e2.x - start.x
+            val dy = e2.y - start.y
+            if (abs(dx) < minSwipeDistance || abs(dx) <= abs(dy) || abs(velocityX) < minSwipeVelocity) return false
+            onTap(if (dx < 0) TapSide.RIGHT else TapSide.LEFT)
             return true
         }
     })
@@ -156,6 +172,8 @@ class BookWebView(
         const val BASE_URL = "https://$BASE_HOST/"
         // Side zones: the outer quarter of the width on each side (provisional, to confirm on device).
         const val SIDE_FRACTION = 0.25f
+        // A swipe must cover at least this distance, in dp, to change chapter.
+        const val SWIPE_DISTANCE_DP = 96f
         const val READING_STYLE =
             "<style>html body, html body * { background-color: #000000 !important; color: #ffffff !important; " +
                 "font-family: sans-serif !important; text-align: left !important; } " +
