@@ -40,7 +40,7 @@
 - [x] Reprendre le thème d'Épure PDF : `Color.kt` (trois jetons), `Theme.kt` (schéma sombre), `Type.kt` (échelle en `sp`), `themes.xml` (fond noir, pas de flash blanc).
 - [x] Créer les paquets `ui/`, `data/`, `system/`, `domain/` et la classe `AppContainer`.
 - [x] Manifeste : une seule activité, `allowBackup="false"`, aucune permission, aucun `INTERNET`.
-- [ ] `LICENSE` (GPL v3) et `.gitignore` Android (`*.jks`, `*.keystore`, `local.properties`, livres de test).
+- [x] `LICENSE` (GPL v3) et `.gitignore` Android (`*.jks`, `*.keystore`, `local.properties`, livres de test).
 - [x] README : présentation, section Confidentialité et sécurité (pas d'accès à Internet, livre traité comme non fiable, permission absente du manifeste, données sur l'appareil), licence.
 - [ ] Constituer le jeu de test **hors du dépôt** (`SPEC.md` annexe A).
 - [x] Premier build, tests, lint ; app vide lancée sur l'appareil (écran noir, aucun flash blanc).
@@ -57,13 +57,13 @@
 
 ### Session 1a — Prototype comparatif des moteurs (§6 de `SPEC.md`)
 
-- [ ] Prototype jetable, sur une branche séparée, de l'option A (WebView configurée selon S-1 à S-7).
-- [ ] Prototype jetable de l'option C (rendu maison en texte seul), sur une autre branche.
-- [ ] Option B (Readium) : **proposition seulement**, à justifier dans `DECISIONS.md` avant ajout ; ne pas l'ajouter sans décision.
-- [ ] Mesures sur le jeu de test (annexe A) : poids de l'APK, temps d'ouverture (documents 1, 2, 9), mémoire, fidélité du rendu (documents 1, 3, 4).
-- [ ] Vérifier sur l'appareil : JavaScript non exécuté (document 5), ressources distantes non chargées (document 6), liens externes non ouverts (document 7).
-- [ ] Vérifier le manifeste fusionné de chaque prototype (aucune permission réseau).
-- [ ] Entrée `DECISIONS.md` : moteur retenu, mesures, tests de sécurité.
+- [x] Prototype jetable, sur une branche séparée, de l'option A (WebView configurée selon S-1 à S-7).
+- [x] Prototype jetable de l'option C (rendu maison en texte seul), sur une autre branche.
+- [x] Option B (Readium) : **proposition seulement**, à justifier dans `DECISIONS.md` avant ajout ; ne pas l'ajouter sans décision.
+- [x] Mesures sur le jeu de test (annexe A) : poids de l'APK, temps d'ouverture (documents 1, 2, 9), mémoire, fidélité du rendu (documents 1, 3, 4).
+- [x] Vérifier sur l'appareil : JavaScript non exécuté (document 5), ressources distantes non chargées (document 6), liens externes non ouverts (document 7).
+- [x] Vérifier le manifeste fusionné de chaque prototype (aucune permission réseau).
+- [x] Entrée `DECISIONS.md` : moteur retenu, mesures, tests de sécurité.
 - [ ] Mettre à jour `SPEC.md` (retirer le `[À DÉCIDER]` du §6, consigner les `[À VÉRIFIER]` tranchés) — par le porteur.
 
 ### Session 1b — Ouverture et affichage
