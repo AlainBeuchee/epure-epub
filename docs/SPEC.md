@@ -314,7 +314,7 @@ Hors de cette app : PDF (Épure PDF), CBZ et CBR (applications séparées, DEC-0
 - nombre d'entrées limité (proposition : 5 000) ;
 - taille totale décompressée limitée (proposition : 200 Mo) ; taille d'une entrée limitée (proposition : 50 Mo) ;
 - rapport de compression limité (proposition : 100 pour 1), contre les bombes ZIP ;
-- le fichier `mimetype` doit exister, être la première entrée, non compressé, et valoir `application/epub+zip`. **[À DÉCIDER]** : refus strict, ou acceptation avec avertissement (proposition : refus strict, message F-1.5).
+- le fichier `mimetype` doit être la première entrée, non compressé, et valoir `application/epub+zip`. Décision (DEC-EE-0017) : un `mimetype` absent, mal placé, compressé ou de valeur fausse n'empêche pas la lecture ; le livre s'ouvre avec un avertissement non bloquant, à condition que `META-INF/container.xml` et le fichier de package soient lisibles. Sinon : « Ce fichier n'est pas un EPUB lisible. » (F-1.5).
 
 **S-5 XML sans entités externes.** Les fichiers XML (`container.xml`, package, `nav`, `NCX`, chapitres) sont lus avec un parseur qui n'accepte ni DTD, ni entités externes, ni résolution de réseau.
 
@@ -324,9 +324,15 @@ Hors de cette app : PDF (Épure PDF), CBZ et CBR (applications séparées, DEC-0
 
 ---
 
-## 6. Moteur de rendu — [À DÉCIDER]
+## 6. Moteur de rendu — Tranché : option A (DEC-EE-0015)
 
-Point **non tranché**. Aucun moteur ne doit être ajouté avant une entrée dans `DECISIONS.md`.
+**Décision** : option A, WebView système, configurée selon S-1 à S-7. Encapsulée derrière une interface dans `system/`. Options B et C conservées dans le tableau ci-dessous à titre de référence.
+
+Conditions de mise en œuvre : JavaScript, stockage DOM, base de données, cookies, zoom et cache désactivés ; accès aux fichiers et au contenu refusés ; seules les ressources de l'archive sont servies ; aucune navigation ; aucune permission ajoutée au manifeste fusionné.
+
+Points à traiter pendant l'implémentation : styles du livre neutralisés par défaut (F-3.3) ; « Image indisponible » pour une image absente (F-15.3) ; message pour un lien externe (F-14.2) ; mode de défilement (F-2.2) à trancher.
+
+Résultats des prototypes A et C, sur le jeu de test (annexe A) : consignés dans `DECISIONS.md`, DEC-EE-0009.
 
 | Option | Description | Points forts | Points de vigilance |
 |---|---|---|---|
@@ -334,7 +340,7 @@ Point **non tranché**. Aucun moteur ne doit être ajouté avant une entrée dan
 | B — Readium Kotlin toolkit | Bibliothèque ouverte, prévue pour les lecteurs EPUB | Lecture EPUB 2/3 complète, navigation et ancres prêtes | Dépendances à justifier ; licence à confirmer avant ajout (annoncée BSD-3) ; manifeste fusionné à contrôler ; couche de sécurité à vérifier |
 | C — Rendu maison en texte seul | Lecture du XHTML, conversion en paragraphes Compose, sans HTML ni CSS ni WebView | Pas de JavaScript ni de réseau possibles ; surface d'attaque minimale ; charte respectée à l'identique | Mise en forme réduite (images, tableaux, styles perdus) ; travail important de parsing |
 
-**Proposition** : prototype comparatif jetable (sur le modèle de DEC-0014) des options A et C, sur le jeu de test (annexe A), avant tout choix définitif. Critères : sécurité (S-1 à S-7 respectées), fidélité du rendu, mémoire, temps d'ouverture, poids, permissions du manifeste fusionné, respect de la charte.
+**Critères du choix** (appliqués aux prototypes de session 1a) : sécurité (S-1 à S-7 respectées), fidélité du rendu, mémoire, temps d'ouverture, poids, permissions du manifeste fusionné, respect de la charte.
 
 ---
 
@@ -376,7 +382,6 @@ Conséquence : **aucune permission déclarée** (objectif). Pas d'écran d'autor
 
 | Réf. | Sujet | Jalon | Proposition |
 |---|---|---|---|
-| §6 | Moteur de rendu (A, B ou C) | 1 | Prototype comparatif de A et C, puis décision |
 | F-1.4 | Copie temporaire si descripteur non repositionnable | 2 | Copie en cache privé, supprimée à la fermeture |
 | F-2.2 | Défilement continu ou pagination | 1 | Pagination horizontale, avec commandes de page |
 | F-3.2 | Police | 3 | Police système sans empattement |
@@ -388,7 +393,6 @@ Conséquence : **aucune permission déclarée** (objectif). Pas d'écran d'autor
 | F-11.3 | Portée de la recherche | 4 | Tout le livre, sans stockage du texte |
 | F-14.1 | « Retour au passage » après un lien interne | 3 | Oui, une étape |
 | F-16.1 | Liste des livres (facultative) | 2c | Désactivée par défaut, 10 livres |
-| S-4 | Refus strict d'un `mimetype` incorrect | 5 | Refus strict |
 | S-4, T-6 | Limites de taille et de nombre d'entrées | 5 | Valeurs de la section S-4, à mesurer |
 | T-6 | Taille maximale d'un chapitre | 5 | 5 Mo décompressés |
 | F-3.1 | Nombre de paliers de taille du texte | 3 | Cinq |
@@ -439,3 +443,5 @@ Conservé **hors du dépôt** (aucun livre personnel ou sous droits d'auteur ver
 ## Historique
 
 - 0.1 (10/11/2026) : première version de déclinaison, à partir de `SPEC.md` d'Épure PDF 0.1 (et de ses jalons 0 à 5). Non validée par le porteur.
+- 0.2 (11/11/2026) : §6 tranché (option A, DEC-EE-0015) ; retrait du point §6 de §9.1. Mise à jour faite par le porteur.
+- 0.3 (11/11/2026) : S-4 « mimetype » tranché (ouverture avec avertissement, DEC-EE-0017) ; retrait du point de §9.1. Mise à jour faite par le porteur.
