@@ -68,17 +68,17 @@
 
 ### Session 1b — Ouverture et affichage
 
-- [ ] Interface du moteur dans `system/` (le reste de l'app n'en dépend pas directement).
-- [ ] Accueil minimal : titre, action « Ouvrir un fichier » (F-1.1).
-- [ ] Sélecteur système filtré sur `application/epub+zip` ; autorisation persistante demandée.
-- [ ] Lecture de l'archive hors du fil principal : validation des chemins, des tailles et du `mimetype` (S-4).
-- [ ] Lecture du package (titre, spine) et du XML sans entités externes (S-5).
-- [ ] Texte du chapitre courant affiché, pagination selon F-2.2 retenu, marges et interligne (F-2.1, F-2.3).
-- [ ] Chargement à la demande d'un chapitre ; page vide de bonne proportion pendant le chargement, sans indicateur animé (F-2.5).
-- [ ] Plein écran immersif (F-2.4).
-- [ ] Retour : ramène à l'accueil (F-6.4, version simple).
-- [ ] Messages d'erreur de base, sans plantage (F-1.5).
-- [ ] Rotation : position conservée (F-2.6).
+- [x] Interface du moteur dans `system/` (le reste de l'app n'en dépend pas directement).
+- [x] Accueil minimal : titre, action « Ouvrir un fichier » (F-1.1).
+- [x] Sélecteur système filtré sur `application/epub+zip` ; autorisation persistante demandée.
+- [x] Lecture de l'archive hors du fil principal : validation des chemins, des tailles et du `mimetype` (S-4).
+- [x] Lecture du package (titre, spine) et du XML sans entités externes (S-5).
+- [x] Texte du chapitre courant affiché, pagination selon F-2.2 retenu, marges et interligne (F-2.1, F-2.3).
+- [x] Chargement à la demande d'un chapitre ; page vide de bonne proportion pendant le chargement, sans indicateur animé (F-2.5).
+- [x] Plein écran immersif (F-2.4).
+- [x] Retour : ramène à l'accueil (F-6.4, version simple).
+- [x] Messages d'erreur de base, sans plantage (F-1.5).
+- [x] Rotation : position conservée (F-2.6).
 
 ### Session 1c — Navigation de base et sécurité du contenu
 
@@ -88,16 +88,16 @@
 
 ### Contrôles du jalon 1 (sur l'appareil)
 
-- [ ] Ouvrir le document 1 depuis « Mes fichiers » via le sélecteur : affichage correct, lecture fluide.
-- [ ] Document 2 (EPUB 2, sans `nav`) : chapitres lisibles jusqu'à la fin.
-- [ ] Document 4 (tableaux, listes) : mise en forme conforme à F-2.1.
-- [ ] Document 5 (JavaScript) : le texte s'affiche, aucun script exécuté.
+- [x] Ouvrir le document 1 depuis « Mes fichiers » via le sélecteur : affichage correct, lecture fluide.
+- [x] Document 2 (EPUB 2, sans `nav`) : chapitres lisibles jusqu'à la fin.
+- [x] Document 4 (tableaux, listes) : mise en forme conforme à F-2.1.
+- [x] Document 5 (JavaScript) : le texte s'affiche, aucun script exécuté.
 - [ ] Document 6 (ressources distantes) : aucune requête réseau ; images manquantes signalées sans plantage.
 - [ ] Document 7 (lien externe) : message, aucun navigateur lancé.
-- [ ] Document 8 (`../` dans l'archive) : refus, message, pas de plantage.
-- [ ] Document 11 (corrompu) et 12 (non EPUB) : message, pas de plantage.
-- [ ] Rotation au milieu d'un livre : même passage.
-- [ ] Annuler le sélecteur : retour à l'accueil sans message.
+- [x] Document 8 (`../` dans l'archive) : refus, message, pas de plantage.
+- [x] Document 11 (corrompu) et 12 (non EPUB) : message, pas de plantage.
+- [x] Rotation au milieu d'un livre : même passage.
+- [x] Annuler le sélecteur : retour à l'accueil sans message.
 - [ ] Aucune permission dans « Infos sur l'application » ; contrôle `aapt2` passé.
 
 ---
