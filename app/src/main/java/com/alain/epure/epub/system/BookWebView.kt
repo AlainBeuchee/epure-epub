@@ -14,6 +14,8 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.alain.epure.epub.domain.ArchivePolicy
+import com.alain.epure.epub.domain.LinkPolicy
+import com.alain.epure.epub.domain.LinkTarget
 import java.io.ByteArrayInputStream
 
 /** Where a single tap landed, as a fraction of the screen width (DEC-EE-0016). */
@@ -24,7 +26,11 @@ enum class TapSide { LEFT, RIGHT, CENTER }
  * It shows one chapter of an open book. Only files of that archive can be loaded.
  */
 @SuppressLint("ViewConstructor")
-class BookWebView(context: Context, private val onTap: (TapSide) -> Unit) : WebView(context), ChapterRenderer {
+class BookWebView(
+    context: Context,
+    private val onTap: (TapSide) -> Unit,
+    private val onLink: (LinkTarget) -> Unit,
+) : WebView(context), ChapterRenderer {
 
     override val view: View get() = this
 
@@ -107,8 +113,14 @@ class BookWebView(context: Context, private val onTap: (TapSide) -> Unit) : WebV
 
     private inner class BookClient : WebViewClient() {
 
-        // Links are never followed here: internal links are added later (session 1c).
-        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean = true
+        // The engine never navigates by itself. A clicked link is classified (LinkPolicy) and handed to the
+        // reader: a chapter of the book moves the reading, anything else is not opened (F-14.1, F-14.2).
+        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+            val url = request?.url?.toString() ?: return true
+            val spine = book?.book?.spine ?: emptyList()
+            onLink(LinkPolicy.classify(url, BASE_HOST, spine))
+            return true
+        }
 
         // Only files of the open archive are served (S-2, S-7). Everything else is refused.
         override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {

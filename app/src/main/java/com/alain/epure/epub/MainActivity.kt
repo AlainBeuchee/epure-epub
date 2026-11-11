@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.alain.epure.epub.domain.BookRefusal
+import com.alain.epure.epub.domain.LinkTarget
 import com.alain.epure.epub.domain.RefusalReason
 import com.alain.epure.epub.system.BookCopy
 import com.alain.epure.epub.system.EpubReader
@@ -56,6 +57,8 @@ private fun EpureApp() {
     var index by remember { mutableIntStateOf(0) }
     var message by remember { mutableStateOf<String?>(null) }
     var opening by remember { mutableStateOf(false) }
+    // Short message about the last link clicked in the book (string resource), or null.
+    var notice by remember { mutableStateOf<Int?>(null) }
 
     fun closeBook() {
         session?.let {
@@ -64,6 +67,7 @@ private fun EpureApp() {
         }
         session = null
         index = 0
+        notice = null
     }
 
     // Leaving the activity closes the book and removes its copy.
@@ -108,12 +112,26 @@ private fun EpureApp() {
         ReaderScreen(
             book = current.book,
             index = index,
+            notice = notice,
             onTap = { side ->
+                notice = null
                 val last = current.book.book.spine.size - 1
                 when (side) {
                     TapSide.RIGHT -> if (index < last) index++
                     TapSide.LEFT -> if (index > 0) index--
                     TapSide.CENTER -> Unit
+                }
+            },
+            onLink = { target ->
+                when (target) {
+                    // A link to another chapter moves the reading there. A link inside the current
+                    // chapter (fragment only) is not followed yet: the text stays where it is.
+                    is LinkTarget.Chapter -> {
+                        notice = null
+                        if (target.index != index) index = target.index
+                    }
+                    LinkTarget.External -> notice = R.string.link_external
+                    LinkTarget.Unavailable -> notice = R.string.link_unavailable
                 }
             },
         )
