@@ -205,6 +205,8 @@ class BookWebView(
         const val READING_STYLE =
             "<style>html body, html body * { background-color: #000000 !important; color: #ffffff !important; " +
                 "font-family: sans-serif !important; text-align: left !important; } " +
-                "html body img, html body svg, html body image { background-color: transparent !important; }</style>"
+                "html body img, html body svg, html body image { background-color: transparent !important; } " +
+                "html body div { height: auto !important; } " +
+                "html body img { height: auto !important; max-height: none !important; max-width: 100% !important; }</style>"
     }
 }
