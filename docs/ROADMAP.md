@@ -106,10 +106,10 @@
 
 ### Session 2a — Intents `VIEW` et `SEND`
 
-- [ ] Filtres `VIEW` et `SEND` (`application/epub+zip`, schéma `content`) (F-1.2).
+- [x] Filtres `VIEW` et `SEND` (`application/epub+zip`, schéma `content`) (F-1.2).
 - [ ] Vérifier sur l'appareil la persistance des droits et le type de descripteur selon la source (F-1.3, F-1.4) ; consigner les résultats.
-- [ ] Copie temporaire ou message, selon la décision (F-1.4).
-- [ ] Retour depuis le lecteur ouvert par `VIEW` : retour à l'app d'origine.
+- [x] Copie temporaire ou message, selon la décision (F-1.4).
+- [x] Retour depuis le lecteur ouvert par `VIEW` : retour à l'app d'origine.
 
 ### Session 2b — Récents et reprise
 

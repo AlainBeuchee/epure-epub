@@ -14,12 +14,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.IntentCompat
 import com.alain.epure.epub.domain.BookRefusal
 import com.alain.epure.epub.domain.LinkTarget
 import com.alain.epure.epub.domain.RefusalReason
@@ -33,16 +35,37 @@ import com.alain.epure.epub.ui.theme.EpureTheme
 import java.io.File
 
 class MainActivity : ComponentActivity() {
+
+    /** A book received from another app (VIEW or SEND), waiting to be opened. */
+    private var incoming by mutableStateOf<Uri?>(null)
+
+    /** True when this activity was started by another app: back from the book then returns to it. */
+    private var openedFromOutside = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         // Copies left by a previous run (for example after a forced stop) are removed here.
         BookCopy.deleteAll(this)
+        openedFromOutside = intent.action == Intent.ACTION_VIEW || intent.action == Intent.ACTION_SEND
+        incoming = incomingUri(intent)
         setContent {
             EpureTheme {
-                EpureApp()
+                EpureApp(
+                    incoming = incoming,
+                    onIncomingConsumed = { incoming = null },
+                    openedFromOutside = openedFromOutside,
+                    onFinish = { finish() },
+                )
             }
         }
+    }
+
+    /** The book carried by a VIEW (the file opened) or a SEND (the file shared), or null. */
+    private fun incomingUri(intent: Intent): Uri? = when (intent.action) {
+        Intent.ACTION_VIEW -> intent.data
+        Intent.ACTION_SEND -> IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)
+        else -> null
     }
 }
 
@@ -50,7 +73,12 @@ class MainActivity : ComponentActivity() {
 private class ReadingSession(val book: OpenBook, val copy: File)
 
 @Composable
-private fun EpureApp() {
+private fun EpureApp(
+    incoming: Uri?,
+    onIncomingConsumed: () -> Unit,
+    openedFromOutside: Boolean,
+    onFinish: () -> Unit,
+) {
     val context = LocalContext.current
     val handler = remember { Handler(Looper.getMainLooper()) }
     var session by remember { mutableStateOf<ReadingSession?>(null) }
@@ -75,15 +103,10 @@ private fun EpureApp() {
         onDispose { closeBook() }
     }
 
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        // Asks for a lasting read right on the file; a source that refuses it is still read (copy).
-        runCatching {
-            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
+    // Copies the book, validates it, then shows it. Copy and validation run outside the main thread.
+    fun openBook(uri: Uri) {
         message = null
         opening = true
-        // Copy and validation take time: they run outside the main thread.
         Thread {
             val result = runCatching { openCopy(context, uri) }
             handler.post {
@@ -98,8 +121,28 @@ private fun EpureApp() {
         }.start()
     }
 
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        // Asks for a lasting read right on the file; a source that refuses it is still read (copy).
+        runCatching {
+            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        openBook(uri)
+    }
+
+    // A book sent by another app is opened once, as soon as the screen is shown.
+    LaunchedEffect(incoming) {
+        val uri = incoming ?: return@LaunchedEffect
+        onIncomingConsumed()
+        openBook(uri)
+    }
+
     // Back from a book returns to the start screen instead of closing the app.
-    BackHandler(enabled = session != null) { closeBook() }
+    // A book opened by another app returns to that app instead (F-1.2).
+    BackHandler(enabled = session != null) {
+        closeBook()
+        if (openedFromOutside) onFinish()
+    }
 
     val current = session
     if (current == null) {

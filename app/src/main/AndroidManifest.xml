@@ -21,6 +21,22 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- F-1.2: "Ouvrir avec" from file managers, messaging apps and browsers. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="content" android:mimeType="application/epub+zip" />
+            </intent-filter>
+            <!-- F-1.2: "Partager" from other apps. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/epub+zip" />
+            </intent-filter>
         </activity>
     </application>
 
