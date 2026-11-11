@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.alain.epure.epub.R
+import com.alain.epure.epub.domain.LinkTarget
 import com.alain.epure.epub.system.ChapterRenderer
 import com.alain.epure.epub.system.OpenBook
 import com.alain.epure.epub.system.TapSide
@@ -33,9 +34,16 @@ import com.alain.epure.epub.ui.theme.TextSecondary
  * The system bars are hidden while the book is open (immersive mode, SPEC.md F-2.4).
  */
 @Composable
-fun ReaderScreen(book: OpenBook, index: Int, onTap: (TapSide) -> Unit) {
+fun ReaderScreen(
+    book: OpenBook,
+    index: Int,
+    notice: Int?,
+    onTap: (TapSide) -> Unit,
+    onLink: (LinkTarget) -> Unit,
+) {
     val path = book.book.spine[index]
     val currentOnTap by rememberUpdatedState(onTap)
+    val currentOnLink by rememberUpdatedState(onLink)
     ImmersiveSystemBars()
     Column(
         modifier = Modifier
@@ -49,10 +57,23 @@ fun ReaderScreen(book: OpenBook, index: Int, onTap: (TapSide) -> Unit) {
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
             )
         }
+        if (notice != null) {
+            Text(
+                text = stringResource(notice),
+                color = TextSecondary,
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+            )
+        }
         AndroidView(
             // Margins of 16 dp on each side (SPEC.md F-2.3; reduced from 24 dp after device test).
             modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-            factory = { context -> newChapterRenderer(context) { side -> currentOnTap(side) }.view },
+            factory = { context ->
+                newChapterRenderer(
+                    context,
+                    onTap = { side -> currentOnTap(side) },
+                    onLink = { target -> currentOnLink(target) },
+                ).view
+            },
             // Load the chapter only when its path changes, not at every recomposition.
             update = { view ->
                 if (view.tag != path) {

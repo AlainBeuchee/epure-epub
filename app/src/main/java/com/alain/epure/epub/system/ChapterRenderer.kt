@@ -2,6 +2,7 @@ package com.alain.epure.epub.system
 
 import android.content.Context
 import android.view.View
+import com.alain.epure.epub.domain.LinkTarget
 
 /**
  * Rendering engine of the app (DEC-EE-0015). The UI depends only on this interface,
@@ -20,5 +21,8 @@ interface ChapterRenderer {
 }
 
 /** Creates the engine used by the reading screen. */
-fun newChapterRenderer(context: Context, onTap: (TapSide) -> Unit): ChapterRenderer =
-    BookWebView(context, onTap)
+fun newChapterRenderer(
+    context: Context,
+    onTap: (TapSide) -> Unit,
+    onLink: (LinkTarget) -> Unit,
+): ChapterRenderer = BookWebView(context, onTap, onLink)

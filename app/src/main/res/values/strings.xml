@@ -9,4 +9,6 @@
     <string name="error_too_large">Ce livre est trop volumineux ou mal construit pour être ouvert.</string>
     <string name="error_no_text">Ce livre ne contient pas de texte lisible.</string>
     <string name="error_file_unreadable">Accès au fichier retiré.</string>
+    <string name="link_external">Ce lien mène hors du livre. Il n\'est pas ouvert.</string>
+    <string name="link_unavailable">Ce lien ne mène à aucun passage du livre.</string>
 </resources>
