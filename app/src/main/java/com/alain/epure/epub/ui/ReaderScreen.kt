@@ -4,6 +4,7 @@ import android.app.Activity
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
+import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -85,6 +86,9 @@ fun ReaderScreen(
     onTextLarger: () -> Unit,
     pureWhite: Boolean,
     onToggleWhite: () -> Unit,
+    keepScreenOn: Boolean,
+    onToggleKeepScreenOn: () -> Unit,
+    onShare: () -> Unit,
 ) {
     val path = book.book.spine[index]
     val last = book.book.spine.size - 1
@@ -100,6 +104,7 @@ fun ReaderScreen(
     BackHandler(enabled = moreOpen) { moreOpen = false }
 
     ImmersiveSystemBars(visible = commandsVisible)
+    KeepScreenOn(on = keepScreenOn)
 
     Box(
         modifier = Modifier
@@ -192,6 +197,12 @@ fun ReaderScreen(
                         onTextLarger = onTextLarger,
                         pureWhite = pureWhite,
                         onToggleWhite = onToggleWhite,
+                        keepScreenOn = keepScreenOn,
+                        onToggleKeepScreenOn = onToggleKeepScreenOn,
+                        onShare = {
+                            moreOpen = false
+                            onShare()
+                        },
                         onReturn = {
                             moreOpen = false
                             commandsVisible = false
@@ -317,6 +328,9 @@ private fun MorePanel(
     onTextLarger: () -> Unit,
     pureWhite: Boolean,
     onToggleWhite: () -> Unit,
+    keepScreenOn: Boolean,
+    onToggleKeepScreenOn: () -> Unit,
+    onShare: () -> Unit,
     onReturn: () -> Unit,
     onClose: () -> Unit,
 ) {
@@ -349,6 +363,12 @@ private fun MorePanel(
             enabled = true,
             onToggleWhite,
         )
+        PanelAction(
+            stringResource(if (keepScreenOn) R.string.reader_screen_on_yes else R.string.reader_screen_on_no),
+            enabled = true,
+            onToggleKeepScreenOn,
+        )
+        PanelAction(stringResource(R.string.action_share), enabled = true, onShare)
         PanelAction(stringResource(R.string.reader_return), enabled = returnAvailable, onReturn)
         HorizontalDivider(color = TextSecondary, modifier = Modifier.padding(vertical = 4.dp))
         PanelAction(stringResource(R.string.action_close), enabled = true, onClose)
@@ -390,6 +410,20 @@ private fun ImmersiveSystemBars(visible: Boolean) {
     }
     DisposableEffect(controller) {
         onDispose { controller?.show(WindowInsets.Type.systemBars()) }
+    }
+}
+
+/**
+ * Keeps the screen on while a book is open, when the setting is on (SPEC.md F-9).
+ * No wake lock permission is needed: this is a window flag.
+ */
+@Composable
+private fun KeepScreenOn(on: Boolean) {
+    val view = LocalView.current
+    DisposableEffect(view, on) {
+        val window = (view.context as? Activity)?.window
+        if (on) window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        onDispose { window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
     }
 }
 

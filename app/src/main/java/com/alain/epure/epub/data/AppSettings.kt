@@ -12,6 +12,7 @@ object AppSettings {
     private const val KEY_BOOK_LIST = "book_list_enabled"
     private const val KEY_TEXT_STEP = "text_size_step"
     private const val KEY_PURE_WHITE = "pure_white"
+    private const val KEY_KEEP_SCREEN_ON = "keep_screen_on"
 
     private fun preferences(context: Context) =
         context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
@@ -32,6 +33,14 @@ object AppSettings {
 
     fun setPureWhite(context: Context, pure: Boolean) {
         preferences(context).edit { putBoolean(KEY_PURE_WHITE, pure) }
+    }
+
+    /** « Écran allumé pendant la lecture » (SPEC.md F-9): on by default. */
+    fun isKeepScreenOn(context: Context): Boolean =
+        preferences(context).getBoolean(KEY_KEEP_SCREEN_ON, true)
+
+    fun setKeepScreenOn(context: Context, on: Boolean) {
+        preferences(context).edit { putBoolean(KEY_KEEP_SCREEN_ON, on) }
     }
 
     /** Text size step (SPEC.md F-3.1), 16 sp by default (DEC-EE-0024). */

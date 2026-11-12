@@ -36,6 +36,7 @@ import com.alain.epure.epub.domain.TextSizeRules
 import com.alain.epure.epub.data.AppSettings
 import com.alain.epure.epub.data.RecentStore
 import com.alain.epure.epub.system.BookCopy
+import com.alain.epure.epub.system.BookShare
 import com.alain.epure.epub.system.EpubReader
 import com.alain.epure.epub.system.OpenBook
 import com.alain.epure.epub.system.TapSide
@@ -119,6 +120,7 @@ private fun EpureApp(
 ) {
     val context = LocalContext.current
     val recentUnreadable = stringResource(R.string.recent_unreadable)
+    val shareFailed = stringResource(R.string.share_failed)
     val handler = remember { Handler(Looper.getMainLooper()) }
     var session by remember { mutableStateOf<ReadingSession?>(null) }
     var index by remember { mutableIntStateOf(0) }
@@ -137,6 +139,7 @@ private fun EpureApp(
     var textStep by remember { mutableIntStateOf(AppSettings.textSizeStep(context)) }
     var returnTo by remember { mutableStateOf<ReadingPosition?>(null) }
     var pureWhite by remember { mutableStateOf(AppSettings.isPureWhite(context)) }
+    var keepScreenOn by remember { mutableStateOf(AppSettings.isKeepScreenOn(context)) }
     // Counts each navigation, so that a return to a chapter already shown reloads it (see ReaderScreen).
     var navToken by remember { mutableIntStateOf(0) }
 
@@ -260,6 +263,9 @@ private fun EpureApp(
                 },
                 onOpenSettings = { page = Page.SETTINGS },
                 onOpenAbout = { page = Page.ABOUT },
+                onShareRecent = { book ->
+                    if (!BookShare.share(context, book.uri.toUri())) message = shareFailed
+                },
             )
             Page.SETTINGS -> SettingsScreen(
                 bookListEnabled = listEnabled,
@@ -338,6 +344,14 @@ private fun EpureApp(
             onTextLarger = {
                 textStep = TextSizeRules.larger(textStep)
                 AppSettings.setTextSizeStep(context, textStep)
+            },
+            keepScreenOn = keepScreenOn,
+            onToggleKeepScreenOn = {
+                keepScreenOn = !keepScreenOn
+                AppSettings.setKeepScreenOn(context, keepScreenOn)
+            },
+            onShare = {
+                if (!BookShare.share(context, current.uri.toUri())) notice = R.string.share_failed
             },
             pureWhite = pureWhite,
             onToggleWhite = {

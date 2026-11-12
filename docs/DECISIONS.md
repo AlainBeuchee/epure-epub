@@ -749,6 +749,30 @@ Facile : l'interligne et les marges sont des constantes ou une règle CSS ; la p
 
 ---
 
+## DEC-EE-0025 — Session 3b : écran allumé et partage ; mode nuit en suspens
+
+- Date : 12/11/2026
+- Statut : Adoptée (écran allumé et partage validés sur l'appareil ; mode nuit retiré par le porteur, 12/11/2026)
+- Jalon : 3 (session 3b)
+- Exigences concernées : F-9, F-13 ; F-8 (mode nuit, non tranché)
+
+**Décision**
+- **Écran allumé (F-9)** : réglage « Écran allumé pendant la lecture », activé par défaut, mémorisé, dans le panneau « Plus ». Implémenté par l'indicateur de fenêtre `FLAG_KEEP_SCREEN_ON` : aucun `WAKE_LOCK`, aucune permission.
+- **Partager (F-13.1)** : action « Partager » dans « Plus » et dans le menu d'appui long d'un récent. Envoi par `ACTION_SEND` avec l'URI du livre et un droit de lecture temporaire, sans réseau. Si le partage échoue, message « Ce fichier ne peut pas être partagé depuis Épure EPUB. » (F-13.2) : affiché dans la lecture, ou sur l'accueil pour un récent.
+- **Mode nuit (F-8) : retiré** (décision du porteur, 12/11/2026, option 3). Le texte et le fond sont déjà noirs par défaut (DEC-EE-0011, DEC-EE-0024), et aucun mode de jour distinct n'est défini. Le réglage n'est donc pas implémenté ; F-8.1 à F-8.4 et F-8.3 (images) sont sans objet. `SPEC.md` n'est pas modifié par l'assistant (`CLAUDE.md` §5) : le porteur le mettra à jour.
+
+**Justification**
+Les deux premières fonctions sont décrites sans ambiguïté par `SPEC.md`. Le mode nuit demande de définir le mode de jour, ce qui touche la charte (fond `Black` partout, A.5).
+
+**Conséquences**
+- Aucune permission ajoutée (contrôle `aapt2` inchangé).
+- Le menu d'appui long d'un récent a désormais deux actions : « Retirer de la liste » et « Partager ».
+
+**Réversibilité**
+Facile : le réglage et l'action sont indépendants du reste de la lecture.
+
+---
+
 ## Décisions en attente
 
 La liste à jour des points `[À DÉCIDER]` est tenue dans `SPEC.md` §9.1, avec le jalon auquel chacun doit être tranché. Les premiers à trancher sont :

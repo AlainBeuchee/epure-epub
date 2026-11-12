@@ -47,6 +47,7 @@ fun HomeScreen(
     onRemoveRecent: (RecentBook) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenAbout: () -> Unit,
+    onShareRecent: (RecentBook) -> Unit,
 ) {
     var menuFor by remember { mutableStateOf<RecentBook?>(null) }
     val shown = if (listEnabled) recents else recents.take(1)
@@ -140,6 +141,17 @@ fun HomeScreen(
                     modifier = Modifier.heightIn(min = 48.dp),
                 ) {
                     Text(stringResource(R.string.recent_remove), color = TextPrimary)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        menuFor = null
+                        onShareRecent(book)
+                    },
+                    modifier = Modifier.heightIn(min = 48.dp),
+                ) {
+                    Text(stringResource(R.string.action_share), color = TextPrimary)
                 }
             },
         )

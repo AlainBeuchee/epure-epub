@@ -155,16 +155,15 @@
 
 ### Session 3b — Mode nuit, écran allumé, partage
 
-- [ ] Mode nuit par styles imposés au contenu, global, désactivé par défaut (F-8).
-- [ ] Images en mode nuit selon F-8.3 retenu.
-- [ ] Réglage « Écran allumé pendant la lecture », activé par défaut (F-9).
-- [ ] « Mode nuit », « Partager » et « Écran allumé » ajoutés au menu « Plus » ; « Partager » dans le menu d'appui long d'un récent (F-13).
+- [~] Mode nuit (F-8) : **retiré** par le porteur (DEC-EE-0025, option 3) ; l'app est déjà noire. SPEC.md F-8 à mettre à jour par le porteur.
+- [~] Images en mode nuit (F-8.3) : sans objet, le mode nuit est retiré (DEC-EE-0025).
+- [x] Réglage « Écran allumé pendant la lecture », activé par défaut (F-9) (DEC-EE-0025, validé sur l'appareil).
+- [x] « Partager » ajouté au menu « Plus » et au menu d'appui long d'un récent (F-13) (DEC-EE-0025, validé sur l'appareil).
 
 ### Contrôles du jalon 3 (sur l'appareil)
 
 - [ ] Appui court dans la bande basse : la barre apparaît ; « Table », « < », « > » et « Plus » réagissent ; le pourcentage est juste.
 - [ ] Changement de taille du texte : le passage lu reste affiché.
-- [ ] Mode nuit : fond noir, texte clair, y compris sur un livre aux couleurs imposées (document 1, document 4).
 - [ ] Commandes : apparition et disparition immédiates, sans animation.
 - [ ] Écran qui reste allumé pendant la lecture, et s'éteint à la sortie.
 

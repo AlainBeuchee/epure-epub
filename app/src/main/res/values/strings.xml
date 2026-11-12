@@ -38,6 +38,10 @@
     <string name="reader_text_smaller">Texte plus petit</string>
     <string name="reader_text_larger">Texte plus grand</string>
     <string name="reader_return">Retour au passage</string>
+    <string name="reader_screen_on_yes">Écran allumé pendant la lecture : oui</string>
+    <string name="reader_screen_on_no">Écran allumé pendant la lecture : non</string>
+    <string name="action_share">Partager</string>
+    <string name="share_failed">Ce fichier ne peut pas être partagé depuis Épure EPUB.</string>
     <string name="reader_white_pure">Blanc pur pour le texte</string>
     <string name="reader_white_soften">Blanc atténué pour le texte</string>
     <string name="action_close">Fermer</string>
