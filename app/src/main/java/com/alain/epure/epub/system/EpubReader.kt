@@ -6,7 +6,9 @@ import com.alain.epure.epub.domain.ArchivePolicy
 import com.alain.epure.epub.domain.BookPackage
 import com.alain.epure.epub.domain.BookRefusal
 import com.alain.epure.epub.domain.PackageBuilder
+import com.alain.epure.epub.domain.RawTocEntry
 import com.alain.epure.epub.domain.RefusalReason
+import com.alain.epure.epub.domain.TableOfContents
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.Closeable
@@ -44,6 +46,7 @@ object EpubReader {
     private const val MIMETYPE = "mimetype"
     private const val MIMETYPE_VALUE = "application/epub+zip"
     private const val CONTAINER = "META-INF/container.xml"
+    private const val NCX_TYPE = "application/x-dtbncx+xml"
 
     fun open(file: File): OpenBook {
         val zip = try {
@@ -71,7 +74,9 @@ object EpubReader {
                 spineIds = opf.spine,
                 entryNames = entries.map { it.name }.toSet(),
             )
-            return OpenBook(zip, book, mimetypeWarning)
+            // The table of contents is optional: a missing or unreadable one gives an empty table (F-12.2).
+            val toc = readToc(zip, opf, opfPath, book.spine)
+            return OpenBook(zip, book.copy(toc = toc), mimetypeWarning)
         } catch (e: Throwable) {
             zip.close()
             throw e
@@ -143,12 +148,23 @@ object EpubReader {
         return null
     }
 
-    private class Opf(val title: String?, val manifest: Map<String, String>, val spine: List<String>)
+    private class Opf(
+        val title: String?,
+        val manifest: Map<String, String>,
+        val spine: List<String>,
+        /** Manifest id of the EPUB 3 navigation document, if any. */
+        val navId: String?,
+        /** Manifest id of the EPUB 2 NCX document, if any. */
+        val ncxId: String?,
+    )
 
     private fun parseOpf(bytes: ByteArray): Opf {
         val parser = newParser(bytes)
         val manifest = HashMap<String, String>()
         val spine = ArrayList<String>()
+        var navId: String? = null
+        var ncxId: String? = null
+        var spineToc: String? = null
         var title: String? = null
         var inTitle = false
         var event = parser.eventType
@@ -160,7 +176,12 @@ object EpubReader {
                         val id = parser.getAttributeValue(null, "id")
                         val href = parser.getAttributeValue(null, "href")
                         if (id != null && href != null) manifest[id] = href
+                        if (id != null && parser.getAttributeValue(null, "properties")?.split(' ')?.contains("nav") == true) {
+                            navId = id
+                        }
+                        if (id != null && parser.getAttributeValue(null, "media-type") == NCX_TYPE) ncxId = id
                     }
+                    "spine" -> spineToc = parser.getAttributeValue(null, "toc")
                     "itemref" -> parser.getAttributeValue(null, "idref")?.let { spine.add(it) }
                 }
                 XmlPullParser.TEXT -> if (inTitle) {
@@ -172,7 +193,103 @@ object EpubReader {
             }
             event = parser.next()
         }
-        return Opf(title?.trim()?.takeIf { it.isNotEmpty() }, manifest, spine)
+        return Opf(
+            title = title?.trim()?.takeIf { it.isNotEmpty() },
+            manifest = manifest,
+            spine = spine,
+            navId = navId,
+            ncxId = spineToc ?: ncxId,
+        )
+    }
+
+    /**
+     * Reads the table of contents: the EPUB 3 navigation document if there is one, else the EPUB 2 NCX.
+     * Returns an empty list if neither can be read. Errors in the table never stop the book from opening.
+     */
+    private fun readToc(zip: ZipFile, opf: Opf, opfPath: String, spine: List<String>): List<com.alain.epure.epub.domain.TocEntry> {
+        val opfDir = opfPath.substringBeforeLast('/', "")
+        return try {
+            val navHref = opf.navId?.let { opf.manifest[it] }
+            if (navHref != null) {
+                val path = ArchivePolicy.resolveHref(opfDir, navHref) ?: return emptyList()
+                val bytes = readEntry(zip, path) ?: return emptyList()
+                TableOfContents.resolve(parseNav(bytes), path.substringBeforeLast('/', ""), spine)
+            } else {
+                val ncxHref = opf.ncxId?.let { opf.manifest[it] } ?: return emptyList()
+                val path = ArchivePolicy.resolveHref(opfDir, ncxHref) ?: return emptyList()
+                val bytes = readEntry(zip, path) ?: return emptyList()
+                TableOfContents.resolve(parseNcx(bytes), path.substringBeforeLast('/', ""), spine)
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    /** EPUB 3 navigation document: the `nav` element with epub:type "toc", nested lists give the depth. */
+    private fun parseNav(bytes: ByteArray): List<RawTocEntry> {
+        val parser = newParser(bytes)
+        val out = ArrayList<RawTocEntry>()
+        var inToc = false
+        var depth = 0
+        var href: String? = null
+        var inLink = false
+        val title = StringBuilder()
+        var event = parser.eventType
+        while (event != XmlPullParser.END_DOCUMENT) {
+            when (event) {
+                XmlPullParser.START_TAG -> when (parser.name) {
+                    "nav" -> if (parser.getAttributeValue(null, "epub:type") == "toc") inToc = true
+                    "ol" -> if (inToc) depth++
+                    "a" -> if (inToc && depth > 0) {
+                        inLink = true
+                        href = parser.getAttributeValue(null, "href")
+                        title.clear()
+                    }
+                }
+                XmlPullParser.TEXT -> if (inLink) title.append(parser.text)
+                XmlPullParser.END_TAG -> when (parser.name) {
+                    "a" -> if (inLink) {
+                        href?.let { out.add(RawTocEntry(title.toString().trim(), it, depth)) }
+                        inLink = false
+                    }
+                    "ol" -> if (inToc) depth--
+                    "nav" -> inToc = false
+                }
+            }
+            event = parser.next()
+        }
+        return out
+    }
+
+    /** EPUB 2 NCX: nested `navPoint` elements give the depth; each has a `navLabel` and a `content`. */
+    private fun parseNcx(bytes: ByteArray): List<RawTocEntry> {
+        val parser = newParser(bytes)
+        val out = ArrayList<RawTocEntry>()
+        var depth = 0
+        var inLabel = false
+        val title = StringBuilder()
+        var event = parser.eventType
+        while (event != XmlPullParser.END_DOCUMENT) {
+            when (event) {
+                XmlPullParser.START_TAG -> when (parser.name) {
+                    "navPoint" -> depth++
+                    "navLabel" -> {
+                        inLabel = true
+                        title.clear()
+                    }
+                    "content" -> parser.getAttributeValue(null, "src")?.let {
+                        out.add(RawTocEntry(title.toString().trim(), it, depth))
+                    }
+                }
+                XmlPullParser.TEXT -> if (inLabel) title.append(parser.text)
+                XmlPullParser.END_TAG -> when (parser.name) {
+                    "navLabel" -> inLabel = false
+                    "navPoint" -> depth--
+                }
+            }
+            event = parser.next()
+        }
+        return out
     }
 
     private fun newParser(bytes: ByteArray): XmlPullParser {

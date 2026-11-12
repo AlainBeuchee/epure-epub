@@ -82,6 +82,8 @@ fun ReaderScreen(
     onReturn: () -> Unit,
     onNextTextSize: () -> Unit,
     leftHanded: Boolean,
+    tocAvailable: Boolean,
+    onTable: () -> Unit,
     bookmarkMarked: Boolean,
     onToggleBookmark: () -> Unit,
     onOpenBookmarks: () -> Unit,
@@ -229,6 +231,8 @@ fun ReaderScreen(
                     onNext = onNext,
                     onMore = { moreOpen = !moreOpen },
                     leftHanded = leftHanded,
+                    tocAvailable = tocAvailable,
+                    onTable = onTable,
                 )
             }
         }
@@ -248,6 +252,8 @@ private fun CommandBar(
     onNext: () -> Unit,
     onMore: () -> Unit,
     leftHanded: Boolean,
+    tocAvailable: Boolean,
+    onTable: () -> Unit,
 ) {
     val progressDescription = stringResource(R.string.reader_progress_description, progressPercent)
     Column(
@@ -266,11 +272,16 @@ private fun CommandBar(
             // Left-handed order (DEC-EE-0032) reverses the items.
             val items: List<@Composable () -> Unit> = listOf(
                 {
-                    BarAction(
-                        text = stringResource(R.string.reader_table),
-                        enabled = false,
-                        onClick = {},
-                    )
+                    // Greyed when the book has no table of contents; a tap then says so (F-12.2).
+                    TextButton(
+                        onClick = onTable,
+                        modifier = Modifier.heightIn(min = 48.dp),
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = if (tocAvailable) TextPrimary else TextSecondary,
+                        ),
+                    ) {
+                        Text(stringResource(R.string.reader_table), style = MaterialTheme.typography.labelLarge)
+                    }
                 },
                 {
                     // Same box and text style as the actions, so the label sits on the same line.

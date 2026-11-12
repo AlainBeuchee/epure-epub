@@ -178,9 +178,9 @@
 
 ### Session 4a — Table des matières et marque-pages
 
-- [ ] Table des matières à partir du `nav` ou du `NCX` (F-12.1).
-- [ ] Ancres des entrées sans JavaScript : option à trancher (DEC-EE-0037) avant d'implémenter la table.
-- [ ] « Aucune table des matières » si absente ; liens hors archive ignorés (F-12.2, F-12.3).
+- [ ] Table des matières à partir du `nav` ou du `NCX` (F-12.1) : implémentée, à valider sur l'appareil (DEC-EE-0037, option 1 : début du chapitre).
+- [x] Ancres des entrées sans JavaScript : option 1 retenue (DEC-EE-0037).
+- [ ] « Aucune table des matières » si absente ; liens hors archive ignorés (F-12.2, F-12.3) : implémenté, à valider sur l'appareil.
 - [x] Marque-pages : ajout, retrait, écran listé, retrait immédiat (F-10) (DEC-EE-0036, validé sur l'appareil).
 
 ### Session 4b — Recherche

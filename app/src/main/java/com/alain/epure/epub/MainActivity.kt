@@ -36,6 +36,7 @@ import com.alain.epure.epub.domain.ReadingTheme
 import com.alain.epure.epub.domain.RecentList
 import com.alain.epure.epub.domain.RefusalReason
 import com.alain.epure.epub.domain.TextSizeRules
+import com.alain.epure.epub.domain.TocEntry
 import com.alain.epure.epub.data.AppSettings
 import com.alain.epure.epub.data.BookmarkStore
 import com.alain.epure.epub.data.RecentStore
@@ -46,6 +47,7 @@ import com.alain.epure.epub.system.OpenBook
 import com.alain.epure.epub.system.TapSide
 import com.alain.epure.epub.ui.AboutScreen
 import com.alain.epure.epub.ui.BookmarksScreen
+import com.alain.epure.epub.ui.TocScreen
 import com.alain.epure.epub.ui.HomeScreen
 import com.alain.epure.epub.ui.ReaderScreen
 import com.alain.epure.epub.ui.SettingsScreen
@@ -149,6 +151,9 @@ private fun EpureApp(
     // Bookmarks of the open book, and whether the « Marque-pages » screen is shown (SPEC.md F-10).
     var bookmarks by remember { mutableStateOf(emptyList<Bookmark>()) }
     var showingBookmarks by remember { mutableStateOf(false) }
+    // Table of contents of the open book, and whether the « Table des matières » screen is shown (SPEC.md F-12).
+    var toc by remember { mutableStateOf(emptyList<TocEntry>()) }
+    var showingToc by remember { mutableStateOf(false) }
     // Counts each navigation, so that a return to a chapter already shown reloads it (see ReaderScreen).
     var navToken by remember { mutableIntStateOf(0) }
 
@@ -184,6 +189,8 @@ private fun EpureApp(
         progressPercent = 0
         bookmarks = emptyList()
         showingBookmarks = false
+        toc = emptyList()
+        showingToc = false
     }
 
     // Leaving the activity closes the book and removes its copy.
@@ -210,6 +217,8 @@ private fun EpureApp(
                     returnTo = null
                     bookmarks = BookmarkStore.load(context, reading.uri)
                     showingBookmarks = false
+                    toc = reading.book.book.toc
+                    showingToc = false
                     progressPercent = reading.progress
                     goTo(place.spineIndex, place.scrollY)
                     save(reading)
@@ -312,6 +321,19 @@ private fun EpureApp(
                 onBack = { page = Page.SETTINGS },
             )
         }
+    } else if (showingToc) {
+        TocScreen(
+            entries = toc,
+            leftHanded = leftHanded,
+            onOpen = { entry ->
+                showingToc = false
+                goTo(entry.spineIndex, 0)
+            },
+            onBack = {
+                showingToc = false
+                goTo(index, current.position.scrollY)
+            },
+        )
     } else if (showingBookmarks) {
         BookmarksScreen(
             bookmarks = bookmarks,
@@ -339,6 +361,10 @@ private fun EpureApp(
                 BookmarkStore.save(context, current.uri, bookmarks)
             },
             onOpenBookmarks = { showingBookmarks = true },
+            tocAvailable = toc.isNotEmpty(),
+            onTable = {
+                if (toc.isEmpty()) notice = R.string.toc_none else showingToc = true
+            },
             index = index,
             startScrollY = startScrollY,
             navToken = navToken,

@@ -4,6 +4,8 @@ package com.alain.epure.epub.domain
 data class BookPackage(
     val title: String?,
     val spine: List<String>,
+    /** The table of contents, empty if the book has none or it cannot be read (F-12.2). */
+    val toc: List<TocEntry> = emptyList(),
 )
 
 /** Pure logic that turns the parsed package document into archive paths. No Android dependency. */

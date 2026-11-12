@@ -1020,10 +1020,10 @@ Facile : logique pure dans `domain/Bookmarks.kt`, stockage dans `data/BookmarkSt
 
 ---
 
-## DEC-EE-0037 — Table des matières : ancres sans JavaScript (à trancher)
+## DEC-EE-0037 — Table des matières : ancres sans JavaScript (tranchée : option 1)
 
 - Date : 12/11/2026
-- Statut : Proposée (à trancher par le porteur avant la table des matières)
+- Statut : Adoptée (option 1, décision du porteur, 12/11/2026) ; à valider sur l'appareil
 - Jalon : 4 (session 4a)
 - Exigences concernées : F-12.1, F-12.3, F-14.1, S-1, S-3 ; `CLAUDE.md` §4
 
@@ -1035,7 +1035,7 @@ Une entrée de table des matières peut pointer vers un titre à l'intérieur d'
 2. **Calculer la position du titre en Kotlin** à partir du XHTML : demande l'ajout d'un analyseur HTML (par exemple jsoup, licence MIT, compatible GPL v3). Décision à consigner avant tout ajout (`CLAUDE.md` §4), et entrée à justifier (effet sur le manifeste, taille de l'APK).
 3. **Activer JavaScript** pour retrouver l'identifiant : écarté (S-1, T-13).
 
-**Recommandation** : option 1 dans un premier temps, option 2 si la précision est jugée insuffisante après test sur les documents 1 et 2.
+**Décision** : option 1. Chaque entrée va au début de son chapitre. Option 2 à reconsidérer si la précision est jugée insuffisante après test sur les documents 1 et 2.
 
 **Réversibilité**
 Facile : une fonction de résolution de lien.

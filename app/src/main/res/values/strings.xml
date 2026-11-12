@@ -55,6 +55,8 @@
     <string name="theme_amoled">Nuit (AMOLED)</string>
     <string name="theme_noir">Nuit (noir)</string>
     <string name="action_close">Fermer</string>
+    <string name="toc_title">Table des matières</string>
+    <string name="toc_none">Aucune table des matières</string>
     <string name="bookmarks_title">Marque-pages</string>
     <string name="bookmarks_empty">Aucun marque-page</string>
     <string name="bookmark_label">Chapitre %1$d, %2$d %%</string>
