@@ -27,7 +27,6 @@ import com.alain.epure.epub.ui.theme.TextSecondary
 fun SettingsScreen(
     bookListEnabled: Boolean,
     onToggleBookList: () -> Unit,
-    onOpenAbout: () -> Unit,
     onBack: () -> Unit,
 ) {
     Column(
@@ -42,11 +41,6 @@ fun SettingsScreen(
             label = stringResource(R.string.settings_book_list),
             value = stringResource(if (bookListEnabled) R.string.settings_on else R.string.settings_off),
             onClick = onToggleBookList,
-        )
-        SettingRow(
-            label = stringResource(R.string.settings_about),
-            value = null,
-            onClick = onOpenAbout,
         )
         TextButton(onClick = onBack, modifier = Modifier.heightIn(min = 48.dp)) {
             Text(stringResource(R.string.action_back), color = TextPrimary)

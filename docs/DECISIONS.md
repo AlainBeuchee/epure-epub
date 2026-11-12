@@ -605,7 +605,7 @@ Facile : remplacer `RecentStore` par DataStore, sans changer les données métie
 ## DEC-EE-0021 — Points de la session 3a : taille, marges, images, retour au passage
 
 - Date : 12/11/2026
-- Statut : Proposée (à valider par le porteur avant la session 3a)
+- Statut : Adoptée (validée par le porteur, 12/11/2026), amendée le même jour (voir « Amendement du 12/11/2026 » en fin d'entrée)
 - Jalon : 3 (session 3a)
 - Exigences concernées : F-2.3, F-3.1, F-3.2, F-3.3, F-6.5, F-8.3, F-14.1 ; `SPEC.md` §9.1
 
@@ -641,6 +641,43 @@ Ce sont les valeurs proposées dans `SPEC.md` §9.1 et les choix déjà faits po
 **Réversibilité**
 Facile : les paliers, marges et interligne sont des constantes ; l'action « Retour au passage » se retire sans toucher au reste.
 
+**Amendement du 12/11/2026 (par le porteur)**
+- **Marges : 16 dp** au lieu de 24 dp, et interligne 1,4 appliqué au livre (DEC-EE-0024).
+- **Barre du bas**, de gauche à droite : « Table » ; pourcentage de progression (« 42 % ») ; « < » ; « > » ; « Plus » à l'extrémité droite.
+- **Pages précédente et suivante (F-6.5) : rétablies.** Elles remplacent l'abandon décrit plus haut. « < » et « > » sont des actions texte de la barre, ce qui réduit la dérogation à B.6 pour le changement de page (le changement de chapitre par geste reste signalé, DEC-EE-0019).
+- **« Plus » : tranché.** Extrémité droite, libellé « Plus » (texte seul, charte B.6).
+- **« Table » : tranché.** Visible dès la session 3a, mais **désactivée** jusqu'à la session 4a. Le porteur veut vérifier l'espace entre les éléments de la barre sur l'appareil dès maintenant.
+- **« < » et « > » : tranché. Ils changent de **chapitre** (précédent et suivant), et non de page. Le défilement à l'intérieur d'un chapitre reste continu (DEC-EE-0016). L'action F-6.5 se lit donc « chapitre précédent / chapitre suivant ». Elle s'ajoute au changement par toucher sur les côtés et au glissement horizontal (DEC-EE-0016, DEC-EE-0019), qui restent en place.
+- **Conséquence pour la charte** : le changement de chapitre a désormais une action texte dans la barre. La dérogation B.6 de DEC-EE-0021 ne vaut plus pour ce point ; elle reste pour le toucher et le glissement, déjà signalés dans DEC-EE-0019.
+
+---
+
+## DEC-EE-0023 — Menu « Plus » aligné à gauche ; Paramètres et « À propos » sur l'accueil
+
+- Date : 12/11/2026
+- Statut : Adoptée (proposée par l'assistant, validée par le porteur, 12/11/2026)
+- Jalon : 3 (session 3a)
+- Exigences concernées : F-6.3, F-16.2 ; `CHARTE.md` A.6 (fenêtre de menu) et ligne « Menu Plus » du tableau des écrans
+
+**Contexte**
+Le menu « Plus » s'affichait au centre de l'écran, texte centré, alors que le reste de l'app est aligné à gauche. Il contenait aussi « Paramètres » et « À propos », qui concernent l'app et non le livre ouvert.
+
+**Décision**
+- Le panneau « Plus » s'ouvre au-dessus de la barre de commandes, ancré en bas. Fond `Black`, liseré 1 dp `TextSecondary`, rayon 16 dp, texte aligné à gauche, actions d'au moins 48 dp. Le reste de l'écran est assombri ; un toucher à l'extérieur, ou Retour, le ferme.
+- « Plus » ne contient que les réglages de lecture : « Taille du texte » et « Retour au passage ».
+- « Paramètres » et « À propos » sont sur l'accueil, dans une barre basse séparée du contenu par un filet, sur la même ligne que dans les pages de lecture : « Paramètres » à gauche, « À propos » à droite.
+- « À propos » est retiré de la page Paramètres, pour n'avoir qu'un seul accès.
+
+**Dérogation à la charte**
+`CHARTE.md` A.6 décrit la fenêtre de menu comme centrée. Cette décision l'écarte pour le panneau « Plus », sur demande du porteur. La charte n'est pas modifiée (`CLAUDE.md` §5) : ce point est à reporter dans `CHARTE.md` par le porteur.
+
+**Conséquences**
+- Pas de nouvelle permission ni de nouvelle bibliothèque.
+- Retour depuis « À propos » : retour à l'accueil (et non plus à Paramètres).
+
+**Réversibilité**
+Facile : le panneau et la barre d'accueil sont deux composables distincts.
+
 ---
 
 ## DEC-EE-0022 — Liste des livres (F-16.1) : désactivée par défaut, 10 livres
@@ -667,6 +704,48 @@ Une seule entrée par défaut garde l'accueil minimal et respecte la confidentia
 
 **Réversibilité**
 Facile : la limite est une constante dans `data/`.
+
+---
+
+## DEC-EE-0024 — Confort typographique de lecture : vérification et points à trancher
+
+- Date : 12/11/2026
+- Statut : Adoptée en grande partie (décisions du porteur du 12/11/2026, tableau ci-dessous) ; à valider sur l'appareil
+- Jalon : 3 (session 3a)
+- Exigences concernées : F-2.3, F-3.1, F-3.2, F-3.3 ; `CHARTE.md` A.8 (contraste)
+
+**Contexte**
+Le porteur a fourni des recommandations de typographie et de confort de lecture sur écran (interligne, police, longueur de ligne, taille, contraste, espacement des paragraphes). Cette entrée confronte chaque recommandation à l'état du projet.
+
+**Vérification**
+
+| # | Recommandation | État du projet | Décision proposée |
+|---|---|---|---|
+| 1 | Interligne 1,4 à 1,5 (minimum 1,5 en WCAG 1.4.12) | Adopté en DEC-EE-0021 (F-2.3, 1,4), mais **non appliqué** au livre jusqu'ici | Appliqué à 1,4 dans le style de lecture (`BookWebView`). À valider sur l'appareil. Passer à 1,5 si la lecture reste difficile ; la recommandation WCAG 1.5 n'est pas tenue à 1,4 |
+| 2 | Marges latérales | Adopté : 24 dp (DEC-EE-0021). Le code est à **16 dp**, réduit après un test sur l'appareil, sans entrée de décision | **À trancher** : garder 16 dp et l'écrire ici, ou revenir à 24 dp |
+| 3 | 50 à 75 caractères par ligne | Non traité. Sur un téléphone en portrait, une ligne ne tient qu'environ 35 à 45 caractères à 20 sp | **À trancher** : limiter la largeur de texte à environ 75 caractères, utile sur tablette ou en paysage ; sans effet en portrait sur téléphone |
+| 4 | Police : sans-serif humaniste, Atkinson Hyperlegible, Lexend, Literata, Source Serif | Police système sans empattement (DEC-EE-0011, F-3.2). Aucune police n'est embarquée | Garder la police système (aucun fichier ajouté, aucune licence à suivre). Une police embarquée (Atkinson, Lexend) demanderait une décision séparée : licence (Apache 2.0 ou SIL OFL, compatibilité GPL v3 à vérifier), taille de l'APK |
+| 5 | Taille 16 à 18 px sur ordinateur, à 50–70 cm | Paliers de 16 à 24 sp (DEC-EE-0021, F-3.1). Défaut : palier 20 sp (125 %). Sur téléphone, la distance de lecture est plus courte | Garder les paliers ; mesurer sur l'appareil que le défaut de 20 sp convient |
+| 6 | Contraste : éviter le noir pur sur blanc pur ; privilégier un gris très foncé sur fond clair | Texte `#FFFFFF` sur fond `#000000`, en mode nuit uniquement. La recommandation vise le texte sombre sur fond clair ; sur fond noir, un texte blanc pur peut donner un halo à certains lecteurs | **À trancher** : garder `#FFFFFF` (jeton `TextPrimary`) ou choisir un blanc légèrement atténué (par exemple `#E6E6E6`). Si la valeur change, `CHARTE.md` A.5 et le jeton changent aussi |
+| 7 | Espacement entre paragraphes : 1,5 à 2 em | Non traité : la mise en forme du livre est reprise telle quelle | **À trancher** : ajouter un espacement de 1,5 em entre paragraphes dans le style de lecture, ou le laisser au livre (F-3.3) |
+
+**Décisions du porteur (12/11/2026)**
+1. **Marges : 16 dp** (valeur du code, testée sur l'appareil). Remplace les 24 dp de DEC-EE-0021 (amendée ci-dessous).
+2. **Longueur de ligne : plafond à 75 caractères, pas de taille calculée.** Une taille fixée pour obtenir 50 à 75 caractères ne tient pas sur téléphone : à 360 dp de large et 16 dp de marge, il faudrait environ 13 sp, trop petit pour lire. La taille est donc fixe, et la largeur de texte est plafonnée à 75 caractères (`max-width: 75ch`, centré). Sur téléphone en portrait, ce plafond n'a pas d'effet. La borne de 50 caractères n'est pas imposée.
+3. **Police : inchangée** (police système sans empattement, DEC-EE-0011).
+4. **Taille par défaut : 16 sp** (palier 0 de F-3.1, décision du porteur du 12/11/2026 ; le 18 sp envisagé est écarté). La taille calculée d'après le nombre de caractères est écartée, pour la raison du point 2.
+5. **Couleur du texte : blanc atténué (`#E6E6E6`) à la première ouverture.** Le blanc pur (`#FFFFFF`) se choisit dans le menu « Plus » (« Blanc pur pour le texte » / « Blanc atténué pour le texte »), réglage conservé. Le fond reste `#000000`.
+6. **Espacement entre paragraphes : mise en forme du livre conservée** (F-3.3).
+
+**Justification**
+Les recommandations vont dans le sens du cadrage déjà adopté (F-2.3, F-3.2, F-3.3). Les écarts (interligne non appliqué, marges à 16 dp, longueur de ligne) sont à corriger ou à décider, pas à présumer. `CLAUDE.md` §5 interdit de traiter un point `[À DÉCIDER]` comme tranché.
+
+**Conséquences**
+- Aucune permission, aucune bibliothèque, aucune police ajoutée.
+- `CHARTE.md` n'est pas modifiée (`CLAUDE.md` §5). Le porteur reportera dans la charte les points tranchés : A.5 (contraste), A.6 (fenêtre de menu, voir DEC-EE-0023), A.8 (accessibilité).
+
+**Réversibilité**
+Facile : l'interligne et les marges sont des constantes ou une règle CSS ; la police reste celle du système.
 
 ---
 

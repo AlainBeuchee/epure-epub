@@ -10,6 +10,8 @@ object AppSettings {
 
     private const val PREFERENCES = "epure_epub_settings"
     private const val KEY_BOOK_LIST = "book_list_enabled"
+    private const val KEY_TEXT_STEP = "text_size_step"
+    private const val KEY_PURE_WHITE = "pure_white"
 
     private fun preferences(context: Context) =
         context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
@@ -20,5 +22,25 @@ object AppSettings {
 
     fun setBookListEnabled(context: Context, enabled: Boolean) {
         preferences(context).edit { putBoolean(KEY_BOOK_LIST, enabled) }
+    }
+
+    /**
+     * Colour of the book text: softened white by default, pure white on request (DEC-EE-0024).
+     */
+    fun isPureWhite(context: Context): Boolean =
+        preferences(context).getBoolean(KEY_PURE_WHITE, false)
+
+    fun setPureWhite(context: Context, pure: Boolean) {
+        preferences(context).edit { putBoolean(KEY_PURE_WHITE, pure) }
+    }
+
+    /** Text size step (SPEC.md F-3.1), 16 sp by default (DEC-EE-0024). */
+    fun textSizeStep(context: Context): Int =
+        com.alain.epure.epub.domain.TextSizeRules.validStep(
+            preferences(context).takeIf { it.contains(KEY_TEXT_STEP) }?.getInt(KEY_TEXT_STEP, 0)
+        )
+
+    fun setTextSizeStep(context: Context, step: Int) {
+        preferences(context).edit { putInt(KEY_TEXT_STEP, com.alain.epure.epub.domain.TextSizeRules.validStep(step)) }
     }
 }

@@ -32,6 +32,7 @@ import com.alain.epure.epub.domain.ReadingRules
 import com.alain.epure.epub.domain.RecentBook
 import com.alain.epure.epub.domain.RecentList
 import com.alain.epure.epub.domain.RefusalReason
+import com.alain.epure.epub.domain.TextSizeRules
 import com.alain.epure.epub.data.AppSettings
 import com.alain.epure.epub.data.RecentStore
 import com.alain.epure.epub.system.BookCopy
@@ -131,6 +132,20 @@ private fun EpureApp(
     var listEnabled by remember { mutableStateOf(AppSettings.isBookListEnabled(context)) }
     var page by remember { mutableStateOf(Page.HOME) }
     val versionName = remember { versionNameOf(context) }
+    // Reading state shown by the command bar: progression, text size, and the place left by the last link.
+    var progressPercent by remember { mutableIntStateOf(0) }
+    var textStep by remember { mutableIntStateOf(AppSettings.textSizeStep(context)) }
+    var returnTo by remember { mutableStateOf<ReadingPosition?>(null) }
+    var pureWhite by remember { mutableStateOf(AppSettings.isPureWhite(context)) }
+    // Counts each navigation, so that a return to a chapter already shown reloads it (see ReaderScreen).
+    var navToken by remember { mutableIntStateOf(0) }
+
+    fun goTo(chapterIndex: Int, scrollY: Int) {
+        index = chapterIndex
+        startScrollY = scrollY
+        navToken++
+        notice = null
+    }
 
     fun save(reading: ReadingSession) {
         val updated = RecentList.upsert(recents, reading.toRecent(), RecentList.limit(listEnabled))
@@ -153,6 +168,8 @@ private fun EpureApp(
         index = 0
         startScrollY = 0
         notice = null
+        returnTo = null
+        progressPercent = 0
     }
 
     // Leaving the activity closes the book and removes its copy.
@@ -176,8 +193,9 @@ private fun EpureApp(
                     reading.position = place
                     reading.progress = ReadingRules.progressPercent(place.spineIndex, spineSize, 0f)
                     session = reading
-                    index = place.spineIndex
-                    startScrollY = place.scrollY
+                    returnTo = null
+                    progressPercent = reading.progress
+                    goTo(place.spineIndex, place.scrollY)
                     save(reading)
                 }.onFailure { error ->
                     // A book from the list that can no longer be read keeps its entry (F-1.3).
@@ -214,9 +232,9 @@ private fun EpureApp(
         if (openedFromOutside) onFinish()
     }
 
-    // Settings and « À propos » are reached from the start screen; back returns one step.
+    // Settings and « À propos » are reached from the start screen; back returns to it.
     BackHandler(enabled = session == null && page != Page.HOME) {
-        page = if (page == Page.ABOUT) Page.SETTINGS else Page.HOME
+        page = Page.HOME
     }
 
     val current = session
@@ -241,6 +259,7 @@ private fun EpureApp(
                     RecentStore.save(context, recents)
                 },
                 onOpenSettings = { page = Page.SETTINGS },
+                onOpenAbout = { page = Page.ABOUT },
             )
             Page.SETTINGS -> SettingsScreen(
                 bookListEnabled = listEnabled,
@@ -251,12 +270,11 @@ private fun EpureApp(
                     recents = RecentList.trim(recents, RecentList.limit(listEnabled))
                     RecentStore.save(context, recents)
                 },
-                onOpenAbout = { page = Page.ABOUT },
                 onBack = { page = Page.HOME },
             )
             Page.ABOUT -> AboutScreen(
                 versionName = versionName,
-                onBack = { page = Page.SETTINGS },
+                onBack = { page = Page.HOME },
             )
         }
     } else {
@@ -264,23 +282,29 @@ private fun EpureApp(
             book = current.book,
             index = index,
             startScrollY = startScrollY,
+            navToken = navToken,
             notice = notice,
+            progressPercent = progressPercent,
+            textStep = textStep,
+            returnAvailable = returnTo != null,
             onTap = { side ->
-                notice = null
                 val last = current.book.book.spine.size - 1
                 when (side) {
-                    TapSide.RIGHT -> if (index < last) index++
-                    TapSide.LEFT -> if (index > 0) index--
+                    TapSide.RIGHT -> if (index < last) goTo(index + 1, 0)
+                    TapSide.LEFT -> if (index > 0) goTo(index - 1, 0)
                     TapSide.CENTER -> Unit
                 }
             },
             onLink = { target ->
                 when (target) {
-                    // A link to another chapter moves the reading there. A link inside the current
+                    // A link to another chapter moves the reading there, and remembers the place left
+                    // for « Retour au passage » (one step, F-14.1). A link inside the current
                     // chapter (fragment only) is not followed yet: the text stays where it is.
                     is LinkTarget.Chapter -> {
-                        notice = null
-                        if (target.index != index) index = target.index
+                        if (target.index != index) {
+                            returnTo = current.position
+                            goTo(target.index, 0)
+                        }
                     }
                     LinkTarget.External -> notice = R.string.link_external
                     LinkTarget.Unavailable -> notice = R.string.link_unavailable
@@ -294,9 +318,33 @@ private fun EpureApp(
                         reading.book.book.spine.size,
                         fraction,
                     )
+                    progressPercent = reading.progress
                     handler.removeCallbacks(saveLater)
                     handler.postDelayed(saveLater, SAVE_DELAY_MS)
                 }
+            },
+            onPrevious = { if (index > 0) goTo(index - 1, 0) },
+            onNext = { if (index < current.book.book.spine.size - 1) goTo(index + 1, 0) },
+            onReturn = {
+                returnTo?.let { place ->
+                    returnTo = null
+                    goTo(place.spineIndex, place.scrollY)
+                }
+            },
+            onTextSmaller = {
+                textStep = TextSizeRules.smaller(textStep)
+                AppSettings.setTextSizeStep(context, textStep)
+            },
+            onTextLarger = {
+                textStep = TextSizeRules.larger(textStep)
+                AppSettings.setTextSizeStep(context, textStep)
+            },
+            pureWhite = pureWhite,
+            onToggleWhite = {
+                pureWhite = !pureWhite
+                AppSettings.setPureWhite(context, pureWhite)
+                // The chapter is shown again in the new colour, at the same place.
+                goTo(index, current.position.scrollY)
             },
         )
     }

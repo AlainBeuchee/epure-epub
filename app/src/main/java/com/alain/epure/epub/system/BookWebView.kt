@@ -33,6 +33,8 @@ class BookWebView(
     private val onTap: (TapSide) -> Unit,
     private val onLink: (LinkTarget) -> Unit,
     private val onPosition: (scrollY: Int, fraction: Float) -> Unit,
+    private val onBandTap: () -> Unit,
+    private val onScroll: () -> Unit,
 ) : WebView(context), ChapterRenderer {
 
     override val view: View get() = this
@@ -42,12 +44,24 @@ class BookWebView(
     /** Offset to apply once the chapter is loaded (reopening a book, F-5.3). */
     private var pendingScrollY = 0
 
-    private val minSwipeDistance = SWIPE_DISTANCE_DP * context.resources.displayMetrics.density
+    /** True from the start of a chapter load until the chapter is laid out. */
+    private var loading = false
+
+    private val density = context.resources.displayMetrics.density
+    private val minSwipeDistance = SWIPE_DISTANCE_DP * density
     private val minSwipeVelocity = ViewConfiguration.get(context).scaledMinimumFlingVelocity
+
+    /** Text zoom currently applied, in percent. */
+    private var textZoom = 100
 
     private val taps = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onSingleTapUp(e: MotionEvent): Boolean {
             val width = width.takeIf { it > 0 } ?: return false
+            // A short tap in the bottom band opens the command bar (SPEC.md F-6.1, DEC-EE-0021).
+            if (e.y >= height - BOTTOM_BAND_DP * density) {
+                onBandTap()
+                return true
+            }
             val fraction = e.x / width
             onTap(
                 when {
@@ -96,7 +110,11 @@ class BookWebView(
     // Every scroll is reported; the caller decides when to save it (SPEC.md F-5.2).
     override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
         super.onScrollChanged(l, t, oldl, oldt)
-        if (book != null) onPosition(scrollY, scrollFraction())
+        if (book != null) {
+            // Only the reader's own scrolling closes the command bar; moving to a chapter does not.
+            if (!loading) onScroll()
+            onPosition(scrollY, scrollFraction())
+        }
     }
 
     /** Fraction of the chapter already scrolled, from 0.0 to 1.0. */
@@ -106,12 +124,31 @@ class BookWebView(
     }
 
     /**
+     * Changes the text zoom. The new layout is laid out again, so the same fraction of the chapter
+     * is scrolled back into view once it is ready (SPEC.md F-3.1: the passage read is kept).
+     */
+    override fun setTextZoom(percent: Int) {
+        if (percent == textZoom) return
+        textZoom = percent
+        val fraction = scrollFraction()
+        settings.textZoom = percent
+        // Nothing read yet (or nothing loaded): there is no passage to keep.
+        if (fraction <= 0f) return
+        // The new layout is not measured yet; the offset is applied after a short delay.
+        postDelayed({
+            val range = (contentHeight * scale - height).coerceAtLeast(1f)
+            scrollTo(0, (fraction * range).toInt())
+        }, TEXT_ZOOM_SETTLE_MS)
+    }
+
+    /**
      * Shows the chapter at [chapterPath] of [openBook]. The chapter starts at the top,
      * or at [startScrollY] when the book is reopened at a saved place.
      */
-    override fun show(openBook: OpenBook, chapterPath: String, startScrollY: Int) {
+    override fun show(openBook: OpenBook, chapterPath: String, startScrollY: Int, pureWhite: Boolean) {
         book = openBook
         pendingScrollY = startScrollY.coerceAtLeast(0)
+        loading = true
         val bytes = openBook.readEntry(chapterPath)
         if (bytes == null) {
             loadDataWithBaseURL(BASE_URL, "", "text/html", "utf-8", null)
@@ -119,7 +156,7 @@ class BookWebView(
         }
         loadDataWithBaseURL(
             BASE_URL + chapterPath,
-            withReadingStyle(bytes.toString(Charsets.UTF_8)),
+            withReadingStyle(bytes.toString(Charsets.UTF_8), pureWhite),
             "text/html",
             "utf-8",
             null,
@@ -132,13 +169,33 @@ class BookWebView(
      * black background, light text, system sans-serif. Images keep their own colours.
      * The rule is added at the end of the chapter, so it wins over most of the book's own styles.
      */
-    private fun withReadingStyle(html: String): String {
+    private fun withReadingStyle(html: String, pureWhite: Boolean): String {
+        val style = readingStyle(pureWhite)
         val closing = Regex("</body>", RegexOption.IGNORE_CASE).find(html)
         return if (closing != null) {
-            html.substring(0, closing.range.first) + READING_STYLE + html.substring(closing.range.first)
+            html.substring(0, closing.range.first) + style + html.substring(closing.range.first)
         } else {
-            html + READING_STYLE
+            html + style
         }
+    }
+
+    /**
+     * The text colour is softened white by default and pure white on request (DEC-EE-0024):
+     * a pure white on black can make the text halo for some readers.
+     */
+    private fun readingStyle(pureWhite: Boolean): String {
+        val colour = if (pureWhite) "#ffffff" else SOFT_WHITE
+        return "<style>html body, html body * { background-color: #000000 !important; color: $colour !important; " +
+            // Line spacing of 1.4 times the text size (SPEC.md F-2.3, DEC-EE-0021).
+            "line-height: 1.4 !important; " +
+            "font-family: sans-serif !important; text-align: left !important; } " +
+            // Line length: at most 75 characters, centred when the screen is wider (DEC-EE-0024).
+            "html body { max-width: 75ch !important; margin-left: auto !important; margin-right: auto !important; } " +
+            "html body img, html body svg, html body image { background-color: transparent !important; } " +
+            "html body div { height: auto !important; } " +
+            // Cover pages are often one SVG image sized in percent: give it a real size (the page stayed black).
+            "html body svg { width: 100% !important; height: auto !important; } " +
+            "html body img { height: auto !important; max-height: none !important; max-width: 100% !important; }</style>"
     }
 
     /** Forgets the book: nothing of it stays loaded in the WebView. */
@@ -155,6 +212,7 @@ class BookWebView(
                 this@BookWebView.scrollTo(0, pendingScrollY)
                 pendingScrollY = 0
             }
+            loading = false
         }
 
         // The engine never navigates by itself. A clicked link is classified (LinkPolicy) and handed to the
@@ -200,13 +258,12 @@ class BookWebView(
         const val BASE_URL = "https://$BASE_HOST/"
         // Side zones: the outer quarter of the width on each side (provisional, to confirm on device).
         const val SIDE_FRACTION = 0.25f
+        // Bottom band, in dp, where a short tap opens the command bar: about 2 cm (to measure on device).
+        const val BOTTOM_BAND_DP = 126f
+        const val TEXT_ZOOM_SETTLE_MS = 150L
         // A swipe must cover at least this distance, in dp, to change chapter.
         const val SWIPE_DISTANCE_DP = 96f
-        const val READING_STYLE =
-            "<style>html body, html body * { background-color: #000000 !important; color: #ffffff !important; " +
-                "font-family: sans-serif !important; text-align: left !important; } " +
-                "html body img, html body svg, html body image { background-color: transparent !important; } " +
-                "html body div { height: auto !important; } " +
-                "html body img { height: auto !important; max-height: none !important; max-width: 100% !important; }</style>"
+        // Softened white of the book text, the default colour (DEC-EE-0024).
+        const val SOFT_WHITE = "#e6e6e6"
     }
 }

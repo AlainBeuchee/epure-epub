@@ -142,23 +142,27 @@
 
 ### Session 3a — Commandes et réglages du texte
 
-- [ ] Commandes au toucher central, masquage automatique et au défilement (F-6.1, F-6.2).
-- [ ] Barre du haut : titre ; barre du bas : progression, « Table », « Rechercher », « Marque-page », « Plus » (F-6.3).
-- [ ] Menu « Plus » : « Taille du texte », « Mode nuit », « Partager », « Écran allumé ».
-- [ ] Taille du texte à cinq paliers, mémorisée, avec conservation du passage (F-3.1).
-- [ ] Police et couleurs du livre selon les décisions F-3.2 et F-3.3.
-- [ ] Pages précédente et suivante, si la pagination est retenue (F-6.5).
+- [x] Appui court dans la bande basse (environ 2 cm) : ouvre la barre de commandes et les barres système ; masquage automatique et à la lecture (F-6.1, F-6.2, DEC-EE-0021).
+- [x] Barre du haut : titre (F-6.3).
+- [x] Barre du bas, de gauche à droite : « Table » (visible mais désactivée jusqu'à la session 4a, DEC-EE-0021) ; pourcentage de progression (« 42 % ») ; « < » et « > », chapitre précédent et suivant (F-6.3, F-6.5, DEC-EE-0021 amendée) ; « Plus » à l'extrémité droite.
+- [x] Panneau « Plus » ancré au-dessus de la barre, texte à gauche : « Taille du texte » (deux actions), « Retour au passage ». « Rechercher » et « Marque-page » arrivent en 4a et 4b ; « Mode nuit », « Partager » et « Écran allumé » en 3b. Ne sont pas affichées avant leur session.
+- [x] Accueil : barre basse séparée par un filet, « Paramètres » à gauche, « À propos » à droite (DEC-EE-0023). « À propos » retiré de la page Paramètres.
+- [x] Interligne 1,4 appliqué au livre (F-2.3, DEC-EE-0021) (validé sur l'appareil).
+- [x] Marges de 16 dp, longueur de ligne plafonnée à 75 caractères, taille par défaut 16 sp, blanc atténué par défaut avec « Blanc pur pour le texte » dans « Plus » (DEC-EE-0024) (validé sur l'appareil).
+- [x] Taille du texte à cinq paliers, mémorisée, avec conservation du passage (F-3.1).
+- [x] Police et couleurs du livre selon les décisions F-3.2 et F-3.3.
+- [x] « Retour au passage » dans les commandes après un lien interne, une seule étape (F-14.1).
 
 ### Session 3b — Mode nuit, écran allumé, partage
 
 - [ ] Mode nuit par styles imposés au contenu, global, désactivé par défaut (F-8).
 - [ ] Images en mode nuit selon F-8.3 retenu.
 - [ ] Réglage « Écran allumé pendant la lecture », activé par défaut (F-9).
-- [ ] « Partager » dans le menu « Plus » et dans le menu d'appui long d'un récent (F-13).
-- [ ] « Retour au passage » après un lien interne, si retenu (F-14.1).
+- [ ] « Mode nuit », « Partager » et « Écran allumé » ajoutés au menu « Plus » ; « Partager » dans le menu d'appui long d'un récent (F-13).
 
 ### Contrôles du jalon 3 (sur l'appareil)
 
+- [ ] Appui court dans la bande basse : la barre apparaît ; « Table », « < », « > » et « Plus » réagissent ; le pourcentage est juste.
 - [ ] Changement de taille du texte : le passage lu reste affiché.
 - [ ] Mode nuit : fond noir, texte clair, y compris sur un livre aux couleurs imposées (document 1, document 4).
 - [ ] Commandes : apparition et disparition immédiates, sans animation.

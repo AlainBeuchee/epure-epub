@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Épure EPUB</string>
-    <string name="home_start">Ouvrez un livre au format EPUB.</string>
-    <string name="home_open_file">Ouvrir un fichier</string>
+    <string name="home_title">Liste</string>
+    <string name="home_list_hint">Vous pouvez activer ou désactiver la liste de livres dans Paramètres.</string>
+    <string name="home_open">Ouvrir</string>
     <string name="home_opening">Ouverture…</string>
     <string name="warning_mimetype">Ce fichier ne respecte pas tout à fait le format EPUB : la mise en forme peut différer.</string>
     <string name="error_not_epub">Ce fichier n\'est pas un EPUB lisible.</string>
@@ -27,5 +28,18 @@
     <string name="about_privacy_text">Aucune donnée ne quitte l\'appareil. Aucune bibliothèque d\'analytics, de suivi de plantage ou de publicité. L\'app ne demande aucune permission d\'accès à Internet ni au stockage. Le livre est traité comme un fichier non fiable : aucun script n\'est exécuté, aucune ressource n\'est chargée hors du livre, aucun lien externe n\'est ouvert.</string>
     <string name="about_licenses_title">Licences</string>
     <string name="about_licenses_text">Moteur de rendu : WebView, composant système Android. Bibliothèques : Jetpack Compose, AndroidX et Kotlin, sous licence Apache 2.0. Application : GPL v3.</string>
+    <string name="reader_table">Table</string>
+    <string name="reader_progress">%1$d %%</string>
+    <string name="reader_progress_description">Progression : %1$d %%</string>
+    <string name="reader_previous_chapter">Chapitre précédent</string>
+    <string name="reader_next_chapter">Chapitre suivant</string>
+    <string name="reader_more">Plus</string>
+    <string name="reader_text_size">Taille du texte : %1$d sp</string>
+    <string name="reader_text_smaller">Texte plus petit</string>
+    <string name="reader_text_larger">Texte plus grand</string>
+    <string name="reader_return">Retour au passage</string>
+    <string name="reader_white_pure">Blanc pur pour le texte</string>
+    <string name="reader_white_soften">Blanc atténué pour le texte</string>
+    <string name="action_close">Fermer</string>
     <string name="recent_unreadable">Fichier inaccessible. Ouvre-le à nouveau depuis l\'application où il a été ouvert initialement.</string>
 </resources>
