@@ -1001,7 +1001,7 @@ Facile : quelques lignes de mise en forme.
 ## DEC-EE-0036 — Marque-pages : un par chapitre, stockage local, retrait par appui long
 
 - Date : 12/11/2026
-- Statut : Proposée (implémentée pour vérification sur l'appareil ; à valider)
+- Statut : Adoptée et validée sur l'appareil par le porteur
 - Jalon : 4 (session 4a)
 - Exigences concernées : F-10.1 à F-10.4 ; §7 (stockage)
 
