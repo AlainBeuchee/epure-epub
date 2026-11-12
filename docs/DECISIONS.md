@@ -1042,6 +1042,33 @@ Facile : une fonction de résolution de lien.
 
 ---
 
+## DEC-EE-0038 — Préparation de la session 4b (recherche) : points à trancher
+
+- Date : 13/11/2026
+- Statut : Proposée (à trancher par le porteur avant la session 4b)
+- Jalon : 4 (session 4b)
+- Exigences concernées : F-11.1 à F-11.6, F-6.3 (« Plus »), S-1 (pas de JavaScript)
+
+**Contexte**
+Les sessions 4a (table des matières, marque-pages) sont validées. La recherche n'a pas de point d'entrée : « Rechercher » doit être ajoutée au panneau « Plus », à côté de « Marque-pages ».
+
+**Points à trancher**
+1. **Insensibilité aux accents (F-11.2)** : (a) insensible aux accents et à la casse (« ete » trouve « été ») ; (b) seule la casse est ignorée. Recommandation : (a).
+2. **Portée (F-11.3)** : (a) chapitre courant seulement, avec la recherche native de la WebView, inaccessible sans JavaScript ; (b) tout le livre, chapitre par chapitre, sans stocker le texte (F-11.5). Recommandation : (b).
+3. **Signalement de l'occurrence (F-11.4)** : négatif, sans couleur d'accent. À confirmer.
+
+**Points techniques à vérifier au début de la session**
+- Sans JavaScript, la recherche lit le XHTML côté Kotlin et retire les balises. Un analyseur HTML maison est interdit sans décision (`CLAUDE.md` §7) : soit une bibliothèque (jsoup, MIT, compatible GPL v3) à consigner, soit un retrait simple des balises, à décider.
+- Le saut à l'occurrence est limité au début du chapitre contenant le texte, comme pour la table des matières (DEC-EE-0037). Proposition : retenir cette limite, avec le compteur.
+
+**Mises à jour de la spécification à faire par le porteur (`SPEC.md`, non modifié par l'assistant)**
+- F-1.1, F-2.3, F-3.1, F-3.3, F-6.1, F-6.2, F-6.3, F-6.5, F-8 (mode nuit retiré, thèmes), F-9 (libellé « Reste allumé »), F-10.2, F-12.1, F-16.1, F-16.2.
+
+**Réversibilité**
+Facile : une fonction de recherche isolée dans le domaine.
+
+---
+
 ## Décisions en attente
 
 La liste à jour des points `[À DÉCIDER]` est tenue dans `SPEC.md` §9.1, avec le jalon auquel chacun doit être tranché. Les premiers à trancher sont :

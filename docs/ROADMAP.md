@@ -185,6 +185,8 @@
 
 ### Session 4b — Recherche
 
+> Prochaine session. Points à trancher avant de commencer : DEC-EE-0038. Entrée « Rechercher » à ajouter au panneau « Plus ».
+
 - [ ] Champ de recherche, clavier ouvert à l'arrivée (F-11.1).
 - [ ] Portée de la recherche selon F-11.3 retenu ; lecture chapitre par chapitre sans stockage du texte.
 - [ ] Compteur à la fin de la recherche, « Précédent » et « Suivant », « Aucun résultat » (F-11.4).
