@@ -25,6 +25,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.IntentCompat
 import androidx.core.net.toUri
+import com.alain.epure.epub.domain.Bookmark
+import com.alain.epure.epub.domain.BookmarkRules
 import com.alain.epure.epub.domain.BookRefusal
 import com.alain.epure.epub.domain.LinkTarget
 import com.alain.epure.epub.domain.ReadingPosition
@@ -35,6 +37,7 @@ import com.alain.epure.epub.domain.RecentList
 import com.alain.epure.epub.domain.RefusalReason
 import com.alain.epure.epub.domain.TextSizeRules
 import com.alain.epure.epub.data.AppSettings
+import com.alain.epure.epub.data.BookmarkStore
 import com.alain.epure.epub.data.RecentStore
 import com.alain.epure.epub.system.BookCopy
 import com.alain.epure.epub.system.BookShare
@@ -42,6 +45,7 @@ import com.alain.epure.epub.system.EpubReader
 import com.alain.epure.epub.system.OpenBook
 import com.alain.epure.epub.system.TapSide
 import com.alain.epure.epub.ui.AboutScreen
+import com.alain.epure.epub.ui.BookmarksScreen
 import com.alain.epure.epub.ui.HomeScreen
 import com.alain.epure.epub.ui.ReaderScreen
 import com.alain.epure.epub.ui.SettingsScreen
@@ -142,6 +146,9 @@ private fun EpureApp(
     var readingTheme by remember { mutableStateOf(AppSettings.readingTheme(context)) }
     var keepScreenOn by remember { mutableStateOf(AppSettings.isKeepScreenOn(context)) }
     var leftHanded by remember { mutableStateOf(AppSettings.isLeftHanded(context)) }
+    // Bookmarks of the open book, and whether the « Marque-pages » screen is shown (SPEC.md F-10).
+    var bookmarks by remember { mutableStateOf(emptyList<Bookmark>()) }
+    var showingBookmarks by remember { mutableStateOf(false) }
     // Counts each navigation, so that a return to a chapter already shown reloads it (see ReaderScreen).
     var navToken by remember { mutableIntStateOf(0) }
 
@@ -175,6 +182,8 @@ private fun EpureApp(
         notice = null
         returnTo = null
         progressPercent = 0
+        bookmarks = emptyList()
+        showingBookmarks = false
     }
 
     // Leaving the activity closes the book and removes its copy.
@@ -199,6 +208,8 @@ private fun EpureApp(
                     reading.progress = ReadingRules.progressPercent(place.spineIndex, spineSize, 0f)
                     session = reading
                     returnTo = null
+                    bookmarks = BookmarkStore.load(context, reading.uri)
+                    showingBookmarks = false
                     progressPercent = reading.progress
                     goTo(place.spineIndex, place.scrollY)
                     save(reading)
@@ -301,9 +312,33 @@ private fun EpureApp(
                 onBack = { page = Page.SETTINGS },
             )
         }
+    } else if (showingBookmarks) {
+        BookmarksScreen(
+            bookmarks = bookmarks,
+            leftHanded = leftHanded,
+            onOpen = { bookmark ->
+                showingBookmarks = false
+                goTo(bookmark.spineIndex, bookmark.scrollY)
+            },
+            onRemove = { bookmark ->
+                bookmarks = BookmarkRules.remove(bookmarks, bookmark)
+                BookmarkStore.save(context, current.uri, bookmarks)
+            },
+            onBack = {
+                showingBookmarks = false
+                goTo(index, current.position.scrollY)
+            },
+        )
     } else {
         ReaderScreen(
             book = current.book,
+            bookmarkMarked = BookmarkRules.isMarked(bookmarks, index),
+            onToggleBookmark = {
+                val here = Bookmark(index, current.position.scrollY, progressPercent)
+                bookmarks = BookmarkRules.toggle(bookmarks, here)
+                BookmarkStore.save(context, current.uri, bookmarks)
+            },
+            onOpenBookmarks = { showingBookmarks = true },
             index = index,
             startScrollY = startScrollY,
             navToken = navToken,

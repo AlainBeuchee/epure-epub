@@ -998,6 +998,50 @@ Facile : quelques lignes de mise en forme.
 
 ---
 
+## DEC-EE-0036 — Marque-pages : un par chapitre, stockage local, retrait par appui long
+
+- Date : 12/11/2026
+- Statut : Proposée (implémentée pour vérification sur l'appareil ; à valider)
+- Jalon : 4 (session 4a)
+- Exigences concernées : F-10.1 à F-10.4 ; §7 (stockage)
+
+**Décision**
+- Action « Ajouter marque-page » dans le panneau « Plus » ; elle devient « Retirer le marque-page » si le chapitre courant est marqué. Un seul marque-page par chapitre (F-10.1).
+- Écran « Marque-pages » (entrée « Marque-pages » du panneau « Plus ») : liste dans l'ordre du livre ; appui court = aller à la position ; appui long = retirer, sans confirmation (DEC-0035).
+- Stockage dans les préférences privées de l'app, par livre, en org.json ; jamais dans le fichier EPUB (F-10.4).
+- Libellé : « Chapitre N, P % ». Le titre du chapitre (F-10.2) viendra avec la table des matières (session 4a, DEC-EE-0037).
+
+**Conséquences**
+- Aucune permission, aucune bibliothèque.
+- `SPEC.md` F-10.2 : le titre du chapitre attend la table des matières.
+
+**Réversibilité**
+Facile : logique pure dans `domain/Bookmarks.kt`, stockage dans `data/BookmarkStore.kt`.
+
+---
+
+## DEC-EE-0037 — Table des matières : ancres sans JavaScript (à trancher)
+
+- Date : 12/11/2026
+- Statut : Proposée (à trancher par le porteur avant la table des matières)
+- Jalon : 4 (session 4a)
+- Exigences concernées : F-12.1, F-12.3, F-14.1, S-1, S-3 ; `CLAUDE.md` §4
+
+**Contexte**
+Une entrée de table des matières peut pointer vers un titre à l'intérieur d'un chapitre (`chapitre.xhtml#section3`). La WebView n'exécute pas de JavaScript (S-1), donc elle ne sait pas où se trouve un identifiant. Il n'existe pas de position connue dans le chapitre. Les liens internes de même chapitre ne sont pas suivis aujourd'hui (DEC-EE-0021).
+
+**Options**
+1. **Aller au début du chapitre** (défaut proposé) : aucune dépendance, aucune exécution de code ; la précision est moindre quand l'entrée pointe vers un titre au milieu d'un chapitre.
+2. **Calculer la position du titre en Kotlin** à partir du XHTML : demande l'ajout d'un analyseur HTML (par exemple jsoup, licence MIT, compatible GPL v3). Décision à consigner avant tout ajout (`CLAUDE.md` §4), et entrée à justifier (effet sur le manifeste, taille de l'APK).
+3. **Activer JavaScript** pour retrouver l'identifiant : écarté (S-1, T-13).
+
+**Recommandation** : option 1 dans un premier temps, option 2 si la précision est jugée insuffisante après test sur les documents 1 et 2.
+
+**Réversibilité**
+Facile : une fonction de résolution de lien.
+
+---
+
 ## Décisions en attente
 
 La liste à jour des points `[À DÉCIDER]` est tenue dans `SPEC.md` §9.1, avec le jalon auquel chacun doit être tranché. Les premiers à trancher sont :
