@@ -602,6 +602,74 @@ Facile : remplacer `RecentStore` par DataStore, sans changer les données métie
 
 ---
 
+## DEC-EE-0021 — Points de la session 3a : taille, marges, images, retour au passage
+
+- Date : 12/11/2026
+- Statut : Proposée (à valider par le porteur avant la session 3a)
+- Jalon : 3 (session 3a)
+- Exigences concernées : F-2.3, F-3.1, F-3.2, F-3.3, F-6.5, F-8.3, F-14.1 ; `SPEC.md` §9.1
+
+**Contexte**
+`SPEC.md` §9.1 liste ces points comme `[À DÉCIDER]` pour le jalon 3. `CLAUDE.md` §5 interdit de les implémenter comme s'ils étaient tranchés. Certains sont déjà couverts par une décision adoptée ; d'autres n'ont qu'une proposition.
+
+**Décision (proposée)**
+- **F-3.1 Taille du texte** : cinq paliers, réglage global, mémorisé dans les préférences. Valeurs de départ à mesurer sur l'appareil : 16, 18, 20, 22 et 24 sp. Changer la taille conserve le passage lu (ancre, DEC-EE-0010).
+- **F-2.3 Marges et interligne** : marges de 24 dp, interligne de 1,4 (valeurs de `SPEC.md` §9.1).
+- **F-3.2 Police** : police système sans empattement. Déjà adoptée par DEC-EE-0011 ; rappel, aucun changement.
+- **F-3.3 Couleurs du livre** : ignorées, option « Couleurs du livre » désactivée et non implémentée. Déjà adoptée par DEC-EE-0011 ; rappel.
+- **F-6.5 Pages précédente et suivante** : **abandonnée**. Aucune action « Page précédente », « Page suivante », « Chapitre précédent » ni « Chapitre suivant » dans les commandes. Le changement de chapitre se fait par toucher sur les côtés de l'écran et par glissement horizontal (DEC-EE-0016, DEC-EE-0019).
+- **Commandes par la bande basse** : un appui court dans la bande basse d'environ 2 cm (≈ 126 dp sur un écran standard, à mesurer) affiche les commandes et les barres système : en haut, heure, Wi-Fi, 5G, batterie ; en bas, les boutons système. Au-dessus de cette bande, le comportement reste celui de DEC-EE-0016 et DEC-EE-0019.
+- **Barre des commandes** (bande basse, F-6.3) : à gauche, « Table » ; au milieu, la progression en pourcentage (« 42 % ») ; à droite, « Plus ». « Plus » ouvre la fenêtre de menu, qui contient toutes les autres commandes : « Rechercher », « Marque-page », « Taille du texte », « Mode nuit », « Partager », « Écran allumé », ainsi que « Paramètres » et « À propos ».
+- **F-8.3 Images en mode nuit** : affichées telles quelles, sans inversion (cohérent avec DEC-EE-0011).
+- **F-14.1 Retour au passage** : après un lien interne, une action « Retour au passage » dans les commandes, avec une seule étape d'historique.
+
+**Dérogation à la charte** : A.9 et B.6 exigent qu'un geste ait une action texte équivalente dans les commandes. Ici, le changement de chapitre n'a pas d'action texte : il n'est accessible que par geste. Choix du porteur, pour garder une barre de commandes sobre et cohérente avec Épure PDF. Le glissement horizontal reste une dérogation à B.6 déjà signalée dans DEC-EE-0019.
+
+**Points tranchés par le porteur (11-12/11/2026)**
+- Pas de « page n/N » : la progression en pourcentage est affichée au centre de la barre.
+- « Table » à gauche ; « Rechercher » et « Marque-page » déplacés dans « Plus ».
+- Le toucher au centre de F-6.1 n'a plus lieu d'être : la bande basse le remplace.
+
+**Justification**
+Ce sont les valeurs proposées dans `SPEC.md` §9.1 et les choix déjà faits pour la charte (fond noir, pas de couleur d'accent). Les tailles en sp sont des points de départ : elles se valident à l'œil sur l'appareil.
+
+**Conséquences**
+- `SPEC.md` §9.1 : le porteur retire les lignes tranchées. Je ne modifie pas `SPEC.md` (`CLAUDE.md` §5).
+- Pas de nouvelle permission ni de nouvelle bibliothèque.
+- Aucune action de chapitre texte : les gestes de changement de chapitre n'ont pas d'équivalent texte (dérogation ci-dessus).
+
+**Réversibilité**
+Facile : les paliers, marges et interligne sont des constantes ; l'action « Retour au passage » se retire sans toucher au reste.
+
+---
+
+## DEC-EE-0022 — Liste des livres (F-16.1) : désactivée par défaut, 10 livres
+
+- Date : 12/11/2026
+- Statut : Adoptée (validée par le porteur, 12/11/2026 ; décision rétroactive, implémentée en session 2c)
+- Jalon : 2 (session 2c)
+- Exigences concernées : F-4.2, F-16.1 ; `SPEC.md` §9.1
+
+**Contexte**
+`SPEC.md` §9.1 prévoit une liste des livres facultative. La session 2c l'a implémentée sans entrée de décision correspondante.
+
+**Décision (proposée)**
+- Réglage « Liste des livres » dans Paramètres, **désactivé par défaut**.
+- Quand il est activé, la liste des récents est limitée à **10 livres**.
+- Sans ce réglage, seul le dernier livre est conservé (F-4.2).
+
+**Justification**
+Une seule entrée par défaut garde l'accueil minimal et respecte la confidentialité : moins de données stockées (§7).
+
+**Conséquences**
+- Pas de nouvelle permission ni de nouvelle bibliothèque.
+- La liste est stockée avec le même mécanisme que DEC-EE-0020.
+
+**Réversibilité**
+Facile : la limite est une constante dans `data/`.
+
+---
+
 ## Décisions en attente
 
 La liste à jour des points `[À DÉCIDER]` est tenue dans `SPEC.md` §9.1, avec le jalon auquel chacun doit être tranché. Les premiers à trancher sont :
