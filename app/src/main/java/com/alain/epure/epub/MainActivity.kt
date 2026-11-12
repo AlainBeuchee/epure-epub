@@ -30,6 +30,7 @@ import com.alain.epure.epub.domain.LinkTarget
 import com.alain.epure.epub.domain.ReadingPosition
 import com.alain.epure.epub.domain.ReadingRules
 import com.alain.epure.epub.domain.RecentBook
+import com.alain.epure.epub.domain.ReadingTheme
 import com.alain.epure.epub.domain.RecentList
 import com.alain.epure.epub.domain.RefusalReason
 import com.alain.epure.epub.domain.TextSizeRules
@@ -138,8 +139,9 @@ private fun EpureApp(
     var progressPercent by remember { mutableIntStateOf(0) }
     var textStep by remember { mutableIntStateOf(AppSettings.textSizeStep(context)) }
     var returnTo by remember { mutableStateOf<ReadingPosition?>(null) }
-    var pureWhite by remember { mutableStateOf(AppSettings.isPureWhite(context)) }
+    var readingTheme by remember { mutableStateOf(AppSettings.readingTheme(context)) }
     var keepScreenOn by remember { mutableStateOf(AppSettings.isKeepScreenOn(context)) }
+    var leftHanded by remember { mutableStateOf(AppSettings.isLeftHanded(context)) }
     // Counts each navigation, so that a return to a chapter already shown reloads it (see ReaderScreen).
     var navToken by remember { mutableIntStateOf(0) }
 
@@ -235,9 +237,9 @@ private fun EpureApp(
         if (openedFromOutside) onFinish()
     }
 
-    // Settings and « À propos » are reached from the start screen; back returns to it.
+    // Settings are reached from the start screen, « À propos » from the settings; back returns one step.
     BackHandler(enabled = session == null && page != Page.HOME) {
-        page = Page.HOME
+        page = if (page == Page.ABOUT) Page.SETTINGS else Page.HOME
     }
 
     val current = session
@@ -262,12 +264,17 @@ private fun EpureApp(
                     RecentStore.save(context, recents)
                 },
                 onOpenSettings = { page = Page.SETTINGS },
-                onOpenAbout = { page = Page.ABOUT },
+                leftHanded = leftHanded,
                 onShareRecent = { book ->
                     if (!BookShare.share(context, book.uri.toUri())) message = shareFailed
                 },
             )
             Page.SETTINGS -> SettingsScreen(
+                leftHanded = leftHanded,
+                onToggleLeftHanded = {
+                    leftHanded = !leftHanded
+                    AppSettings.setLeftHanded(context, leftHanded)
+                },
                 bookListEnabled = listEnabled,
                 onToggleBookList = {
                     // Turning the list off keeps only the last book (F-4.2).
@@ -276,11 +283,22 @@ private fun EpureApp(
                     recents = RecentList.trim(recents, RecentList.limit(listEnabled))
                     RecentStore.save(context, recents)
                 },
+                readingTheme = readingTheme,
+                onNextTheme = {
+                    readingTheme = readingTheme.next()
+                    AppSettings.setReadingTheme(context, readingTheme)
+                },
+                textSizeSp = TextSizeRules.sizeSp(textStep),
+                onNextTextSize = {
+                    textStep = TextSizeRules.cycle(textStep)
+                    AppSettings.setTextSizeStep(context, textStep)
+                },
+                onOpenAbout = { page = Page.ABOUT },
                 onBack = { page = Page.HOME },
             )
             Page.ABOUT -> AboutScreen(
                 versionName = versionName,
-                onBack = { page = Page.HOME },
+                onBack = { page = Page.SETTINGS },
             )
         }
     } else {
@@ -337,14 +355,11 @@ private fun EpureApp(
                     goTo(place.spineIndex, place.scrollY)
                 }
             },
-            onTextSmaller = {
-                textStep = TextSizeRules.smaller(textStep)
+            onNextTextSize = {
+                textStep = TextSizeRules.cycle(textStep)
                 AppSettings.setTextSizeStep(context, textStep)
             },
-            onTextLarger = {
-                textStep = TextSizeRules.larger(textStep)
-                AppSettings.setTextSizeStep(context, textStep)
-            },
+            leftHanded = leftHanded,
             keepScreenOn = keepScreenOn,
             onToggleKeepScreenOn = {
                 keepScreenOn = !keepScreenOn
@@ -353,11 +368,11 @@ private fun EpureApp(
             onShare = {
                 if (!BookShare.share(context, current.uri.toUri())) notice = R.string.share_failed
             },
-            pureWhite = pureWhite,
-            onToggleWhite = {
-                pureWhite = !pureWhite
-                AppSettings.setPureWhite(context, pureWhite)
-                // The chapter is shown again in the new colour, at the same place.
+            theme = readingTheme,
+            onNextTheme = {
+                readingTheme = readingTheme.next()
+                AppSettings.setReadingTheme(context, readingTheme)
+                // The chapter is shown again in the new theme, at the same place.
                 goTo(index, current.position.scrollY)
             },
         )

@@ -68,12 +68,13 @@ Thème **sombre uniquement**, sans couleur dynamique, sans thème clair.
 |---|---|---|
 | `Black` | `#000000` | Fond de tous les écrans, fond des fenêtres |
 | `TextPrimary` | `#FFFFFF` | Texte principal, éléments actifs, titres, curseur |
-| `TextSecondary` | `#B0B0B0` | Texte secondaire, libellés, éléments inactifs, filets, liserés |
+| `TextSecondary` | `#999999` | Texte secondaire, libellés, éléments inactifs, filets, liserés (DEC-EE-0031) |
 
 - Aucune couleur d'accent. L'information se transmet par la taille, la graisse et le niveau de gris.
 - Éléments inactifs : gris clair (`TextSecondary`), **lisibles** (jamais invisibles).
 - Les couleurs sont déclarées une fois, comme jetons dans `ui/theme/Color.kt`, puis reprises dans `darkColorScheme` (`ui/theme/Theme.kt`). Aucune couleur écrite en dur dans un écran.
 - Fond : toujours `Black`, y compris dans `res/values/themes.xml` (`android:windowBackground`) pour éviter un flash blanc au démarrage.
+- Exception : la page du livre suit le thème de lecture choisi par l'utilisateur (B.4, DEC-EE-0026). L'interface reste sur `Black`.
 
 #### Typographie
 
@@ -97,7 +98,8 @@ Thème **sombre uniquement**, sans couleur dynamique, sans thème clair.
 
 | Élément | Valeur |
 |---|---|
-| Marge horizontale des écrans | 24 dp (accueil : 16 dp pour les raccourcis) |
+| Marge horizontale des écrans | 24 dp (accueil : 16 dp pour les raccourcis) ; Épure EPUB : 16 dp (Paramètres, accueil) |
+| Marge horizontale du texte du livre | 10 dp (Épure EPUB, DEC-EE-0027) |
 | Marge verticale du haut d'écran | 24 dp |
 | Espace entre un titre et son premier élément | 24 dp |
 | Espace entre un bloc et son libellé | 16 dp à 32 dp |
@@ -125,11 +127,12 @@ Ces composants se réutilisent d'un projet à l'autre. Leur style doit rester id
 | **Action en liste** | Texte seul, `AppNameStyle`, `TextPrimary`, hauteur minimale 48 dp, cible pleine largeur | `ActionRow.kt` |
 | **Action secondaire** | Texte `LabelStyle` en `TextSecondary`, cible ≥ 48 dp | `TextAction` dans `ActionRow.kt` |
 | **Champ de recherche** | Texte seul, sans cadre ni loupe ; une ligne soulignée implicite ; curseur `TextPrimary` ; clavier ouvert à l'arrivée sur l'écran | `AppListScreen.kt` |
-| **Fenêtre de menu** | Centrée, fond `Black`, liseré 1 dp `TextSecondary`, rayon 16 dp, titre en `TextPrimary`, filet, actions en liste ; fond de l'écran assombri ; fermeture par Retour ou toucher à l'extérieur | `AppActionsMenu.kt` |
+| **Fenêtre de menu** | Centrée, fond `Black`, liseré 1 dp `TextSecondary`, rayon 16 dp, titre en `TextPrimary`, filet, actions en liste ; fond de l'écran assombri ; fermeture par Retour ou toucher à l'extérieur. Variante Épure EPUB : panneau ancré au-dessus de la barre basse, pleine largeur, sans liseré, texte aligné à gauche, tailles de la page Paramètres (DEC-EE-0023, DEC-EE-0034) | `AppActionsMenu.kt` |
+| **Barre basse** | Filet 1 dp `TextSecondary`, commandes texte d'au moins 48 dp réparties sur une ligne, libellé court (symbole ou mot) et nom complet pour les lecteurs d'écran (DEC-EE-0030, reprise d'Épure Notes) | `CommandButton.kt` |
 | **Boîte de saisie** | Même fenêtre que le menu, champ de saisie en `AppNameStyle`, deux actions texte | `RenameDialog.kt` |
 | **Écran d'autorisation** | Plein écran, texte seul : titre, pourquoi, ce que l'app ne fait pas, consignes numérotées, bouton « Ouvrir le réglage », mention de révocation, bouton « Plus tard » | `PermissionScreen.kt` |
 | **Index alphabétique** | Colonne verticale de lettres à droite de la liste, `TextSecondary`, largeur 40 dp, seules les lettres présentes, masquée pendant une recherche | `LetterIndex.kt` |
-| **Liste de réglages** | Titre (`AppNameStyle`) puis actions en liste, défilement vertical | `SettingsScreen.kt` |
+| **Liste de réglages** | Titre (`titleLarge`, 22 sp), lignes en `bodyLarge` (16 sp), phrase explicative en 16 sp italique `TextSecondary`, défilement vertical (DEC-EE-0031, reprise d'Épure Notes) | `SettingsScreen.kt` |
 | **Séparateur** | `HorizontalDivider` de 1 dp en `TextSecondary` | menu et boîte de saisie |
 
 #### États d'un élément
@@ -244,14 +247,14 @@ Un livre EPUB est traité comme **un fichier venu de l'extérieur, potentielleme
 
 | Écran | Rôle | Accès | Jalon |
 |---|---|---|---|
-| Accueil | Titre, « Ouvrir un fichier », dernier livre, accès aux paramètres | Lancement de l'app | 1, 2 |
+| Accueil | Titre « Liste », livres récents, barre basse : « Ajout » (au milieu), « Paramètres » (à droite) | Lancement de l'app | 1, 2 |
 | Lecteur | Texte du livre, commandes au toucher | Ouverture d'un livre | 1 |
 | Table des matières | Liste hiérarchique des titres | Commandes | 4 |
 | Marque-pages | Liste des passages marqués | Commandes | 4 |
 | Recherche | Champ et navigation entre résultats | Commandes | 4 |
-| Paramètres | Options de lecture, « À propos » | Accueil | 2, 3 |
+| Paramètres | Liste des livres, latéralité, thème du texte, taille du texte, « À propos » | « Paramètres » sur l'accueil | 2, 3 |
 
-- Emplacement de l'accès aux paramètres sur l'accueil : action secondaire « Paramètres » (`LabelStyle`, `TextSecondary`) en bas de l'écran, comme dans Épure PDF (DEC-0028, reprise).
+- Accueil : barre basse avec un filet ; « Ajout » au milieu ouvre un fichier, « Paramètres » à droite ouvre les réglages (DEC-EE-0030). Cette barre reprend l'esthétique de la barre de Épure Notes.
 - Pas d'écran d'autorisation (A.6, A.10) : l'app ne demande aucune permission (B.10).
 - Pas d'écran de mot de passe : les livres protégés ne sont pas ouverts (SPEC §1.3, F-15.1).
 
@@ -261,8 +264,8 @@ Un livre EPUB est traité comme **un fichier venu de l'extérieur, potentielleme
 
 | Élément | Règle |
 |---|---|
-| Fond de l'écran de lecture | `Black` |
-| Texte du livre | `TextPrimary` sur `Black` (mode par défaut) ; en mode nuit, le même couple, par styles imposés au contenu |
+| Fond de la page du livre | Couleur du thème de lecture (DEC-EE-0026) : Jour `#F8F7F4`, Sépia `#F4ECD8`, Nuit (ardoise) `#1E1F22`, Nuit (AMOLED) `#121212`, Nuit (noir) `#000000` (défaut) |
+| Texte du livre | Couleur de texte du thème : Jour `#222222`, Sépia `#3B3126`, Nuit (ardoise) `#D4D4D4`, Nuit (AMOLED) `#C4C4C4`, Nuit (noir) `#E6E6E6` (défaut). Imposée au contenu par styles (DEC-EE-0026) |
 | Couleurs du livre (fonds, polices, couleurs de texte définis par le livre) | **Ignorées** (proposition **[À DÉCIDER]**, SPEC F-3.3). Elles ne sont pas une « couleur de page » comme dans un PDF : le texte est recomposé par l'app |
 | Titres du livre | Même couleur que le texte, graisse normale (pas de gras imposé) |
 | Liens dans le texte | `TextPrimary`, soulignés (le soulignement est la seule marque de lien) |
@@ -277,14 +280,15 @@ L'échelle de A.5 s'applique à l'interface. Le texte du livre a sa propre règl
 
 | Élément | Style |
 |---|---|
-| Titre de l'accueil « Épure EPUB » | `AppNameStyle`, `TextPrimary` |
-| « Ouvrir un fichier » | Action en liste (`AppNameStyle`) |
+| Titre de l'accueil « Liste » | 24 sp, `TextPrimary` (DEC-EE-0024) |
+| Phrase sous le titre | 16 sp, italique, `TextSecondary` |
 | Titre du livre dans les récents | `LabelStyle`, `TextPrimary` (dérogation, mieux adaptée aux titres longs ; à consigner, voir B.4 « Dérogations ») |
 | Seconde ligne d'un récent (« 42 % lu ») | `LabelStyle`, `TextSecondary` |
 | Titre du livre dans les commandes | `LabelStyle`, `TextPrimary` |
 | Progression « 42 % » | `LabelStyle`, `TextSecondary` |
 | Actions des commandes | Action secondaire, `TextPrimary` quand disponible, `TextSecondary` quand indisponible |
-| Texte du livre | Police système sans empattement (proposition **[À DÉCIDER]**, SPEC F-3.2), taille choisie, interligne 1,4 |
+| Symboles de la barre | « < », « > » : libellés courts, avec nom complet pour les lecteurs d'écran (DEC-EE-0030) |
+| Texte du livre | Police système sans empattement (DEC-EE-0011), taille de 12 à 24 sp (défaut 16 sp, DEC-EE-0027), interligne 1,4, largeur de ligne plafonnée à 75 caractères (DEC-EE-0024) |
 | Titres de la table des matières | `LabelStyle`, `TextPrimary` ; retrait de 16 dp par niveau |
 
 #### Plein écran
@@ -294,7 +298,7 @@ L'échelle de A.5 s'applique à l'interface. Le texte du livre a sa propre règl
 
 #### Iconographie
 
-Aucune icône. Toutes les actions du lecteur sont des libellés texte (« Table », « Rechercher », « Marque-page », « Plus », « Taille du texte », « Mode nuit », « Partager », « Écran allumé »). L'exception des raccourcis d'Épure (A.5) ne s'applique pas ici.
+Aucune icône. Toutes les actions du lecteur sont des libellés texte (« Table », « Rechercher », « Marque-page », « Plus », « Taille du texte », « Thème du texte », « Reste allumé pendant la lecture », « Partager », « Retour au passage »). Exception textuelle : les symboles « < » et « > » de la barre de commandes (DEC-EE-0021).
 
 #### Dérogations possibles, non tranchées
 
@@ -302,7 +306,8 @@ Aucune icône. Toutes les actions du lecteur sont des libellés texte (« Table 
 |---|---|---|
 | Titre du livre dans les récents | Titres longs ; `LabelStyle` au lieu de `AppNameStyle` | `SPEC.md` F-4.1 |
 | Signalement des résultats de recherche | Négatif de l'occurrence, sans couleur d'accent (comme Épure PDF) | `SPEC.md` F-11.4 |
-| Couleurs du livre | Ignorées par défaut : le livre ne décide pas de l'apparence | `SPEC.md` F-3.3, **[À DÉCIDER]** |
+| Couleurs du livre | Ignorées par défaut : le livre ne décide pas de l'apparence (thèmes de lecture à la place) | `SPEC.md` F-3.3, DEC-EE-0026 |
+| Symboles « < », « > » | Icônes textuelles, faute de libellé plus court dans la barre | DEC-EE-0021 |
 
 Toute dérogation retenue est consignée dans `DECISIONS.md` puis reportée ici.
 
@@ -312,9 +317,9 @@ Toute dérogation retenue est consignée dans `DECISIONS.md` puis reportée ici.
 
 | Composant | Description | Exigences |
 |---|---|---|
-| **Vue de lecture** | Texte recomposé, marges de 24 dp, interligne 1,4 ; défilement ou pagination selon la décision | F-2, F-3 |
-| **Barre de commandes** | Fond `Black`, texte seul ; en haut le titre du livre, en bas la progression et les actions ; apparition et disparition immédiates | F-6 |
-| **Indicateur de progression** | « 42 % », non touchable en version 1 (pas de saut à un pourcentage) | F-7 |
+| **Vue de lecture** | Texte recomposé, marges de 10 dp, interligne 1,4, largeur de ligne ≤ 75 caractères ; défilement continu (DEC-EE-0016) | F-2, F-3 (DEC-EE-0024, DEC-EE-0027) |
+| **Barre de commandes** | Fond `Black`, filet 1 dp, texte seul ; pour un gaucher (latéralité « gauche », DEC-EE-0032), côté et ordre inversés ; en haut le titre du livre ; en bas, de gauche à droite : « Table » (désactivée jusqu'à la session 4a), progression, « < » et « > » (chapitre précédent et suivant), « Plus » ; apparition et disparition immédiates | F-6 (DEC-EE-0021) |
+| **Indicateur de progression** | « 42 % », dans la barre de commandes, non touchable en version 1 (pas de saut à un pourcentage) | F-7 |
 | **Ligne de récent** | Titre du livre (passage à la ligne, pas de troncature) et seconde ligne en `TextSecondary` ; appui court = ouvrir, appui long = menu | F-4 |
 | **Liste hiérarchique** | Table des matières, retrait par niveau, texte seul | F-12 |
 | **Ligne de résultat** | Extrait ou titre de chapitre, compteur, actions « Précédent » et « Suivant » | F-11 |
@@ -327,17 +332,18 @@ Composants de A.6 réutilisés tels quels : action en liste, action secondaire, 
 |---|---|---|
 | Appui court | Récent | Ouvrir à la position mémorisée |
 | Appui long | Récent | Menu : « Retirer de la liste », « Partager » |
-| Toucher simple au centre | Texte | Afficher ou masquer les commandes (après le délai de double toucher du système, si un double toucher est utilisé) |
-| Balayage gauche-droite | Texte (si pagination) | Page suivante ou précédente |
-| Défilement vertical | Texte (si défilement continu) | Défilement natif ; masque les commandes |
+| Appui court dans la bande basse (environ 2 cm) | Texte | Affiche ou masque les commandes (DEC-EE-0021) |
+| Glisser vers le bas | Texte | Remonte dans le texte et affiche les commandes (DEC-EE-0028) |
+| Balayage gauche-droite | Texte | Chapitre suivant ou précédent (DEC-EE-0019) |
+| Défilement vertical | Texte | Défilement natif ; ne change pas l'état des commandes (DEC-EE-0028) |
 | Toucher sur un lien interne | Texte | Déplace la lecture ; « Retour au passage » disponible dans les commandes |
 | Toucher sur un lien externe | Texte | Message « Lien externe non ouvert » ; aucune action réseau |
 | Retour | Lecteur | Ferme la fenêtre ouverte, puis masque les commandes, puis quitte le lecteur (accueil, ou app d'origine si ouverture depuis une autre app) |
 | Retour | Accueil | Quitte l'app (comportement Android standard) |
 
-- Les gestes de changement de page ont **toujours** une action texte équivalente dans les commandes (« Page précédente », « Page suivante ») si la pagination est retenue (A.9).
-- Pas de double toucher de zoom : le texte est recomposé, la taille se règle dans le menu « Plus ».
-- Masquage automatique des commandes : 4 s (proposition, comme Épure PDF).
+- Les changements de chapitre ont une action texte équivalente dans la barre : « < » et « > » (A.9, DEC-EE-0021).
+- Pas de double toucher de zoom : le texte est recomposé, la taille se règle dans le menu « Plus » et dans les Paramètres (DEC-EE-0030).
+- Pas de masquage automatique par délai : les commandes restent visibles jusqu'à un appui sur le texte ou dans la bande basse (DEC-EE-0021, DEC-EE-0028). La proposition de 4 s n'est pas retenue.
 
 ### B.7 Textes propres
 
@@ -345,15 +351,15 @@ Libellés de référence (à reprendre dans `strings.xml`) :
 
 | Contexte | Texte |
 |---|---|
-| Accueil | « Ouvrir un fichier », « Aucun livre récent », « Paramètres » |
+| Accueil | « Liste », « Aucun livre récent », « Ajout », « Paramètres » |
 | Menu d'un récent | « Retirer de la liste », « Partager » |
-| Commandes | « Table », « Rechercher », « Marque-page », « Retirer le marque-page », « Plus », « Page précédente », « Page suivante » |
-| Menu « Plus » | « Taille du texte », « Mode nuit », « Partager », « Écran allumé » |
-| Tailles | « Plus petit », « Plus grand » (paliers) |
+| Commandes | « Table », « Rechercher », « Marque-page », « Retirer le marque-page », « Plus », « < », « > » |
+| Menu « Plus » | « Taille du texte : … sp », « Thème du texte : … », « Reste allumé pendant la lecture : oui / non », « Partager », « Retour au passage » |
+| Tailles | « Taille du texte : … sp » (un appui = taille suivante, DEC-EE-0033) |
 | Liens | « Lien externe non ouvert : Épure EPUB ne se connecte pas à Internet. », « Retour au passage » |
 | Listes vides | « Aucun marque-page », « Aucune table des matières », « Aucun résultat » |
 | Erreurs | « Fichier introuvable. », « Accès au fichier retiré. », « Ce fichier n'est pas un EPUB lisible. », « Ce livre ne contient pas de texte lisible. », « Ce livre est protégé et ne peut pas être ouvert. », « Ce livre est trop volumineux ou mal construit pour être ouvert. », « Ce chapitre ne peut pas être affiché. », « Image indisponible », « Ce livre ne contient pas de texte. » |
-| Réglages | « Mode nuit », « Écran allumé pendant la lecture », « Liste des livres », « À propos » |
+| Réglages | « Liste des livres : activée / désactivée », « Thème du texte : … », « Taille du texte : … sp », « À propos », « Retour » |
 
 Les messages d'erreur exacts restent ajustables au jalon concerné ; le ton reste neutre et factuel (A.7).
 
@@ -430,7 +436,7 @@ Ces garanties sont décrites au public dans le README et « À propos », en ter
 | 0 | Mise en place du projet, dépôt, licence, documents | À faire (documents en cours de rédaction) |
 | 1 | Lecteur de base : choix du moteur, ouverture, texte, sécurité minimale | À faire |
 | 2 | Ouverture depuis d'autres apps, récents, reprise, « À propos » | À faire |
-| 3 | Commandes, taille du texte, mode nuit, écran allumé, partage | À faire |
+| 3 | Commandes, taille du texte, thèmes de lecture, écran allumé, partage (mode nuit retiré) | En cours (3a et 3b implémentées, à valider) |
 | 4 | Table des matières, marque-pages, recherche | À faire |
 | 5 | Robustesse et sécurité : archives malveillantes, mémoire | À faire |
 
@@ -456,3 +462,4 @@ Liste à suivre dans l'ordre :
 
 - Partie A 1.0 (24/10/2026) : reprise sans modification de la charte du launcher Épure (DEC-0010).
 - Partie B 0.1 (10/11/2026) : déclinaison pour Épure EPUB, à partir de la Partie B 0.1 d'Épure PDF et de `SPEC.md` 0.1 d'Épure EPUB. Non validée par le porteur.
+- Partie B 0.2 (12/11/2026) : consignation des décisions DEC-EE-0021 à DEC-EE-0031 (barre de commandes, panneau « Plus », accueil et Paramètres, thèmes de lecture, marges et tailles, gestes, couleur secondaire). Modifiée par l'assistant sur demande explicite du porteur, alors que `CLAUDE.md` §5 réserve la charte au porteur. `SPEC.md` n'est pas modifié à ce stade.

@@ -7,7 +7,6 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +36,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -49,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.alain.epure.epub.R
 import com.alain.epure.epub.domain.LinkTarget
+import com.alain.epure.epub.domain.ReadingTheme
 import com.alain.epure.epub.domain.TextSizeRules
 import com.alain.epure.epub.system.ChapterRenderer
 import com.alain.epure.epub.system.OpenBook
@@ -62,8 +60,8 @@ import com.alain.epure.epub.ui.theme.TextSecondary
  * Reading screen: one chapter at a time, shown by the chapter renderer.
  *
  * - A tap on the outer sides changes chapter (DEC-EE-0016); a horizontal swipe does too (DEC-EE-0019).
- * - A short tap in the bottom band opens the command bar (DEC-EE-0021). While it is open, a tap
- *   on the text closes it; « < » and « > » keep it open; a scroll closes it.
+ * - A short tap in the bottom band, or a swipe down anywhere, opens the command bar (DEC-EE-0021, DEC-EE-0028).
+ *   While it is open, a tap on the text closes it; « < » and « > » keep it open; scrolling does not change it.
  * - The system bars are hidden while reading, and shown while the command bar is open.
  */
 @Composable
@@ -82,10 +80,10 @@ fun ReaderScreen(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onReturn: () -> Unit,
-    onTextSmaller: () -> Unit,
-    onTextLarger: () -> Unit,
-    pureWhite: Boolean,
-    onToggleWhite: () -> Unit,
+    onNextTextSize: () -> Unit,
+    leftHanded: Boolean,
+    theme: ReadingTheme,
+    onNextTheme: () -> Unit,
     keepScreenOn: Boolean,
     onToggleKeepScreenOn: () -> Unit,
     onShare: () -> Unit,
@@ -127,8 +125,8 @@ fun ReaderScreen(
                 )
             }
             AndroidView(
-                // Margins of 16 dp on each side (SPEC.md F-2.3; reduced from 24 dp after device test).
-                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                // Margins of 10 dp on each side (SPEC.md F-2.3; DEC-EE-0027, reduced from 16 dp by the owner).
+                modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
                 factory = { context ->
                     newChapterRenderer(
                         context,
@@ -139,7 +137,7 @@ fun ReaderScreen(
                         onLink = { target -> currentOnLink(target) },
                         onPosition = { scrollY, fraction -> currentOnPosition(currentIndex, scrollY, fraction) },
                         onBandTap = { commandsVisible = !commandsVisible },
-                        onScroll = { commandsVisible = false },
+                        onRevealBar = { commandsVisible = true },
                     ).view
                 },
                 // Load the chapter only when its chapter or navigation changes, not at every recomposition.
@@ -150,7 +148,7 @@ fun ReaderScreen(
                     val key = "$path#$navToken"
                     if (view.tag != key) {
                         view.tag = key
-                        renderer.show(book, path, startScrollY, pureWhite)
+                        renderer.show(book, path, startScrollY, theme)
                     }
                 },
                 // Nothing of the book stays in the engine once the screen is left.
@@ -193,10 +191,9 @@ fun ReaderScreen(
                     MorePanel(
                         textStep = textStep,
                         returnAvailable = returnAvailable,
-                        onTextSmaller = onTextSmaller,
-                        onTextLarger = onTextLarger,
-                        pureWhite = pureWhite,
-                        onToggleWhite = onToggleWhite,
+                        onNextTextSize = onNextTextSize,
+                        theme = theme,
+                        onNextTheme = onNextTheme,
                         keepScreenOn = keepScreenOn,
                         onToggleKeepScreenOn = onToggleKeepScreenOn,
                         onShare = {
@@ -219,6 +216,7 @@ fun ReaderScreen(
                     onPrevious = onPrevious,
                     onNext = onNext,
                     onMore = { moreOpen = !moreOpen },
+                    leftHanded = leftHanded,
                 )
             }
         }
@@ -237,6 +235,7 @@ private fun CommandBar(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onMore: () -> Unit,
+    leftHanded: Boolean,
 ) {
     val progressDescription = stringResource(R.string.reader_progress_description, progressPercent)
     Column(
@@ -252,42 +251,56 @@ private fun CommandBar(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Table is shown now to check the spacing; it opens the table of contents in session 4a.
-            BarAction(
-                text = stringResource(R.string.reader_table),
-                enabled = false,
-                onClick = {},
+            // Left-handed order (DEC-EE-0032) reverses the items.
+            val items: List<@Composable () -> Unit> = listOf(
+                {
+                    BarAction(
+                        text = stringResource(R.string.reader_table),
+                        enabled = false,
+                        onClick = {},
+                    )
+                },
+                {
+                    // Same box and text style as the actions, so the label sits on the same line.
+                    Box(
+                        modifier = Modifier
+                            .heightIn(min = 48.dp)
+                            .padding(horizontal = 12.dp)
+                            .semantics { contentDescription = progressDescription },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.reader_progress, progressPercent),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = TextPrimary,
+                        )
+                    }
+                },
+                {
+                    BarAction(
+                        text = "<",
+                        enabled = canPrevious,
+                        description = stringResource(R.string.reader_previous_chapter),
+                        onClick = onPrevious,
+                    )
+                },
+                {
+                    BarAction(
+                        text = ">",
+                        enabled = canNext,
+                        description = stringResource(R.string.reader_next_chapter),
+                        onClick = onNext,
+                    )
+                },
+                {
+                    BarAction(
+                        text = stringResource(R.string.reader_more),
+                        enabled = true,
+                        onClick = onMore,
+                    )
+                },
             )
-            // Same box and text style as the actions, so the label sits on the same line.
-            Box(
-                modifier = Modifier
-                    .heightIn(min = 48.dp)
-                    .padding(horizontal = 12.dp)
-                    .semantics { contentDescription = progressDescription },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = stringResource(R.string.reader_progress, progressPercent),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = TextPrimary,
-                )
-            }
-            BarAction(
-                text = "<",
-                enabled = canPrevious,
-                description = stringResource(R.string.reader_previous_chapter),
-                onClick = onPrevious,
-            )
-            BarAction(
-                text = ">",
-                enabled = canNext,
-                description = stringResource(R.string.reader_next_chapter),
-                onClick = onNext,
-            )
-            BarAction(
-                text = stringResource(R.string.reader_more),
-                enabled = true,
-                onClick = onMore,
-            )
+            (if (leftHanded) items.asReversed() else items).forEach { item -> item() }
         }
     }
 }
@@ -324,44 +337,34 @@ private fun BarAction(
 private fun MorePanel(
     textStep: Int,
     returnAvailable: Boolean,
-    onTextSmaller: () -> Unit,
-    onTextLarger: () -> Unit,
-    pureWhite: Boolean,
-    onToggleWhite: () -> Unit,
+    onNextTextSize: () -> Unit,
+    theme: ReadingTheme,
+    onNextTheme: () -> Unit,
     keepScreenOn: Boolean,
     onToggleKeepScreenOn: () -> Unit,
     onShare: () -> Unit,
     onReturn: () -> Unit,
     onClose: () -> Unit,
 ) {
-    val shape = RoundedCornerShape(16.dp)
+    // Full width, no outline, same sizes as the settings list (DEC-EE-0034).
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clip(shape)
-            .border(1.dp, TextSecondary, shape)
             .background(Black)
             // Taps on the panel itself are swallowed here, so they do not reach the dimmed screen behind it.
             .pointerInput(Unit) { detectTapGestures { } }
             .padding(vertical = 8.dp),
     ) {
-        Text(
-            text = stringResource(R.string.reader_text_size, TextSizeRules.sizeSp(textStep)),
-            color = TextSecondary,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-        )
-        PanelAction(stringResource(R.string.reader_text_smaller), enabled = textStep > 0, onTextSmaller)
+        // Each tap moves to the next size: 12, 14, … 24, then back to 12 sp (DEC-EE-0033).
         PanelAction(
-            stringResource(R.string.reader_text_larger),
-            enabled = textStep < TextSizeRules.STEPS_SP.lastIndex,
-            onTextLarger,
-        )
-        HorizontalDivider(color = TextSecondary, modifier = Modifier.padding(vertical = 4.dp))
-        PanelAction(
-            stringResource(if (pureWhite) R.string.reader_white_soften else R.string.reader_white_pure),
+            stringResource(R.string.reader_text_size, TextSizeRules.sizeSp(textStep)),
             enabled = true,
-            onToggleWhite,
+            onNextTextSize,
+        )
+        PanelAction(
+            stringResource(R.string.reader_theme, stringResource(theme.nameRes())),
+            enabled = true,
+            onNextTheme,
         )
         PanelAction(
             stringResource(if (keepScreenOn) R.string.reader_screen_on_yes else R.string.reader_screen_on_no),
@@ -370,7 +373,6 @@ private fun MorePanel(
         )
         PanelAction(stringResource(R.string.action_share), enabled = true, onShare)
         PanelAction(stringResource(R.string.reader_return), enabled = returnAvailable, onReturn)
-        HorizontalDivider(color = TextSecondary, modifier = Modifier.padding(vertical = 4.dp))
         PanelAction(stringResource(R.string.action_close), enabled = true, onClose)
     }
 }
@@ -386,7 +388,11 @@ private fun PanelAction(text: String, enabled: Boolean, onClick: () -> Unit) {
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
-        Text(text, color = if (enabled) TextPrimary else TextSecondary)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (enabled) TextPrimary else TextSecondary,
+        )
     }
 }
 
@@ -425,6 +431,15 @@ private fun KeepScreenOn(on: Boolean) {
         if (on) window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         onDispose { window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
     }
+}
+
+/** Name of a reading theme, as shown in « Plus ». */
+internal fun ReadingTheme.nameRes(): Int = when (this) {
+    ReadingTheme.DAY -> R.string.theme_day
+    ReadingTheme.SEPIA -> R.string.theme_sepia
+    ReadingTheme.SLATE -> R.string.theme_slate
+    ReadingTheme.AMOLED -> R.string.theme_amoled
+    ReadingTheme.NOIR -> R.string.theme_noir
 }
 
 /** The renderer created by [newChapterRenderer] is the view itself. */

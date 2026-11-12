@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -53,9 +53,15 @@ fun AboutScreen(versionName: String, onBack: () -> Unit) {
         Text(stringResource(R.string.about_licenses_title), color = TextPrimary, modifier = Modifier.padding(top = 16.dp))
         Text(stringResource(R.string.about_licenses_text), color = TextSecondary)
 
-        TextButton(onClick = onBack, modifier = Modifier.heightIn(min = 48.dp)) {
-            Text(stringResource(R.string.action_back), color = TextPrimary)
-        }
+        // A plain text row, not a TextButton: its minimum width centres the text and pushes it right.
+        Text(
+            text = stringResource(R.string.action_back),
+            color = TextPrimary,
+            modifier = Modifier
+                .heightIn(min = 48.dp)
+                .clickable(role = Role.Button, onClick = onBack)
+                .padding(vertical = 12.dp),
+        )
     }
 }
 

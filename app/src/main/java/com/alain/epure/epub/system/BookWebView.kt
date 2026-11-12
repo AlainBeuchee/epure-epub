@@ -17,6 +17,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.alain.epure.epub.domain.ArchivePolicy
 import com.alain.epure.epub.domain.LinkPolicy
+import com.alain.epure.epub.domain.ReadingTheme
 import com.alain.epure.epub.domain.LinkTarget
 import java.io.ByteArrayInputStream
 
@@ -34,7 +35,7 @@ class BookWebView(
     private val onLink: (LinkTarget) -> Unit,
     private val onPosition: (scrollY: Int, fraction: Float) -> Unit,
     private val onBandTap: () -> Unit,
-    private val onScroll: () -> Unit,
+    private val onRevealBar: () -> Unit,
 ) : WebView(context), ChapterRenderer {
 
     override val view: View get() = this
@@ -44,8 +45,6 @@ class BookWebView(
     /** Offset to apply once the chapter is loaded (reopening a book, F-5.3). */
     private var pendingScrollY = 0
 
-    /** True from the start of a chapter load until the chapter is laid out. */
-    private var loading = false
 
     private val density = context.resources.displayMetrics.density
     private val minSwipeDistance = SWIPE_DISTANCE_DP * density
@@ -79,6 +78,12 @@ class BookWebView(
             val start = e1 ?: return false
             val dx = e2.x - start.x
             val dy = e2.y - start.y
+            // A swipe down goes back up in the text and shows the command bar (DEC-EE-0028).
+            // A swipe up keeps reading forward and leaves the bar as it is.
+            if (dy >= minSwipeDistance && abs(dy) > abs(dx)) {
+                onRevealBar()
+                return true
+            }
             if (abs(dx) < minSwipeDistance || abs(dx) <= abs(dy) || abs(velocityX) < minSwipeVelocity) return false
             onTap(if (dx < 0) TapSide.RIGHT else TapSide.LEFT)
             return true
@@ -108,13 +113,10 @@ class BookWebView(
     }
 
     // Every scroll is reported; the caller decides when to save it (SPEC.md F-5.2).
+    // Scrolling does not change the command bar.
     override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
         super.onScrollChanged(l, t, oldl, oldt)
-        if (book != null) {
-            // Only the reader's own scrolling closes the command bar; moving to a chapter does not.
-            if (!loading) onScroll()
-            onPosition(scrollY, scrollFraction())
-        }
+        if (book != null) onPosition(scrollY, scrollFraction())
     }
 
     /** Fraction of the chapter already scrolled, from 0.0 to 1.0. */
@@ -145,10 +147,9 @@ class BookWebView(
      * Shows the chapter at [chapterPath] of [openBook]. The chapter starts at the top,
      * or at [startScrollY] when the book is reopened at a saved place.
      */
-    override fun show(openBook: OpenBook, chapterPath: String, startScrollY: Int, pureWhite: Boolean) {
+    override fun show(openBook: OpenBook, chapterPath: String, startScrollY: Int, theme: ReadingTheme) {
         book = openBook
         pendingScrollY = startScrollY.coerceAtLeast(0)
-        loading = true
         val bytes = openBook.readEntry(chapterPath)
         if (bytes == null) {
             loadDataWithBaseURL(BASE_URL, "", "text/html", "utf-8", null)
@@ -156,7 +157,7 @@ class BookWebView(
         }
         loadDataWithBaseURL(
             BASE_URL + chapterPath,
-            withReadingStyle(bytes.toString(Charsets.UTF_8), pureWhite),
+            withReadingStyle(bytes.toString(Charsets.UTF_8), theme),
             "text/html",
             "utf-8",
             null,
@@ -169,8 +170,8 @@ class BookWebView(
      * black background, light text, system sans-serif. Images keep their own colours.
      * The rule is added at the end of the chapter, so it wins over most of the book's own styles.
      */
-    private fun withReadingStyle(html: String, pureWhite: Boolean): String {
-        val style = readingStyle(pureWhite)
+    private fun withReadingStyle(html: String, theme: ReadingTheme): String {
+        val style = readingStyle(theme)
         val closing = Regex("</body>", RegexOption.IGNORE_CASE).find(html)
         return if (closing != null) {
             html.substring(0, closing.range.first) + style + html.substring(closing.range.first)
@@ -180,12 +181,10 @@ class BookWebView(
     }
 
     /**
-     * The text colour is softened white by default and pure white on request (DEC-EE-0024):
-     * a pure white on black can make the text halo for some readers.
+     * Colours of the chosen reading theme (DEC-EE-0026) on the book's text and page.
      */
-    private fun readingStyle(pureWhite: Boolean): String {
-        val colour = if (pureWhite) "#ffffff" else SOFT_WHITE
-        return "<style>html body, html body * { background-color: #000000 !important; color: $colour !important; " +
+    private fun readingStyle(theme: ReadingTheme): String {
+        return "<style>html body, html body * { background-color: ${theme.background} !important; color: ${theme.text} !important; " +
             // Line spacing of 1.4 times the text size (SPEC.md F-2.3, DEC-EE-0021).
             "line-height: 1.4 !important; " +
             "font-family: sans-serif !important; text-align: left !important; } " +
@@ -212,7 +211,6 @@ class BookWebView(
                 this@BookWebView.scrollTo(0, pendingScrollY)
                 pendingScrollY = 0
             }
-            loading = false
         }
 
         // The engine never navigates by itself. A clicked link is classified (LinkPolicy) and handed to the
@@ -263,7 +261,5 @@ class BookWebView(
         const val TEXT_ZOOM_SETTLE_MS = 150L
         // A swipe must cover at least this distance, in dp, to change chapter.
         const val SWIPE_DISTANCE_DP = 96f
-        // Softened white of the book text, the default colour (DEC-EE-0024).
-        const val SOFT_WHITE = "#e6e6e6"
     }
 }

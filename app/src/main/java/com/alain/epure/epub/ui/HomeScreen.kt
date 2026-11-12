@@ -2,7 +2,7 @@ package com.alain.epure.epub.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,7 +46,7 @@ fun HomeScreen(
     onOpenRecent: (RecentBook) -> Unit,
     onRemoveRecent: (RecentBook) -> Unit,
     onOpenSettings: () -> Unit,
-    onOpenAbout: () -> Unit,
+    leftHanded: Boolean,
     onShareRecent: (RecentBook) -> Unit,
 ) {
     var menuFor by remember { mutableStateOf<RecentBook?>(null) }
@@ -95,32 +95,38 @@ fun HomeScreen(
             }
         }
       }
-        // Bottom bar of the start screen: settings and « À propos » about the app, not about a book.
-        // Same line as the reader's command bar (DEC-EE-0021).
+        // Bottom bar of the start screen, as in Épure Notes (DEC-EE-0030): « Ouvrir » in the middle,
+        // « Paramètres » on the right; the left side is left empty.
         HorizontalDivider(color = TextSecondary)
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
         ) {
-            TextButton(
-                onClick = onOpenSettings,
-                modifier = Modifier.heightIn(min = 48.dp),
-            ) {
-                Text(stringResource(R.string.settings_title), color = TextPrimary)
+            // Right-handed: « Paramètres » on the right. Left-handed (DEC-EE-0032): on the left.
+            val settingsSlot: @Composable () -> Unit = {
+                CommandButton(
+                    label = stringResource(R.string.settings_title),
+                    description = stringResource(R.string.settings_title),
+                    onClick = onOpenSettings,
+                )
             }
-            TextButton(
-                onClick = onOpen,
-                enabled = !opening,
-                modifier = Modifier.heightIn(min = 48.dp),
-            ) {
-                Text(stringResource(R.string.home_open), color = TextPrimary)
+            if (leftHanded) {
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) { settingsSlot() }
+            } else {
+                Box(modifier = Modifier.weight(1f))
             }
-            TextButton(
-                onClick = onOpenAbout,
-                modifier = Modifier.heightIn(min = 48.dp),
-            ) {
-                Text(stringResource(R.string.settings_about), color = TextPrimary)
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                CommandButton(
+                    label = stringResource(R.string.home_open),
+                    description = stringResource(R.string.home_add_description),
+                    onClick = onOpen,
+                )
+            }
+            if (leftHanded) {
+                Box(modifier = Modifier.weight(1f))
+            } else {
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) { settingsSlot() }
             }
         }
     }

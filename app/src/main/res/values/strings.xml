@@ -2,7 +2,8 @@
     <string name="app_name">Épure EPUB</string>
     <string name="home_title">Liste</string>
     <string name="home_list_hint">Vous pouvez activer ou désactiver la liste de livres dans Paramètres.</string>
-    <string name="home_open">Ouvrir</string>
+    <string name="home_open">Ajout</string>
+    <string name="home_add_description">Ajouter un livre à la liste</string>
     <string name="home_opening">Ouverture…</string>
     <string name="warning_mimetype">Ce fichier ne respecte pas tout à fait le format EPUB : la mise en forme peut différer.</string>
     <string name="error_not_epub">Ce fichier n\'est pas un EPUB lisible.</string>
@@ -17,6 +18,13 @@
     <string name="recent_remove">Retirer de la liste</string>
     <string name="settings_title">Paramètres</string>
     <string name="settings_book_list">Liste des livres</string>
+    <string name="settings_book_list_hint">Affiche jusqu\'à 10 livres sur l\'accueil. Désactivée, seul le dernier livre est gardé.</string>
+    <string name="settings_theme_hint">Le thème s\'applique à la page du livre. Un appui passe au thème suivant.</string>
+    <string name="settings_text_size_hint">Un appui augmente la taille ; après la plus grande, elle revient à la plus petite.</string>
+    <string name="settings_hand">Latéralité</string>
+    <string name="settings_hand_right">droite</string>
+    <string name="settings_hand_left">gauche</string>
+    <string name="settings_hand_hint">Par défaut : droite. Pour un gaucher, les barres de commandes sont inversées (côté et ordre).</string>
     <string name="settings_on">Activée</string>
     <string name="settings_off">Désactivée</string>
     <string name="settings_about">À propos</string>
@@ -35,15 +43,17 @@
     <string name="reader_next_chapter">Chapitre suivant</string>
     <string name="reader_more">Plus</string>
     <string name="reader_text_size">Taille du texte : %1$d sp</string>
-    <string name="reader_text_smaller">Texte plus petit</string>
-    <string name="reader_text_larger">Texte plus grand</string>
     <string name="reader_return">Retour au passage</string>
-    <string name="reader_screen_on_yes">Écran allumé pendant la lecture : oui</string>
-    <string name="reader_screen_on_no">Écran allumé pendant la lecture : non</string>
+    <string name="reader_screen_on_yes">Reste allumé pendant la lecture : oui</string>
+    <string name="reader_screen_on_no">Reste allumé pendant la lecture : non</string>
     <string name="action_share">Partager</string>
     <string name="share_failed">Ce fichier ne peut pas être partagé depuis Épure EPUB.</string>
-    <string name="reader_white_pure">Blanc pur pour le texte</string>
-    <string name="reader_white_soften">Blanc atténué pour le texte</string>
+    <string name="reader_theme">Thème du texte : %1$s</string>
+    <string name="theme_day">Jour (papier)</string>
+    <string name="theme_sepia">Sépia</string>
+    <string name="theme_slate">Nuit (ardoise)</string>
+    <string name="theme_amoled">Nuit (AMOLED)</string>
+    <string name="theme_noir">Nuit (noir)</string>
     <string name="action_close">Fermer</string>
     <string name="recent_unreadable">Fichier inaccessible. Ouvre-le à nouveau depuis l\'application où il a été ouvert initialement.</string>
 </resources>

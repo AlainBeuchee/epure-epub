@@ -655,7 +655,7 @@ Facile : les paliers, marges et interligne sont des constantes ; l'action « Ret
 ## DEC-EE-0023 — Menu « Plus » aligné à gauche ; Paramètres et « À propos » sur l'accueil
 
 - Date : 12/11/2026
-- Statut : Adoptée (proposée par l'assistant, validée par le porteur, 12/11/2026)
+- Statut : Adoptée (proposée par l'assistant, validée par le porteur, 12/11/2026) ; « À propos » déplacée par DEC-EE-0030
 - Jalon : 3 (session 3a)
 - Exigences concernées : F-6.3, F-16.2 ; `CHARTE.md` A.6 (fenêtre de menu) et ligne « Menu Plus » du tableau des écrans
 
@@ -734,7 +734,7 @@ Le porteur a fourni des recommandations de typographie et de confort de lecture 
 2. **Longueur de ligne : plafond à 75 caractères, pas de taille calculée.** Une taille fixée pour obtenir 50 à 75 caractères ne tient pas sur téléphone : à 360 dp de large et 16 dp de marge, il faudrait environ 13 sp, trop petit pour lire. La taille est donc fixe, et la largeur de texte est plafonnée à 75 caractères (`max-width: 75ch`, centré). Sur téléphone en portrait, ce plafond n'a pas d'effet. La borne de 50 caractères n'est pas imposée.
 3. **Police : inchangée** (police système sans empattement, DEC-EE-0011).
 4. **Taille par défaut : 16 sp** (palier 0 de F-3.1, décision du porteur du 12/11/2026 ; le 18 sp envisagé est écarté). La taille calculée d'après le nombre de caractères est écartée, pour la raison du point 2.
-5. **Couleur du texte : blanc atténué (`#E6E6E6`) à la première ouverture.** Le blanc pur (`#FFFFFF`) se choisit dans le menu « Plus » (« Blanc pur pour le texte » / « Blanc atténué pour le texte »), réglage conservé. Le fond reste `#000000`.
+5. **Couleur du texte : remplacée par DEC-EE-0026** (thèmes de lecture). Ancien texte : blanc atténué (`#E6E6E6`) à la première ouverture. Le blanc pur (`#FFFFFF`) se choisit dans le menu « Plus » (« Blanc pur pour le texte » / « Blanc atténué pour le texte »), réglage conservé. Le fond reste `#000000`.
 6. **Espacement entre paragraphes : mise en forme du livre conservée** (F-3.3).
 
 **Justification**
@@ -770,6 +770,231 @@ Les deux premières fonctions sont décrites sans ambiguïté par `SPEC.md`. Le 
 
 **Réversibilité**
 Facile : le réglage et l'action sont indépendants du reste de la lecture.
+
+---
+
+## DEC-EE-0026 — Thèmes de couleur de lecture (remplace le blanc pur / atténué)
+
+- Date : 12/11/2026
+- Statut : Adoptée et validée sur l'appareil par le porteur (12/11/2026)
+- Jalon : 3 (session 3b, reprise de « Mode nuit », retiré par DEC-EE-0025)
+- Exigences concernées : F-3.3, F-8 (à réécrire) ; `CHARTE.md` A.5 (couleurs) ; `CLAUDE.md` §6
+
+**Contexte**
+Le porteur propose plusieurs thèmes de lecture plutôt qu'un mode nuit unique. Ils s'appliquent au texte et au fond du livre ; l'interface reste sur les jetons de la charte.
+
+**Proposition**
+
+| Thème | Fond | Texte | Contraste | Usage |
+|---|---|---|---|---|
+| Jour (papier) | `#F8F7F4` | `#222222` | ~14,8 : 1 | Plein jour, bureau éclairé |
+| Sépia | `#F4ECD8` | `#3B3126` | ~10,9 : 1 | Lecture longue en intérieur |
+| Nuit (ardoise) | `#1E1F22` | `#D4D4D4` | ~10,8 : 1 | Soirée, pièce peu éclairée |
+| Nuit (AMOLED) | `#121212` | `#C4C4C4` | ~10,4 : 1 | Obscurité totale, écrans OLED |
+| Nuit (noir) | `#000000` | `#E6E6E6` | ~16,8 : 1 | Ajouté par le porteur ; par défaut : l'ancien réglage « blanc atténué » |
+
+Les rapports de contraste ont été vérifiés par calcul : ils sont cohérents avec les valeurs proposées.
+
+**Décisions à prendre (recommandations de l'assistant)**
+1. **Thème par défaut : Nuit (noir)** (décision du porteur, 12/11/2026, en remplacement de la proposition Nuit (AMOLED)) : fond `#000000`, texte `#E6E6E6`, comme l'ancien réglage « blanc atténué ». Aucun changement visible à l'ouverture.
+2. **« Blanc pur / atténué » retiré** : le thème remplace ce réglage (DEC-EE-0024, point 5, devient sans objet).
+3. **Sélection dans « Plus »** : une action « Thème du texte : [nom du thème] », qui passe au thème suivant à chaque appui. Le passage est conservé, comme pour la taille.
+4. **Interface inchangée** : la barre de commandes, le panneau « Plus » et l'accueil restent sur `Black`, `TextPrimary` et `TextSecondary` (charte A.5). Seule la page du livre prend le fond du thème.
+
+**Conséquences**
+- `CHARTE.md` A.5 et A.6 : la couleur de fond du livre n'est plus toujours `Black`. À reporter par le porteur.
+- `SPEC.md` F-8 : à réécrire par le porteur.
+- Aucune permission, aucune bibliothèque.
+
+**Réversibilité**
+Facile : les thèmes sont des constantes ; le réglage est indépendant de la navigation.
+
+---
+
+## DEC-EE-0027 — Marges à 10 dp, tailles de 12 à 24 sp, libellé « Reste allumé »
+
+- Date : 12/11/2026
+- Statut : Adoptée et validée sur l'appareil par le porteur (12/11/2026)
+- Jalon : 3 (session 3a et 3b)
+- Exigences concernées : F-2.3, F-3.1, F-9 ; DEC-EE-0021, DEC-EE-0024
+
+**Décision**
+- **Marges latérales du texte : 10 dp** (au lieu de 16 dp, DEC-EE-0024).
+- **Tailles de texte : sept paliers de 12 à 24 sp** (12, 14, 16, 18, 20, 22, 24), au lieu de cinq de 16 à 24 sp. **Taille par défaut : 16 sp** (inchangée). La taille enregistrée est conservée en sp, pour rester valide si les paliers changent.
+- **Libellé du réglage d'écran** : « Reste allumé pendant la lecture : oui / non » (au lieu de « Écran allumé pendant la lecture »). Le comportement ne change pas (DEC-EE-0025).
+
+**Conséquences**
+- `SPEC.md` F-2.3, F-3.1 et F-9 : à mettre à jour par le porteur (`CLAUDE.md` §5).
+- Aucune permission, aucune bibliothèque.
+
+**Réversibilité**
+Facile : constantes dans `TextSizeRules` et dans le composant de lecture.
+
+---
+
+## DEC-EE-0028 — Barre de commandes : défilement sans effet, glisser vers le bas l'affiche
+
+- Date : 12/11/2026
+- Statut : Adoptée et validée sur l'appareil par le porteur (12/11/2026)
+- Jalon : 3 (session 3a)
+- Exigences concernées : F-6.1, F-6.2 ; DEC-EE-0021
+
+**Décision**
+- Le défilement du texte ne ferme plus la barre de commandes.
+- **Glisser vers le bas**, n'importe où sur le texte, remonte dans le texte et affiche la barre. **Glisser vers le haut** fait avancer la lecture et ne change pas la barre.
+- Fermeture : un appui sur le texte, ou un appui dans la bande basse (environ 2 cm) quand la barre est ouverte.
+
+**Justification**
+Le porteur veut lire sans que la barre disparaisse à chaque défilement, et la rappeler d'un geste naturel vers le haut.
+
+**Conséquences**
+- Aucune permission, aucune bibliothèque.
+- `SPEC.md` F-6.2 : à mettre à jour par le porteur.
+
+**Réversibilité**
+Facile : une condition dans le moteur de rendu.
+
+---
+
+## DEC-EE-0029 — Page Paramètres : mise en forme reprise de Épure Notes
+
+- Date : 12/11/2026
+- Statut : Adoptée (demande du porteur, 12/11/2026) ; à valider sur l'appareil
+- Jalon : 2 (session 2c), reprise de la mise en forme
+- Exigences concernées : F-16.1, F-4.2 ; `CHARTE.md` A.6 (liste de réglages)
+
+**Décision**
+- Titre « Paramètres » en `AppNameStyle`, puis une ligne par réglage, en `AppNameStyle`, cible d'au moins 48 dp.
+- Le réglage « Liste des livres » a une phrase explicative dessous, en `NoteStyle` (italique, 16 sp, gris).
+- Barre basse : filet de 1 dp en `TextSecondary`, puis « Retour » comme commande (`CommandButton`, reprise de Épure Notes).
+- Marges de 16 dp, inchangées.
+
+**Réglages de Épure Notes non repris**
+Sauvegarde, widget d'écran verrouillé, thème de jour, effacement, tâches, taille du texte et restauration : ces réglages n'existent pas dans Épure EPUB. La taille du texte reste dans « Plus » de la lecture (F-3.1). « À propos » est à la fin de Paramètres (DEC-EE-0030).
+
+**Conséquences**
+- Aucune permission, aucune bibliothèque.
+- `SPEC.md` F-16.1 : à mettre à jour par le porteur.
+
+**Réversibilité**
+Facile : mise en forme d'un seul écran.
+
+---
+
+## DEC-EE-0030 — Accueil : « + » et « ^ » ; Paramètres contient « À propos »
+
+- Date : 12/11/2026
+- Statut : Adoptée (demande du porteur, 12/11/2026) ; à valider sur l'appareil
+- Jalon : 2 et 3
+- Exigences concernées : F-1.1, F-16.1, F-16.2 ; DEC-EE-0023 (partiellement remplacée)
+
+**Décision**
+- **Barre basse de l'accueil** : « Ajout » au milieu (ouvre un fichier), « Paramètres » à droite ; la gauche reste vide. Même esthétique que la barre de Épure Notes (filet, commandes à 48 dp au moins). Remplace la version « + » / « ^ » (demande du porteur, 12/11/2026).
+- **Paramètres**, de haut en bas : « Liste des livres : activée / désactivée » ; « Thème du texte : … » (passe au thème suivant à chaque appui) ; « Taille du texte : … sp » (augmente à chaque appui ; après 24 sp, revient à 12 sp) ; « À propos » en dernier. La barre basse porte « Retour ».
+- « À propos » n'est plus sur l'accueil. Son retour ramène aux Paramètres.
+- Thème et taille du texte se trouvent aussi dans le panneau « Plus » de la lecture : les deux endroits partagent le même réglage.
+
+**Conséquences**
+- Aucune permission, aucune bibliothèque.
+- `SPEC.md` F-1.1 et F-16.1 : à mettre à jour par le porteur.
+
+**Réversibilité**
+Facile : deux écrans, et les réglages sont des constantes et des préférences.
+
+---
+
+## DEC-EE-0031 — Page Paramètres : tailles, police et couleur reprises de Épure Notes
+
+- Date : 12/11/2026
+- Statut : Adoptée (demande du porteur, 12/11/2026) ; à valider sur l'appareil
+- Jalon : 2 et 3
+- Exigences concernées : F-16.1 ; `CHARTE.md` A.5 (jetons) et A.6 (liste de réglages)
+
+**Décision**
+- **Titre « Paramètres »** : style de titre Material (`titleLarge`, 22 sp).
+- **Lignes de réglage et actions** : style de corps (`bodyLarge`, 16 sp), comme Épure Notes.
+- **Phrases explicatives** : 16 sp, italique, comme Épure Notes.
+- **Police** : police système, comme partout dans l'app (inchangée).
+- **Couleur du texte secondaire** : `TextSecondary` passe de `#B0B0B0` à `#999999`, le jeton de Épure Notes. Le changement porte sur tout l'écran, car les jetons sont communs à l'app.
+- **Marges** : 16 dp, inchangées.
+
+**Points à reporter dans la charte (par le porteur)**
+- `CHARTE.md` A.5 : `TextSecondary` = `#999999` (au lieu de `#B0B0B0`).
+- `CHARTE.md` A.6 : la liste de réglages utilise les styles de Épure Notes (titre `titleLarge`, lignes `bodyLarge`), et non `AppNameStyle` (28 sp).
+
+**Conséquences**
+- Aucune permission, aucune bibliothèque.
+- Le contraste de `#999999` sur `#000000` reste élevé (environ 7 : 1).
+
+**Réversibilité**
+Facile : deux constantes, et les styles de la page.
+
+---
+
+## DEC-EE-0032 — Latéralité : barres inversées pour les gauchers
+
+- Date : 12/11/2026
+- Statut : Adoptée (demande du porteur, 12/11/2026) ; à valider sur l'appareil
+- Jalon : 3 (réglages)
+- Exigences concernées : F-16.1 ; `CHARTE.md` B.5 (barre de commandes), B.3 (accueil)
+
+**Décision**
+- Réglage « Latéralité : droite / gauche » dans Paramètres. **Par défaut : droite.**
+- Pour un gaucher, les barres de commandes sont inversées, en côté et en ordre :
+  - accueil : « Paramètres » à gauche, « Ajout » au milieu, la droite reste vide ;
+  - barre de lecture : l'ordre des commandes est inverté ;
+  - barre des Paramètres : « Retour » à droite pour un droitier (défaut), à gauche pour un gaucher (demande du porteur, 12/11/2026).
+- Le panneau « Plus » et les textes ne sont pas inversés : ils restent alignés à gauche (DEC-EE-0023).
+
+**Conséquences**
+- Aucune permission, aucune bibliothèque.
+- `SPEC.md` F-16.1 : à mettre à jour par le porteur.
+
+**Réversibilité**
+Facile : un réglage booléen, lu par les trois barres.
+
+---
+
+## DEC-EE-0033 — Taille du texte : un seul réglage par appuis successifs
+
+- Date : 12/11/2026
+- Statut : Adoptée (demande du porteur, 12/11/2026) ; à valider sur l'appareil
+- Jalon : 3 (session 3a)
+- Exigences concernées : F-3.1 ; DEC-EE-0021, DEC-EE-0027
+
+**Décision**
+- Dans le panneau « Plus », « Texte plus petit » et « Texte plus grand » sont supprimés, ainsi que le filet qui les suivait.
+- La ligne « Taille du texte : … sp » devient une action : chaque appui passe à la taille suivante (12, 14, 16, 18, 20, 22, 24 sp), puis revient à 12 sp après 24 sp.
+- Le même comportement vaut dans les Paramètres (DEC-EE-0030).
+
+**Conséquences**
+- Aucune permission, aucune bibliothèque.
+- `SPEC.md` F-3.1 : à mettre à jour par le porteur.
+
+**Réversibilité**
+Facile : une action à la place de deux.
+
+---
+
+## DEC-EE-0034 — Panneau « Plus » : sans cadre, pleine largeur, tailles des Paramètres
+
+- Date : 12/11/2026
+- Statut : Adoptée (demande du porteur, 12/11/2026) ; à valider sur l'appareil
+- Jalon : 3 (session 3a)
+- Exigences concernées : F-6.3 ; DEC-EE-0023 (panneau aligné à gauche, ancré en bas) ; DEC-EE-0031 (tailles des Paramètres)
+
+**Décision**
+- Le panneau « Plus » n'a plus de liseré ni d'angles arrondis : il prend toute la largeur de l'écran, sur fond `Black`.
+- Le filet entre « Retour au passage » et « Fermer » est supprimé.
+- Ses lignes ont les mêmes tailles que la page Paramètres : texte de corps (`bodyLarge`, 16 sp), 48 dp au moins, marge de 16 dp à gauche.
+- Il reste ancré au-dessus de la barre basse, texte aligné à gauche, et l'écran derrière reste assombri.
+
+**Conséquences**
+- Aucune permission, aucune bibliothèque.
+- `CHARTE.md` A.6 (fenêtre de menu, variante Épure EPUB) : à reporter par le porteur.
+
+**Réversibilité**
+Facile : quelques lignes de mise en forme.
 
 ---
 

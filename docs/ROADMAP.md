@@ -142,16 +142,21 @@
 
 ### Session 3a — Commandes et réglages du texte
 
-- [x] Appui court dans la bande basse (environ 2 cm) : ouvre la barre de commandes et les barres système ; masquage automatique et à la lecture (F-6.1, F-6.2, DEC-EE-0021).
+- [x] Appui court dans la bande basse (environ 2 cm) : ouvre la barre de commandes et les barres système ; fermeture par un appui sur le texte ou dans la bande basse ; le défilement ne la ferme plus ; glisser vers le bas l'affiche (F-6.1, F-6.2, DEC-EE-0021, DEC-EE-0028).
 - [x] Barre du haut : titre (F-6.3).
 - [x] Barre du bas, de gauche à droite : « Table » (visible mais désactivée jusqu'à la session 4a, DEC-EE-0021) ; pourcentage de progression (« 42 % ») ; « < » et « > », chapitre précédent et suivant (F-6.3, F-6.5, DEC-EE-0021 amendée) ; « Plus » à l'extrémité droite.
-- [x] Panneau « Plus » ancré au-dessus de la barre, texte à gauche : « Taille du texte » (deux actions), « Retour au passage ». « Rechercher » et « Marque-page » arrivent en 4a et 4b ; « Mode nuit », « Partager » et « Écran allumé » en 3b. Ne sont pas affichées avant leur session.
-- [x] Accueil : barre basse séparée par un filet, « Paramètres » à gauche, « À propos » à droite (DEC-EE-0023). « À propos » retiré de la page Paramètres.
+- [x] Panneau « Plus » ancré au-dessus de la barre, texte à gauche : « Taille du texte » (un appui = taille suivante, DEC-EE-0033), « Retour au passage ». « Rechercher » et « Marque-page » arrivent en 4a et 4b ; « Mode nuit », « Partager » et « Écran allumé » en 3b. Ne sont pas affichées avant leur session.
+- [x] Accueil : barre basse séparée par un filet, « Ajout » au milieu, « Paramètres » à droite (DEC-EE-0030, remplace DEC-EE-0023 pour la barre et l'emplacement de « À propos »).
 - [x] Interligne 1,4 appliqué au livre (F-2.3, DEC-EE-0021) (validé sur l'appareil).
-- [x] Marges de 16 dp, longueur de ligne plafonnée à 75 caractères, taille par défaut 16 sp, blanc atténué par défaut avec « Blanc pur pour le texte » dans « Plus » (DEC-EE-0024) (validé sur l'appareil).
+- [x] Marges de 16 dp, longueur de ligne plafonnée à 75 caractères, taille par défaut 16 sp (DEC-EE-0024) (validé sur l'appareil).
+- [x] Marges ramenées à 10 dp ; tailles de texte de 12 à 24 sp (paliers 12, 14, 16, 18, 20, 22, 24, défaut 16 sp) ; « Reste allumé pendant la lecture » (DEC-EE-0027) (validé sur l'appareil).
+- [x] Thèmes de lecture « Jour (papier) », « Sépia », « Nuit (ardoise) », « Nuit (AMOLED) » dans « Plus » ; « Nuit (noir) » ; thème par défaut « Nuit (noir) » (fond noir, texte blanc atténué `#E6E6E6`) ; remplacent le blanc pur / atténué (DEC-EE-0026)  (validé sur l'appareil).
 - [x] Taille du texte à cinq paliers, mémorisée, avec conservation du passage (F-3.1).
 - [x] Police et couleurs du livre selon les décisions F-3.2 et F-3.3.
 - [x] « Retour au passage » dans les commandes après un lien interne, une seule étape (F-14.1).
+
+- [x] Latéralité « droite » (défaut) / « gauche » dans Paramètres : inverse le côté et l'ordre des barres (DEC-EE-0032) (validé sur l'appareil).
+- [x] Page Paramètres reprise de Épure Notes : « Liste des livres », « Thème du texte » (passe au suivant à chaque appui), « Taille du texte » (augmente à chaque appui, revient à 12 sp après 24), « À propos » à la fin ; barre basse avec « Retour » (DEC-EE-0029, DEC-EE-0030) ; tailles, police et couleur reprises de Épure Notes (DEC-EE-0031) (validé sur l'appareil).
 
 ### Session 3b — Mode nuit, écran allumé, partage
 
@@ -162,10 +167,10 @@
 
 ### Contrôles du jalon 3 (sur l'appareil)
 
-- [ ] Appui court dans la bande basse : la barre apparaît ; « Table », « < », « > » et « Plus » réagissent ; le pourcentage est juste.
-- [ ] Changement de taille du texte : le passage lu reste affiché.
-- [ ] Commandes : apparition et disparition immédiates, sans animation.
-- [ ] Écran qui reste allumé pendant la lecture, et s'éteint à la sortie.
+- [x] Appui court dans la bande basse : la barre apparaît ; « Table », « < », « > » et « Plus » réagissent ; le pourcentage est juste.
+- [x] Changement de taille du texte : le passage lu reste affiché.
+- [x] Commandes : apparition et disparition immédiates, sans animation.
+- [x] Écran qui reste allumé pendant la lecture, et s'éteint à la sortie.
 
 ---
 
