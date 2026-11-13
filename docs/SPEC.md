@@ -161,8 +161,9 @@ Navigation : état simple géré à la main, sans `navigation-compose` (`CHARTE.
 
 **F-6.3 Contenu.**
 - En haut : titre du livre (`LabelStyle`, `TextPrimary`, passage à la ligne autorisé).
-- En bas : progression « 42 % » (`LabelStyle`, `TextSecondary`) et les actions texte « Table », « Rechercher », « Marque-page », « Plus ».
-- « Plus » ouvre une fenêtre de menu : « Taille du texte », « Mode nuit », « Partager », « Écran allumé ».
+- En bas : progression « 42 % » (`LabelStyle`, `TextSecondary`) et les actions texte « Table », « < », « > », « * », « Plus » (DEC-EE-0040).
+- « * » ouvre une demande : « Ajouter un marque-page à cet endroit ? », avec « Ajouter » et « Annuler ». « Ajouter » ajoute la position courante (F-10.1). Retour, toucher à l'extérieur ou « Annuler » ferment la demande sans rien ajouter. Cette demande est une exception à la règle des confirmations (DEC-EE-0040).
+- « Plus » ouvre une fenêtre de menu : « Taille du texte », « Mode nuit », « Partager », « Écran allumé », « Ajouter marque-page », « Marque-pages ».
 - Cibles ≥ 48 dp, texte seul.
 
 **F-6.4 Bouton Retour.** Dans l'ordre : ferme la fenêtre ouverte, puis masque les commandes, puis quitte le lecteur (retour à l'accueil, ou à l'app d'origine si ouverture par `VIEW`). Implémentation par `BackHandler`.

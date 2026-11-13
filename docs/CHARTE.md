@@ -168,7 +168,7 @@ Ces composants se réutilisent d'un projet à l'autre. Leur style doit rester id
 - **Bouton Accueil** (launcher) : ramène toujours à l'état initial de l'écran d'accueil.
 - **Geste de navigation** : un balayage clair, avec un seuil de distance (ici 100 dp), pour éviter les déclenchements involontaires lors d'un simple toucher. Un libellé texte est toujours disponible en plus du geste, pour ne pas dépendre du seul geste.
 - **Appui court** : action principale (ouvrir, valider). **Appui long** : menu d'actions sur l'élément.
-- Pas de fenêtre de confirmation pour une action réversible ; confirmation pour une action irréversible.
+- Pas de fenêtre de confirmation pour une action réversible ; confirmation pour une action irréversible. Exception : la demande d'ajout de marque-page ouverte par « * » dans la barre de commandes (DEC-EE-0040).
 
 ### A.10 Permissions et autorisations spéciales
 
@@ -298,7 +298,7 @@ L'échelle de A.5 s'applique à l'interface. Le texte du livre a sa propre règl
 
 #### Iconographie
 
-Aucune icône. Toutes les actions du lecteur sont des libellés texte (« Table », « Rechercher », « Marque-page », « Plus », « Taille du texte », « Thème du texte », « Reste allumé pendant la lecture », « Partager », « Retour au passage »). Exception textuelle : les symboles « < » et « > » de la barre de commandes (DEC-EE-0021).
+Aucune icône. Toutes les actions du lecteur sont des libellés texte (« Table », « Rechercher », « Marque-page », « Plus », « Taille du texte », « Thème du texte », « Reste allumé pendant la lecture », « Partager », « Retour au passage »). Exception textuelle : les symboles « < », « > » et « * » de la barre de commandes (DEC-EE-0021, DEC-EE-0040).
 
 #### Dérogations possibles, non tranchées
 
@@ -318,7 +318,7 @@ Toute dérogation retenue est consignée dans `DECISIONS.md` puis reportée ici.
 | Composant | Description | Exigences |
 |---|---|---|
 | **Vue de lecture** | Texte recomposé, marges de 10 dp, interligne 1,4, largeur de ligne ≤ 75 caractères ; défilement continu (DEC-EE-0016) | F-2, F-3 (DEC-EE-0024, DEC-EE-0027) |
-| **Barre de commandes** | Fond `Black`, filet 1 dp, texte seul ; pour un gaucher (latéralité « gauche », DEC-EE-0032), côté et ordre inversés ; en haut le titre du livre ; en bas, de gauche à droite : « Table » (désactivée jusqu'à la session 4a), progression, « < » et « > » (chapitre précédent et suivant), « Plus » ; apparition et disparition immédiates | F-6 (DEC-EE-0021) |
+| **Barre de commandes** | Fond `Black`, filet 1 dp, texte seul ; pour un gaucher (latéralité « gauche », DEC-EE-0032), côté et ordre inversés ; en haut le titre du livre ; en bas, de gauche à droite : « Table » (désactivée jusqu'à la session 4a), progression, « < » et « > » (chapitre précédent et suivant), « * » (demande d'ajout de marque-page), « Plus » ; apparition et disparition immédiates | F-6 (DEC-EE-0021, DEC-EE-0040) |
 | **Indicateur de progression** | « 42 % », dans la barre de commandes, non touchable en version 1 (pas de saut à un pourcentage) | F-7 |
 | **Ligne de récent** | Titre du livre (passage à la ligne, pas de troncature) et seconde ligne en `TextSecondary` ; appui court = ouvrir, appui long = menu | F-4 |
 | **Liste hiérarchique** | Table des matières, retrait par niveau, texte seul | F-12 |
@@ -353,7 +353,7 @@ Libellés de référence (à reprendre dans `strings.xml`) :
 |---|---|
 | Accueil | « Liste », « Aucun livre récent », « Ajout », « Paramètres » |
 | Menu d'un récent | « Retirer de la liste », « Partager » |
-| Commandes | « Table », « Rechercher », « Marque-page », « Retirer le marque-page », « Plus », « < », « > » |
+| Commandes | « Table », « Rechercher », « * », « Plus », « < », « > » |
 | Menu « Plus » | « Taille du texte : … sp », « Thème du texte : … », « Reste allumé pendant la lecture : oui / non », « Partager », « Retour au passage » |
 | Tailles | « Taille du texte : … sp » (un appui = taille suivante, DEC-EE-0033) |
 | Liens | « Lien externe non ouvert : Épure EPUB ne se connecte pas à Internet. », « Retour au passage » |
@@ -463,3 +463,4 @@ Liste à suivre dans l'ordre :
 - Partie A 1.0 (24/10/2026) : reprise sans modification de la charte du launcher Épure (DEC-0010).
 - Partie B 0.1 (10/11/2026) : déclinaison pour Épure EPUB, à partir de la Partie B 0.1 d'Épure PDF et de `SPEC.md` 0.1 d'Épure EPUB. Non validée par le porteur.
 - Partie B 0.2 (12/11/2026) : consignation des décisions DEC-EE-0021 à DEC-EE-0031 (barre de commandes, panneau « Plus », accueil et Paramètres, thèmes de lecture, marges et tailles, gestes, couleur secondaire). Modifiée par l'assistant sur demande explicite du porteur, alors que `CLAUDE.md` §5 réserve la charte au porteur. `SPEC.md` n'est pas modifié à ce stade.
+- Partie B 0.3 (13/11/2026) : barre de commandes avec « * » et sa demande d'ajout de marque-page (DEC-EE-0040), exception à la règle des confirmations. Modifiée par l'assistant sur demande explicite du porteur.
