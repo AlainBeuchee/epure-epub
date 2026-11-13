@@ -191,9 +191,9 @@ Reprise de F-9 de Épure PDF : option « Écran allumé pendant la lecture », a
 
 ### F-10 Marque-pages
 
-**F-10.1** Action « Marque-page » dans les commandes : ajoute la position courante ; si elle est déjà marquée, l'action devient « Retirer le marque-page ».
+**F-10.1** Action « Ajouter marque-page » dans le panneau « Plus » : ajoute la position courante. Plusieurs marque-pages par chapitre sont permis ; une position déjà marquée n'est pas ajoutée une seconde fois. L'action ne retire pas : le retrait se fait depuis l'écran « Marque-pages » (F-10.3). (DEC-EE-0039, qui lève DEC-EE-0036 sur ce point.)
 
-**F-10.2** Un marque-page est une ancre (F-5.1). Il est identifié par le titre du chapitre et la progression : « Chapitre 3 — Titre du chapitre, 42 % ».
+**F-10.2** Un marque-page est une ancre (F-5.1). Il est identifié par le nom du chapitre (entrée de la table des matières, « Chapitre N » à défaut) et la position dans ce chapitre, en pourcentage, au moment où il est ajouté : « Titre du chapitre, 42 % ». Les marque-pages enregistrés avant ce format n'ont pas de pourcentage et n'affichent que le nom.
 
 **F-10.3** Écran « Marque-pages » : liste triée par position dans le livre. Appui court = aller à la position ; appui long = « Retirer ». Liste vide : « Aucun marque-page ». Retrait immédiat, sans confirmation (DEC-0035, reprise).
 
@@ -398,7 +398,7 @@ Conséquence : **aucune permission déclarée** (objectif). Pas d'écran d'autor
 | F-3.1 | Nombre de paliers de taille du texte | 3 | Cinq |
 | F-2.3 | Marges et interligne | 3 | 24 dp et 1,4 |
 | F-4.1 | Titre affiché dans les récents | 2 | Titre du package ; nom du fichier à défaut |
-| F-10.2 | Libellé des marque-pages | 4 | Chapitre et progression |
+| F-10.2 | Libellé des marque-pages | 4 | Nom du chapitre et position dans le chapitre (DEC-EE-0039) |
 
 ### 9.2 [À VÉRIFIER] sur l'appareil
 
