@@ -22,7 +22,6 @@
         </gradient>
       </aapt:attr>
     </path>
-    <group android:translateX="12" android:translateY="-12">
     <path
         android:pathData="M160,120H290L352,182V392A24,24 0,0 1,328 416H160A24,24 0,0 1,136 392V144A24,24 0,0 1,160 120Z"
         android:strokeLineJoin="round"
@@ -37,20 +36,25 @@
         android:strokeColor="#FFFFFF"
         android:strokeLineCap="round"/>
     <path
-        android:pathData="M183,200L219,200A7,7 0,0 1,226 207L226,207A7,7 0,0 1,219 214L183,214A7,7 0,0 1,176 207L176,207A7,7 0,0 1,183 200z"
-        android:fillColor="#A1A1AA"/>
-    <path
-        android:pathData="M183,234L219,234A7,7 0,0 1,226 241L226,241A7,7 0,0 1,219 248L183,248A7,7 0,0 1,176 241L176,241A7,7 0,0 1,183 234z"
-        android:fillColor="#52525B"/>
-    <path
-        android:pathData="M277,200L313,200A7,7 0,0 1,320 207L320,207A7,7 0,0 1,313 214L277,214A7,7 0,0 1,270 207L270,207A7,7 0,0 1,277 200z"
+        android:pathData="M184,200L228,200A8,8 0,0 1,236 208L236,208A8,8 0,0 1,228 216L184,216A8,8 0,0 1,176 208L176,208A8,8 0,0 1,184 200z"
         android:fillColor="#FFFFFF"/>
     <path
-        android:pathData="M277,234L303,234A7,7 0,0 1,310 241L310,241A7,7 0,0 1,303 248L277,248A7,7 0,0 1,270 241L270,241A7,7 0,0 1,277 234z"
+        android:pathData="M183,240L219,240A7,7 0,0 1,226 247L226,247A7,7 0,0 1,219 254L183,254A7,7 0,0 1,176 247L176,247A7,7 0,0 1,183 240z"
+        android:fillColor="#A1A1AA"/>
+    <path
+        android:pathData="M183,280L225,280A7,7 0,0 1,232 287L232,287A7,7 0,0 1,225 294L183,294A7,7 0,0 1,176 287L176,287A7,7 0,0 1,183 280z"
+        android:fillColor="#52525B"/>
+    <path
+        android:pathData="M183,320L209,320A7,7 0,0 1,216 327L216,327A7,7 0,0 1,209 334L183,334A7,7 0,0 1,176 327L176,327A7,7 0,0 1,183 320z"
         android:fillColor="#27272A"/>
     <path
-        android:pathData="M184,320L312,320A8,8 0,0 1,320 328L320,328A8,8 0,0 1,312 336L184,336A8,8 0,0 1,176 328L176,328A8,8 0,0 1,184 320z"
+        android:pathData="M277,200L313,200A7,7 0,0 1,320 207L320,207A7,7 0,0 1,313 214L277,214A7,7 0,0 1,270 207L270,207A7,7 0,0 1,277 200z"
+        android:fillColor="#A1A1AA"/>
+    <path
+        android:pathData="M277,240L303,240A7,7 0,0 1,310 247L310,247A7,7 0,0 1,303 254L277,254A7,7 0,0 1,270 247L270,247A7,7 0,0 1,277 240z"
         android:fillColor="#27272A"/>
-    </group>
+    <path
+        android:pathData="M184,364L328,364A8,8 0,0 1,336 372L336,372A8,8 0,0 1,328 380L184,380A8,8 0,0 1,176 372L176,372A8,8 0,0 1,184 364z"
+        android:fillColor="#27272A"/>
   </group>
 </vector>
