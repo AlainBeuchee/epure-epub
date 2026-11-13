@@ -96,6 +96,8 @@ fun ReaderScreen(
     val last = book.book.spine.size - 1
     var commandsVisible by remember { mutableStateOf(false) }
     var moreOpen by remember { mutableStateOf(false) }
+    // The « * » request asking to add a bookmark here (DEC-EE-0040).
+    var bookmarkAskOpen by remember { mutableStateOf(false) }
 
     val currentOnTap by rememberUpdatedState(onTap)
     val currentOnLink by rememberUpdatedState(onLink)
@@ -103,7 +105,10 @@ fun ReaderScreen(
     val currentIndex by rememberUpdatedState(index)
 
     // Back closes the « Plus » panel first; the book itself is closed by the activity.
-    BackHandler(enabled = moreOpen) { moreOpen = false }
+    BackHandler(enabled = moreOpen || bookmarkAskOpen) {
+        moreOpen = false
+        bookmarkAskOpen = false
+    }
 
     ImmersiveSystemBars(visible = commandsVisible)
     KeepScreenOn(on = keepScreenOn)
@@ -177,13 +182,16 @@ fun ReaderScreen(
         }
 
         if (commandsVisible) {
-            if (moreOpen) {
+            if (moreOpen || bookmarkAskOpen) {
                 // Dims the reading screen; a tap outside the panel closes it.
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(Black.copy(alpha = 0.6f))
-                        .clickable { moreOpen = false },
+                        .clickable {
+                            moreOpen = false
+                            bookmarkAskOpen = false
+                        },
                 )
             }
             Column(
@@ -191,6 +199,15 @@ fun ReaderScreen(
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth(),
             ) {
+                if (bookmarkAskOpen) {
+                    BookmarkAskPanel(
+                        onAdd = {
+                            bookmarkAskOpen = false
+                            onAddBookmark()
+                        },
+                        onCancel = { bookmarkAskOpen = false },
+                    )
+                }
                 if (moreOpen) {
                     MorePanel(
                         textStep = textStep,
@@ -228,6 +245,10 @@ fun ReaderScreen(
                     onPrevious = onPrevious,
                     onNext = onNext,
                     onMore = { moreOpen = !moreOpen },
+                    onAskBookmark = {
+                        moreOpen = false
+                        bookmarkAskOpen = true
+                    },
                     leftHanded = leftHanded,
                     tocAvailable = tocAvailable,
                     onTable = onTable,
@@ -239,7 +260,8 @@ fun ReaderScreen(
 
 /**
  * The command bar at the bottom (DEC-EE-0021): « Table », progression, « < » and « > » for the
- * previous and next chapter, and « Plus » at the far right. Text only, immediate show and hide.
+ * previous and next chapter, « * » to ask for a bookmark (DEC-EE-0040), and « Plus » at the far right.
+ * Text only, immediate show and hide.
  */
 @Composable
 private fun CommandBar(
@@ -249,6 +271,7 @@ private fun CommandBar(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onMore: () -> Unit,
+    onAskBookmark: () -> Unit,
     leftHanded: Boolean,
     tocAvailable: Boolean,
     onTable: () -> Unit,
@@ -315,6 +338,14 @@ private fun CommandBar(
                 },
                 {
                     BarAction(
+                        text = stringResource(R.string.reader_bookmark_ask),
+                        enabled = true,
+                        description = stringResource(R.string.bookmark_add),
+                        onClick = onAskBookmark,
+                    )
+                },
+                {
+                    BarAction(
                         text = stringResource(R.string.reader_more),
                         enabled = true,
                         onClick = onMore,
@@ -346,6 +377,30 @@ private fun BarAction(
             .semantics { if (description != null) contentDescription = description },
     ) {
         Text(text, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
+/**
+ * The request opened by « * » (DEC-EE-0040): asks before adding a bookmark at the current place.
+ * Same panel as « Plus », anchored above the bar.
+ */
+@Composable
+private fun BookmarkAskPanel(onAdd: () -> Unit, onCancel: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Black)
+            .pointerInput(Unit) { detectTapGestures { } }
+            .padding(vertical = 8.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.bookmark_ask),
+            style = MaterialTheme.typography.bodyLarge,
+            color = TextSecondary,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+        )
+        PanelAction(stringResource(R.string.bookmark_ask_yes), enabled = true, onAdd)
+        PanelAction(stringResource(R.string.action_cancel), enabled = true, onCancel)
     }
 }
 

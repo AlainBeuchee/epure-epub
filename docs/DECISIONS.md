@@ -1086,6 +1086,30 @@ Facile : une fonction de recherche isolée dans le domaine.
 **Réversibilité**
 Facile : la règle est isolée dans `BookmarkRules.add`.
 
+## DEC-EE-0040 — Barre de commandes : bouton « * » pour ajouter un marque-page
+
+- Date : 13/11/2026
+- Statut : Adoptée, demandée par le porteur ; à valider sur l'appareil
+- Jalon : 4 (hors session prévue)
+- Exigences concernées : F-6 (barre de commandes), F-10.1 ; DEC-EE-0021, DEC-EE-0036, DEC-EE-0039 ; `CHARTE.md` (barre basse, fenêtres, confirmations)
+
+**Décision**
+- La barre de commandes devient : « Table », progression, « < », « > », « * », « Plus ».
+- « * » ouvre une demande, au-dessus de la barre : « Ajouter un marque-page à cet endroit ? », avec les actions « Ajouter » et « Annuler ». « Ajouter » ajoute la position courante (DEC-EE-0039). Retour, toucher à l'extérieur ou « Annuler » ferment la demande sans rien ajouter.
+- « * » a pour libellé d'accessibilité « Ajouter marque-page ». L'action reste aussi dans le panneau « Plus ».
+
+**Dérogation à la charte**
+- `CHARTE.md` ne prévoit pas de fenêtre de confirmation pour une action réversible. Ajouter un marque-page l'est (retrait depuis la liste). La demande est donc une dérogation voulue par le porteur.
+- Motif : éviter qu'un appui involontaire sur « * » ne multiplie les marque-pages sans qu'on s'en aperçoive. Comme plusieurs marque-pages par chapitre sont permis (DEC-EE-0039), la demande est la seule protection contre ce cas.
+- Le symbole « * » est un libellé texte, comme « < » et « > » (DEC-EE-0021).
+
+**Mises à jour à faire (non faites par l'assistant)**
+- `SPEC.md` F-6 et le tableau de la section 9.1 : barre de commandes, avec « * ».
+- `CHARTE.md` : ligne « Barre de commandes » et règle sur les confirmations.
+
+**Réversibilité**
+Facile : un bouton et un panneau dans `ReaderScreen.kt`.
+
 ---
 
 ## Décisions en attente
