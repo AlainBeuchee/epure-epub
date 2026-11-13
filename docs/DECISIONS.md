@@ -1044,6 +1044,8 @@ Facile : une fonction de résolution de lien.
 
 ## DEC-EE-0038 — Préparation de la session 4b (recherche) : points à trancher
 
+- Mise à jour 13/11/2026 : l'entrée « Rechercher » est dans la fenêtre « * » (et non dans « Plus »), par accord du porteur, voir DEC-EE-0042.
+
 - Date : 13/11/2026
 - Statut : Proposée (à trancher par le porteur avant la session 4b)
 - Jalon : 4 (session 4b)
@@ -1162,6 +1164,28 @@ Facile : déplacer des actions entre deux fenêtres dans `ReaderScreen.kt`.
 
 **Réversibilité**
 Facile : une ligne dans `MainActivity.kt`.
+
+---
+
+## DEC-EE-0044 — Permission injectée par AndroidX Core : acceptée
+
+- Date : 13/11/2026
+- Statut : Adoptée, par l'assistant à la demande du porteur ; à confirmer par le porteur
+- Jalon : 4 (fermeture de la session hors roadmap)
+- Exigences concernées : DEC-0005, CLAUDE.md §4 (permissions du manifeste fusionné)
+
+**Constat**
+- `aapt2 dump permissions` sur l'APK debug affiche : `com.alain.epure.epub.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`.
+- Elle est déclarée et utilisée dans le manifeste de `androidx.core` 1.19.1, pour les récepteurs enregistrés à l'exécution sans export. Elle est propre à l'app (préfixe du paquet) et protégée au niveau `signature`.
+- L'app n'enregistre aucun récepteur elle-même (aucun `registerReceiver` dans `app/src/main`).
+
+**Décision**
+- La permission est acceptée et n'est pas retirée. Elle n'ouvre aucun accès au système, aux fichiers ni au réseau : `INTERNET`, `ACCESS_NETWORK_STATE` et les permissions interdites restent absentes.
+- Ne pas la retirer avec `tools:node="remove"` : AndroidX s'en sert pour enregistrer ses récepteurs, et la retirer risquerait de casser ce mécanisme.
+- Si `androidx.core` est mis à jour et que la permission disparaît, rien à faire. Si une nouvelle permission apparaît, la signaler à nouveau.
+
+**Réversibilité**
+Facile : retirer la dépendance qui l'apporte, ou la retirer du manifeste avec consignation.
 
 ---
 

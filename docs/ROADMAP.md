@@ -182,10 +182,11 @@
 - [x] Ancres des entrées sans JavaScript : option 1 retenue (DEC-EE-0037).
 - [x] « Aucune table des matières » si absente ; liens hors archive ignorés (F-12.2, F-12.3) (validé sur l'appareil).
 - [x] Marque-pages : ajout, retrait, écran listé, retrait immédiat (F-10) (DEC-EE-0036, validé sur l'appareil).
+- Retours de test validés sur l'appareil, hors session (13/11/2026) : table et marque-pages défilants ; nom du chapitre et % dans le marque-page ; plusieurs marque-pages par chapitre (DEC-EE-0039) ; bouton « * » avec demande et fenêtre de navigation (DEC-EE-0040 à DEC-EE-0042) ; « Retour au passage » après sauts par table, « < », « > », bord de l'écran et liste (DEC-EE-0043). Commits : `9256a3c`, `302e613`, `8ec8d65`, `34005a0`, `d8860c9`, `ac5dd1f`, `5860c33`.
 
 ### Session 4b — Recherche
 
-> Prochaine session. Points à trancher avant de commencer : DEC-EE-0038. Entrée « Rechercher » à ajouter au panneau « Plus ».
+> Prochaine session. Points à trancher avant de commencer : DEC-EE-0038 (les autres points sont tranchés). Entrée « Rechercher » à ajouter à la fenêtre « * » (DEC-EE-0042), et non au panneau « Plus ».
 
 - [ ] Champ de recherche, clavier ouvert à l'arrivée (F-11.1).
 - [ ] Portée de la recherche selon F-11.3 retenu ; lecture chapitre par chapitre sans stockage du texte.
