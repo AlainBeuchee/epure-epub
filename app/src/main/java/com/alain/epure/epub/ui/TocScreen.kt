@@ -6,12 +6,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -50,27 +51,34 @@ fun TocScreen(
             color = TextPrimary,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
         )
-        if (entries.isEmpty()) {
-            Text(
-                text = stringResource(R.string.toc_none),
-                style = MaterialTheme.typography.bodyLarge,
-                color = TextSecondary,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            )
+        // The entries scroll in the space left above the divider and the back button.
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+        ) {
+            if (entries.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.toc_none),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TextSecondary,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                )
+            }
+            entries.forEach { entry ->
+                Text(
+                    text = entry.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TextPrimary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp)
+                        .clickable(role = Role.Button, onClick = { onOpen(entry) })
+                        .padding(start = (16 + 16 * (entry.depth - 1)).dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+                )
+            }
         }
-        entries.forEach { entry ->
-            Text(
-                text = entry.title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = TextPrimary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 48.dp)
-                    .clickable(role = Role.Button, onClick = { onOpen(entry) })
-                    .padding(start = (16 + 16 * (entry.depth - 1)).dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
-            )
-        }
-        Spacer(modifier = Modifier.weight(1f))
         HorizontalDivider(color = TextSecondary)
         Row(
             modifier = Modifier

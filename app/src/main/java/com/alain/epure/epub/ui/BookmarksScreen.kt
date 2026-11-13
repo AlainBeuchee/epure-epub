@@ -6,12 +6,13 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -59,19 +60,26 @@ fun BookmarksScreen(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
             )
         }
-        bookmarks.forEach { bookmark ->
-            Text(
-                text = stringResource(R.string.bookmark_label, bookmark.spineIndex + 1, bookmark.progressPercent),
-                style = MaterialTheme.typography.bodyLarge,
-                color = TextPrimary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 48.dp)
-                    .combinedClickable(onClick = { onOpen(bookmark) }, onLongClick = { onRemove(bookmark) })
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-            )
+        // The rows scroll in the space left above the divider and the back button.
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+        ) {
+            bookmarks.forEach { bookmark ->
+                Text(
+                    text = stringResource(R.string.bookmark_label, bookmark.spineIndex + 1, bookmark.progressPercent),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TextPrimary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp)
+                        .combinedClickable(onClick = { onOpen(bookmark) }, onLongClick = { onRemove(bookmark) })
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                )
+            }
         }
-        Spacer(modifier = Modifier.weight(1f))
         HorizontalDivider(color = TextSecondary)
         Row(
             modifier = Modifier
