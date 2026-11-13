@@ -1112,6 +1112,59 @@ Facile : un bouton et un panneau dans `ReaderScreen.kt`.
 
 ---
 
+## DEC-EE-0041 — Marque-pages : accès depuis la fenêtre « * » seulement
+
+- Date : 13/11/2026
+- Statut : Adoptée, demandée par le porteur ; à valider sur l'appareil
+- Jalon : 4 (hors session prévue)
+- Exigences concernées : F-6.3, F-10.1, F-10.3 ; DEC-EE-0036, DEC-EE-0040
+
+**Décision**
+- Le panneau « Plus » ne contient plus « Ajouter marque-page » ni « Marque-pages ».
+- La fenêtre ouverte par « * » propose : « Ajouter » (ajoute la position courante), « Liste des marque-pages » (ouvre l'écran listé, F-10.3) et « Annuler ».
+- Les marque-pages ne sont donc accessibles que depuis « * ».
+
+**Réversibilité**
+Facile : deux actions à remettre dans `MorePanel`.
+
+---
+
+## DEC-EE-0042 — Barre de commandes : navigation dans « * », réglages dans « Plus »
+
+- Date : 13/11/2026
+- Statut : Adoptée, demandée par le porteur ; à valider sur l'appareil
+- Jalon : 4 (hors session prévue)
+- Exigences concernées : F-6.3, F-14.1 ; DEC-EE-0041
+
+**Décision**
+- « Plus » ne contient plus que des réglages : « Taille du texte », « Thème du texte », « Reste allumé pendant la lecture ».
+- La fenêtre ouverte par « * » reçoit « Retour au passage » (navigation, F-14.1, grisée sans lien suivi) et « Partager ». Ses actions, sans question en tête, sont : « Ajouter marque-page à cet endroit », « Liste des marque-pages », « Retour au passage », « Partager » et « Annuler ».
+- La demande de confirmation (DEC-EE-0040) reste dans l'action « Ajouter marque-page à cet endroit » : c'est le premier appui de la fenêtre qui ajoute, pas une question séparée.
+
+**Réversibilité**
+Facile : déplacer des actions entre deux fenêtres dans `ReaderScreen.kt`.
+
+---
+
+## DEC-EE-0043 — « Retour au passage » après un saut par la table des matières
+
+- Date : 13/11/2026
+- Statut : Adoptée, demandée par le porteur après test ; à valider sur l'appareil
+- Jalon : 4 (hors session prévue)
+- Exigences concernées : F-14.1, F-12.1 ; DEC-EE-0042
+
+**Constat**
+- « Retour au passage » ne s'activait qu'après un lien du texte. Un saut par « Table » ne mémorisait pas l'endroit quitté : depuis le chapitre 3, on ne pouvait pas revenir au chapitre 2 après un saut « Table » vers le chapitre 2 puis un saut « Table » vers le chapitre 3.
+
+**Décision**
+- Un saut par « Table » vers un autre chapitre mémorise la position quittée, comme un lien (une seule étape).
+- Les sauts par « < » et « > », par un appui sur le bord de l'écran (chapitre précédent ou suivant) et par l'écran « Marque-pages » mémorisent aussi la position quittée. Le bord de l'écran est ajouté par l'assistant, par cohérence avec « < » et « > » : à confirmer par le porteur.
+
+**Réversibilité**
+Facile : une ligne dans `MainActivity.kt`.
+
+---
+
 ## Décisions en attente
 
 La liste à jour des points `[À DÉCIDER]` est tenue dans `SPEC.md` §9.1, avec le jalon auquel chacun doit être tranché. Les premiers à trancher sont :

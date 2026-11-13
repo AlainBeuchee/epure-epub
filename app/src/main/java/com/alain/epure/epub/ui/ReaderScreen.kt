@@ -205,35 +205,31 @@ fun ReaderScreen(
                             bookmarkAskOpen = false
                             onAddBookmark()
                         },
+                        onOpenBookmarks = {
+                            bookmarkAskOpen = false
+                            onOpenBookmarks()
+                        },
+                        returnAvailable = returnAvailable,
+                        onShare = {
+                            bookmarkAskOpen = false
+                            onShare()
+                        },
+                        onReturn = {
+                            bookmarkAskOpen = false
+                            commandsVisible = false
+                            onReturn()
+                        },
                         onCancel = { bookmarkAskOpen = false },
                     )
                 }
                 if (moreOpen) {
                     MorePanel(
                         textStep = textStep,
-                        returnAvailable = returnAvailable,
                         onNextTextSize = onNextTextSize,
-                        onAddBookmark = {
-                            moreOpen = false
-                            onAddBookmark()
-                        },
-                        onOpenBookmarks = {
-                            moreOpen = false
-                            onOpenBookmarks()
-                        },
                         theme = theme,
                         onNextTheme = onNextTheme,
                         keepScreenOn = keepScreenOn,
                         onToggleKeepScreenOn = onToggleKeepScreenOn,
-                        onShare = {
-                            moreOpen = false
-                            onShare()
-                        },
-                        onReturn = {
-                            moreOpen = false
-                            commandsVisible = false
-                            onReturn()
-                        },
                         onClose = { moreOpen = false },
                     )
                 }
@@ -381,11 +377,18 @@ private fun BarAction(
 }
 
 /**
- * The request opened by « * » (DEC-EE-0040): asks before adding a bookmark at the current place.
- * Same panel as « Plus », anchored above the bar.
+ * The window opened by « * » (DEC-EE-0040, DEC-EE-0041): asks before adding a bookmark at the current
+ * place, and gives access to the list of bookmarks. Same panel as « Plus », anchored above the bar.
  */
 @Composable
-private fun BookmarkAskPanel(onAdd: () -> Unit, onCancel: () -> Unit) {
+private fun BookmarkAskPanel(
+    onAdd: () -> Unit,
+    onOpenBookmarks: () -> Unit,
+    returnAvailable: Boolean,
+    onShare: () -> Unit,
+    onReturn: () -> Unit,
+    onCancel: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -393,13 +396,10 @@ private fun BookmarkAskPanel(onAdd: () -> Unit, onCancel: () -> Unit) {
             .pointerInput(Unit) { detectTapGestures { } }
             .padding(vertical = 8.dp),
     ) {
-        Text(
-            text = stringResource(R.string.bookmark_ask),
-            style = MaterialTheme.typography.bodyLarge,
-            color = TextSecondary,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-        )
         PanelAction(stringResource(R.string.bookmark_ask_yes), enabled = true, onAdd)
+        PanelAction(stringResource(R.string.bookmarks_list), enabled = true, onOpenBookmarks)
+        PanelAction(stringResource(R.string.reader_return), enabled = returnAvailable, onReturn)
+        PanelAction(stringResource(R.string.action_share), enabled = true, onShare)
         PanelAction(stringResource(R.string.action_cancel), enabled = true, onCancel)
     }
 }
@@ -407,21 +407,16 @@ private fun BookmarkAskPanel(onAdd: () -> Unit, onCancel: () -> Unit) {
 /**
  * The « Plus » panel, opened from the command bar: text size and the return to the previous place.
  * Anchored above the bar, text aligned to the left like the rest of the app.
- * « Rechercher » and « Marque-page » arrive in sessions 4a and 4b; settings and « À propos » are on the start screen.
+ * « Rechercher » arrives in session 4b; bookmarks are opened from « * » (DEC-EE-0041); settings and « À propos » are on the start screen.
  */
 @Composable
 private fun MorePanel(
     textStep: Int,
-    returnAvailable: Boolean,
     onNextTextSize: () -> Unit,
-    onAddBookmark: () -> Unit,
-    onOpenBookmarks: () -> Unit,
     theme: ReadingTheme,
     onNextTheme: () -> Unit,
     keepScreenOn: Boolean,
     onToggleKeepScreenOn: () -> Unit,
-    onShare: () -> Unit,
-    onReturn: () -> Unit,
     onClose: () -> Unit,
 ) {
     // Full width, no outline, same sizes as the settings list (DEC-EE-0034).
@@ -449,10 +444,6 @@ private fun MorePanel(
             enabled = true,
             onToggleKeepScreenOn,
         )
-        PanelAction(stringResource(R.string.bookmark_add), enabled = true, onAddBookmark)
-        PanelAction(stringResource(R.string.bookmarks_open), enabled = true, onOpenBookmarks)
-        PanelAction(stringResource(R.string.action_share), enabled = true, onShare)
-        PanelAction(stringResource(R.string.reader_return), enabled = returnAvailable, onReturn)
         PanelAction(stringResource(R.string.action_close), enabled = true, onClose)
     }
 }

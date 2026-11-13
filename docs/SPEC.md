@@ -162,8 +162,8 @@ Navigation : état simple géré à la main, sans `navigation-compose` (`CHARTE.
 **F-6.3 Contenu.**
 - En haut : titre du livre (`LabelStyle`, `TextPrimary`, passage à la ligne autorisé).
 - En bas : progression « 42 % » (`LabelStyle`, `TextSecondary`) et les actions texte « Table », « < », « > », « * », « Plus » (DEC-EE-0040).
-- « * » ouvre une demande : « Ajouter un marque-page à cet endroit ? », avec « Ajouter » et « Annuler ». « Ajouter » ajoute la position courante (F-10.1). Retour, toucher à l'extérieur ou « Annuler » ferment la demande sans rien ajouter. Cette demande est une exception à la règle des confirmations (DEC-EE-0040).
-- « Plus » ouvre une fenêtre de menu : « Taille du texte », « Mode nuit », « Partager », « Écran allumé », « Ajouter marque-page », « Marque-pages ».
+- « * » ouvre une fenêtre de navigation : « Ajouter marque-page à cet endroit », « Liste des marque-pages », « Retour au passage » (grisée sans lien suivi, F-14.1), « Partager » et « Annuler » (DEC-EE-0042). « Ajouter » ajoute la position courante (F-10.1) ; « Liste des marque-pages » ouvre l'écran listé (F-10.3). Retour, toucher à l'extérieur ou « Annuler » ferment la demande sans rien ajouter. Cette demande est une exception à la règle des confirmations (DEC-EE-0040, DEC-EE-0041).
+- « Plus » ouvre une fenêtre de réglages : « Taille du texte », « Thème du texte », « Reste allumé pendant la lecture ».
 - Cibles ≥ 48 dp, texte seul.
 
 **F-6.4 Bouton Retour.** Dans l'ordre : ferme la fenêtre ouverte, puis masque les commandes, puis quitte le lecteur (retour à l'accueil, ou à l'app d'origine si ouverture par `VIEW`). Implémentation par `BackHandler`.
@@ -192,7 +192,7 @@ Reprise de F-9 de Épure PDF : option « Écran allumé pendant la lecture », a
 
 ### F-10 Marque-pages
 
-**F-10.1** Action « Ajouter marque-page » dans le panneau « Plus » : ajoute la position courante. Plusieurs marque-pages par chapitre sont permis ; une position déjà marquée n'est pas ajoutée une seconde fois. L'action ne retire pas : le retrait se fait depuis l'écran « Marque-pages » (F-10.3). (DEC-EE-0039, qui lève DEC-EE-0036 sur ce point.)
+**F-10.1** Action « Ajouter marque-page » dans la fenêtre ouverte par « * » (F-6.3) : ajoute la position courante. Plusieurs marque-pages par chapitre sont permis ; une position déjà marquée n'est pas ajoutée une seconde fois. L'action ne retire pas : le retrait se fait depuis l'écran « Marque-pages » (F-10.3). (DEC-EE-0039, qui lève DEC-EE-0036 sur ce point.)
 
 **F-10.2** Un marque-page est une ancre (F-5.1). Il est identifié par le nom du chapitre (entrée de la table des matières, « Chapitre N » à défaut) et la position dans ce chapitre, en pourcentage, au moment où il est ajouté : « Titre du chapitre, 42 % ». Les marque-pages enregistrés avant ce format n'ont pas de pourcentage et n'affichent que le nom.
 
@@ -230,7 +230,7 @@ Reprise de F-9 de Épure PDF : option « Écran allumé pendant la lecture », a
 
 ### F-14 Liens et contenu actif
 
-**F-14.1 Liens internes.** Un lien vers un autre chapitre ou une ancre du même livre déplace la lecture. Il est ajouté à l'historique de retour (action « Retour au passage » dans les commandes, **[À DÉCIDER]** : proposition oui, une seule étape).
+**F-14.1 Liens internes.** Un lien vers un autre chapitre ou une ancre du même livre déplace la lecture. Il est ajouté à l'historique de retour (action « Retour au passage » dans la fenêtre « * », une seule étape). Les sauts par la table des matières, par « < » et « > », par un appui sur le bord de l'écran et par la liste des marque-pages sont ajoutés au même historique (DEC-EE-0043).
 
 **F-14.2 Liens externes.** Un lien vers une adresse web, un courriel ou tout autre schéma n'est **pas ouvert**. Message en texte : « Lien externe non ouvert : Épure EPUB ne se connecte pas à Internet. » Aucun navigateur n'est lancé.
 

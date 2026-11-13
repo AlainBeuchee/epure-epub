@@ -298,7 +298,7 @@ L'échelle de A.5 s'applique à l'interface. Le texte du livre a sa propre règl
 
 #### Iconographie
 
-Aucune icône. Toutes les actions du lecteur sont des libellés texte (« Table », « Rechercher », « Marque-page », « Plus », « Taille du texte », « Thème du texte », « Reste allumé pendant la lecture », « Partager », « Retour au passage »). Exception textuelle : les symboles « < », « > » et « * » de la barre de commandes (DEC-EE-0021, DEC-EE-0040).
+Aucune icône. Toutes les actions du lecteur sont des libellés texte (« Table », « Rechercher », « Plus », « Taille du texte », « Thème du texte », « Reste allumé pendant la lecture », « Partager », « Retour au passage »). Exception textuelle : les symboles « < », « > » et « * » de la barre de commandes (DEC-EE-0021, DEC-EE-0040).
 
 #### Dérogations possibles, non tranchées
 
@@ -354,7 +354,8 @@ Libellés de référence (à reprendre dans `strings.xml`) :
 | Accueil | « Liste », « Aucun livre récent », « Ajout », « Paramètres » |
 | Menu d'un récent | « Retirer de la liste », « Partager » |
 | Commandes | « Table », « Rechercher », « * », « Plus », « < », « > » |
-| Menu « Plus » | « Taille du texte : … sp », « Thème du texte : … », « Reste allumé pendant la lecture : oui / non », « Partager », « Retour au passage » |
+| Menu « Plus » | « Taille du texte : … sp », « Thème du texte : … », « Reste allumé pendant la lecture : oui / non » (DEC-EE-0042) |
+| Fenêtre « * » | « Ajouter marque-page à cet endroit », « Liste des marque-pages », « Retour au passage », « Partager », « Annuler » (DEC-EE-0040, DEC-EE-0042) |
 | Tailles | « Taille du texte : … sp » (un appui = taille suivante, DEC-EE-0033) |
 | Liens | « Lien externe non ouvert : Épure EPUB ne se connecte pas à Internet. », « Retour au passage » |
 | Listes vides | « Aucun marque-page », « Aucune table des matières », « Aucun résultat » |

@@ -63,9 +63,8 @@
     <string name="bookmark_chapter_untitled">Chapitre %1$d</string>
     <string name="bookmark_add">Ajouter marque-page</string>
     <string name="reader_bookmark_ask">*</string>
-    <string name="bookmark_ask">Ajouter un marque-page à cet endroit ?</string>
-    <string name="bookmark_ask_yes">Ajouter</string>
+    <string name="bookmark_ask_yes">Ajouter marque-page à cet endroit</string>
     <string name="action_cancel">Annuler</string>
-    <string name="bookmarks_open">Marque-pages</string>
+    <string name="bookmarks_list">Liste des marque-pages</string>
     <string name="recent_unreadable">Fichier inaccessible. Ouvre-le à nouveau depuis l\'application où il a été ouvert initialement.</string>
 </resources>

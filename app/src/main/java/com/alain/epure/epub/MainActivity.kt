@@ -169,6 +169,12 @@ private fun EpureApp(
         notice = null
     }
 
+    // A jump the reader may want to undo: remembers the place left for « Retour au passage » (DEC-EE-0043).
+    fun jumpTo(chapterIndex: Int, scrollY: Int) {
+        session?.let { returnTo = it.position }
+        goTo(chapterIndex, scrollY)
+    }
+
     fun save(reading: ReadingSession) {
         val updated = RecentList.upsert(recents, reading.toRecent(), RecentList.limit(listEnabled))
         RecentStore.save(context, updated)
@@ -333,7 +339,11 @@ private fun EpureApp(
             leftHanded = leftHanded,
             onOpen = { entry ->
                 showingToc = false
-                goTo(entry.spineIndex, 0)
+                // A jump from the table remembers the place left, like a link does (« Retour au passage », DEC-EE-0043).
+                if (entry.spineIndex != index) {
+                    returnTo = current.position
+                    goTo(entry.spineIndex, 0)
+                }
             },
             onBack = {
                 showingToc = false
@@ -346,7 +356,7 @@ private fun EpureApp(
             leftHanded = leftHanded,
             onOpen = { bookmark ->
                 showingBookmarks = false
-                goTo(bookmark.spineIndex, bookmark.scrollY)
+                jumpTo(bookmark.spineIndex, bookmark.scrollY)
             },
             onRemove = { bookmark ->
                 bookmarks = BookmarkRules.remove(bookmarks, bookmark)
@@ -385,8 +395,8 @@ private fun EpureApp(
             onTap = { side ->
                 val last = current.book.book.spine.size - 1
                 when (side) {
-                    TapSide.RIGHT -> if (index < last) goTo(index + 1, 0)
-                    TapSide.LEFT -> if (index > 0) goTo(index - 1, 0)
+                    TapSide.RIGHT -> if (index < last) jumpTo(index + 1, 0)
+                    TapSide.LEFT -> if (index > 0) jumpTo(index - 1, 0)
                     TapSide.CENTER -> Unit
                 }
             },
@@ -419,8 +429,8 @@ private fun EpureApp(
                     handler.postDelayed(saveLater, SAVE_DELAY_MS)
                 }
             },
-            onPrevious = { if (index > 0) goTo(index - 1, 0) },
-            onNext = { if (index < current.book.book.spine.size - 1) goTo(index + 1, 0) },
+            onPrevious = { if (index > 0) jumpTo(index - 1, 0) },
+            onNext = { if (index < current.book.book.spine.size - 1) jumpTo(index + 1, 0) },
             onReturn = {
                 returnTo?.let { place ->
                     returnTo = null
