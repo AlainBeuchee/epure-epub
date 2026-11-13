@@ -6,6 +6,12 @@ import com.alain.epure.epub.domain.LinkTarget
 import com.alain.epure.epub.domain.ReadingTheme
 
 /**
+ * A search to mark in the chapter shown (SPEC.md F-11.4, DEC-EE-0047): [query] is the text searched,
+ * [activeHit] the number of the occurrence shown, among the occurrences of this chapter.
+ */
+class ChapterHighlight(val query: String, val activeHit: Int)
+
+/**
  * Rendering engine of the app (DEC-EE-0015). The UI depends only on this interface,
  * so another engine can replace the WebView without changing the screens.
  */
@@ -16,9 +22,16 @@ interface ChapterRenderer {
 
     /**
      * Shows the chapter at [chapterPath] of [book]. It starts at the top, or at [startScrollY]
-     * when the book is reopened at a saved place.
+     * when the book is reopened at a saved place. With a [highlight], the search occurrences are
+     * marked and the one shown is brought into view.
      */
-    fun show(book: OpenBook, chapterPath: String, startScrollY: Int = 0, theme: ReadingTheme = ReadingTheme.DEFAULT)
+    fun show(
+        book: OpenBook,
+        chapterPath: String,
+        startScrollY: Int = 0,
+        theme: ReadingTheme = ReadingTheme.DEFAULT,
+        highlight: ChapterHighlight? = null,
+    )
 
     /**
      * Sets the text zoom in percent (SPEC.md F-3.1). The passage being read stays on screen.

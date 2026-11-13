@@ -1047,7 +1047,7 @@ Facile : une fonction de résolution de lien.
 - Mise à jour 13/11/2026 : l'entrée « Rechercher » est dans la fenêtre « * » (et non dans « Plus »), par accord du porteur, voir DEC-EE-0042.
 
 - Date : 13/11/2026
-- Statut : Proposée (à trancher par le porteur avant la session 4b)
+- Statut : Adoptée (décisions du porteur, 13/11/2026) : points 1 et 3 comme recommandés ; point 2 : jsoup, voir DEC-EE-0045. Mise à jour de `SPEC.md` faite par l'assistant sur demande du porteur, le même jour.
 - Jalon : 4 (session 4b)
 - Exigences concernées : F-11.1 à F-11.6, F-6.3 (« Plus »), S-1 (pas de JavaScript)
 
@@ -1151,7 +1151,7 @@ Facile : déplacer des actions entre deux fenêtres dans `ReaderScreen.kt`.
 ## DEC-EE-0043 — « Retour au passage » après un saut par la table des matières
 
 - Date : 13/11/2026
-- Statut : Adoptée, demandée par le porteur après test ; à valider sur l'appareil
+- Statut : Adoptée, demandée par le porteur après test, et confirmée par le porteur le 13/11/2026 (bord de l'écran inclus) ; à valider sur l'appareil
 - Jalon : 4 (hors session prévue)
 - Exigences concernées : F-14.1, F-12.1 ; DEC-EE-0042
 
@@ -1170,7 +1170,7 @@ Facile : une ligne dans `MainActivity.kt`.
 ## DEC-EE-0044 — Permission injectée par AndroidX Core : acceptée
 
 - Date : 13/11/2026
-- Statut : Adoptée, par l'assistant à la demande du porteur ; à confirmer par le porteur
+- Statut : Adoptée, confirmée et validée par le porteur (13/11/2026)
 - Jalon : 4 (fermeture de la session hors roadmap)
 - Exigences concernées : DEC-0005, CLAUDE.md §4 (permissions du manifeste fusionné)
 
@@ -1186,6 +1186,90 @@ Facile : une ligne dans `MainActivity.kt`.
 
 **Réversibilité**
 Facile : retirer la dépendance qui l'apporte, ou la retirer du manifeste avec consignation.
+
+---
+
+## DEC-EE-0045 — Session 4b : analyse du XHTML pour la recherche, bibliothèque jsoup
+
+- Date : 13/11/2026
+- Statut : Adoptée (décision du porteur, 13/11/2026). Mise en œuvre le 13/11/2026 : version **1.23.2** (publiée le 26/08/2026 ; la 1.24.1, publiée le 03/11/2026, est écartée par prudence, moins de deux semaines). Build, 5 tests de `ChapterTextTest` et lint sans erreur ; `aapt2 dump permissions` inchangé (seule la permission de DEC-EE-0044).
+- Jalon : 4 (session 4b)
+- Exigences concernées : F-11.3, F-11.7 ; S-1, S-3 ; `CLAUDE.md` §4 (dépendances), §7 (pas d'analyseur maison)
+
+**Contexte**
+Sans JavaScript, la recherche sur tout le livre lit le XHTML côté Kotlin et doit en extraire le texte visible (DEC-EE-0038). Un analyseur HTML maison est interdit sans décision (`CLAUDE.md` §7). Le besoin rejoint l'option 2 de DEC-EE-0037.
+
+**Décision**
+- Ajout de la bibliothèque **jsoup** pour extraire le texte visible d'un chapitre, en mémoire, pour la recherche. Le texte n'est pas stocké (F-11.5).
+- jsoup n'exécute aucun script. Le code de l'app appelle seulement l'analyse d'une chaîne (`Jsoup.parse`), jamais une connexion réseau.
+
+**Justification**
+- Licence MIT, compatible GPL v3.
+- Bibliothèque Java pure, éprouvée, qui gère les XHTML imparfaits mieux qu'un retrait de balises par expression régulière.
+
+**Alternative écartée**
+- Retrait simple des balises par expression régulière : fragile sur les XHTML mal formés.
+- Analyseur écrit dans l'app : interdit (`CLAUDE.md` §7).
+
+**Conséquences**
+- Ajout seulement à l'implémentation de la session 4b, après cette décision.
+- Contrôle obligatoire après ajout : `aapt2 dump permissions` (aucune permission nouvelle attendue ; si une apparaît, la signaler et la traiter comme DEC-EE-0044 ou retirer la bibliothèque), et contrôle de la taille de l'APK, à consigner.
+- Le texte extrait ne va que dans la logique de recherche, derrière une fonction isolée de `system/`.
+
+**Réversibilité**
+Moyenne : la fonction d'extraction est isolée ; la remplacer par un retrait de balises demande une nouvelle entrée.
+
+---
+
+## DEC-EE-0046 — Session 4b : panneau de recherche, entrée et comportement (choix de l'assistant)
+
+- Date : 13/11/2026
+- Statut : Mise en œuvre le 13/11/2026 ; à valider sur l'appareil. Choix non tranchés par le porteur, à confirmer ou corriger.
+- Jalon : 4 (session 4b)
+- Exigences concernées : F-6.3, F-11.1 à F-11.6, F-14.1 ; DEC-EE-0038, DEC-EE-0042, DEC-EE-0043, DEC-EE-0045
+
+**Décision**
+- **Entrée** : « Rechercher » dans la fenêtre « * », après « Liste des marque-pages » (DEC-EE-0042).
+- **Panneau** : il remplace la barre de commandes pendant la recherche. Il contient un champ (clavier ouvert à l'arrivée ; Entrée lance la recherche), le libellé d'état (« Recherche en cours », « 3 / 17 », « Aucun résultat », « Ce livre ne contient pas de texte. »), les actions « Précédent », « Suivant », « Chercher » et « Fermer ». L'ordre suit la latéralité (DEC-EE-0032).
+- **Premier résultat** : la lecture saute au début du chapitre contenant la première occurrence (DEC-EE-0038, DEC-EE-0037). « Précédent » et « Suivant » sautent de la même façon, sans boucle (choix du porteur).
+- **Saut** : un saut de recherche ne mémorise pas la place quittée pour « Retour au passage ». Non prévu par DEC-EE-0043 ; à décider.
+- **Arrêt** : « Retour » ou « Fermer » arrête la recherche en cours (résultat ignoré). Masquer la barre de commandes ferme aussi la recherche.
+- **Texte saisi** : gardé pendant la lecture du livre, perdu à sa fermeture. Rien n'est stocké.
+- **Aucun indicateur animé** : seul le texte « Recherche en cours » est affiché (F-11.5).
+
+**Réversibilité**
+Facile : le panneau, l'entrée et les trois actions sont isolés dans `ReaderScreen.kt`, `SearchPanel.kt` et `MainActivity.kt`.
+
+---
+
+## DEC-EE-0047 — Recherche : script de l'app pour situer et mettre en négatif l'occurrence (modifie S-1)
+
+- Date : 13/11/2026
+- Statut : Adoptée (choix du porteur, option 1, 13/11/2026) ; à valider sur l'appareil ; à passer dans les tests de sécurité du jalon 5
+- Jalon : 4 (session 4b, correction après test)
+- Exigences concernées : S-1 (aucun JavaScript exécuté), F-11.4 (signalement de l'occurrence), F-14.3 ; `CLAUDE.md` §4 (sécurité du contenu)
+
+**Constat**
+- Après test sur l'appareil : « Suivant » ne défile pas, et le mot trouvé n'est pas mis en négatif. La recherche sait dans quel chapitre se trouve chaque occurrence, mais pas où elle est dans la page.
+- Sans JavaScript, l'WebView ne donne pas la position d'un passage. Il faut donc un petit script.
+
+**Décision**
+- Le JavaScript est activé dans la WebView, **uniquement** pour un script écrit par l'app, de quelques lignes, chaîne fixe. Il ne lit que la position d'un passage repéré par un identifiant numérique, et il sert à défiler vers l'occurrence. Aucune donnée du livre n'entre dans le script.
+- Le texte du livre ne peut toujours pas exécuter de code : avant d'être affiché, chaque chapitre est nettoyé par Kotlin. Sont retirés : `script`, `iframe`, `frame`, `frameset`, `object`, `embed`, `applet`, `base`, `meta http-equiv` (redirection), les attributs `on*` (gestionnaires d'événements), et les valeurs `javascript:`, `vbscript:` ou `data:text/html` dans les attributs de lien ou de source.
+- La mise en négatif de l'occurrence est faite en Kotlin, par un style en ligne sur la balise `span` qui l'entoure. Le script ne fait que défiler.
+- Inchangé : `domStorageEnabled` et `databaseEnabled` restent désactivés ; le réseau reste bloqué ; seuls les fichiers de l'archive sont servis (S-2, S-7) ; pas de fenêtre ouverte par le livre (`javaScriptCanOpenWindowsAutomatically` reste faux).
+
+**Justification**
+- Sans cette mesure, F-11.4 ne peut pas être tenu. Le script est écrit par l'app, il n'accepte aucune entrée du livre, et le livre est nettoyé avant d'être affiché.
+
+**Conséquences**
+- S-1 de `SPEC.md` (« aucun JavaScript exécuté ») : à réécrire par le porteur ; l'assistant ne modifie pas `SPEC.md` (`CLAUDE.md` §5).
+- Les chapitres sont reproduits par l'analyseur jsoup (HTML) : la sortie peut différer légèrement du XHTML d'origine. À vérifier sur les documents 1 à 3.
+- Test de sécurité à ajouter au jalon 5 : livre avec script, gestionnaire `onclick`, `iframe` et redirection `meta refresh` ; aucun ne doit s'exécuter.
+- Permissions : aucune. Dépendances : aucune nouvelle.
+
+**Réversibilité**
+Facile : remettre `javaScriptEnabled = false` et supprimer l'appel de mesure ; la recherche reste comptée, seul le défilement vers l'occurrence est perdu.
 
 ---
 

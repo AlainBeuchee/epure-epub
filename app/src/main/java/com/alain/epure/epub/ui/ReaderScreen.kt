@@ -47,7 +47,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.alain.epure.epub.R
 import com.alain.epure.epub.domain.LinkTarget
 import com.alain.epure.epub.domain.ReadingTheme
+import com.alain.epure.epub.domain.SearchState
 import com.alain.epure.epub.domain.TextSizeRules
+import com.alain.epure.epub.system.ChapterHighlight
 import com.alain.epure.epub.system.ChapterRenderer
 import com.alain.epure.epub.system.OpenBook
 import com.alain.epure.epub.system.TapSide
@@ -91,23 +93,40 @@ fun ReaderScreen(
     keepScreenOn: Boolean,
     onToggleKeepScreenOn: () -> Unit,
     onShare: () -> Unit,
+    search: SearchState,
+    onOpenSearch: () -> Unit,
+    onSearchStart: (String) -> Unit,
+    onSearchPrevious: () -> Unit,
+    onSearchNext: () -> Unit,
+    onCloseSearch: () -> Unit,
 ) {
     val path = book.book.spine[index]
     val last = book.book.spine.size - 1
+    // The search occurrence to mark in this chapter, if the one shown is here (SPEC.md F-11.4).
+    val highlight = search.activeHitInChapter(index)?.let { ChapterHighlight(search.query, it) }
     var commandsVisible by remember { mutableStateOf(false) }
     var moreOpen by remember { mutableStateOf(false) }
     // The « * » request asking to add a bookmark here (DEC-EE-0040).
     var bookmarkAskOpen by remember { mutableStateOf(false) }
+    // The text typed in the search panel; kept while the reader stays open (SPEC.md F-11.1).
+    var searchQuery by remember { mutableStateOf("") }
 
     val currentOnTap by rememberUpdatedState(onTap)
     val currentOnLink by rememberUpdatedState(onLink)
     val currentOnPosition by rememberUpdatedState(onPosition)
     val currentIndex by rememberUpdatedState(index)
+    val searchOpen by rememberUpdatedState(search.open)
 
     // Back closes the « Plus » panel first; the book itself is closed by the activity.
     BackHandler(enabled = moreOpen || bookmarkAskOpen) {
         moreOpen = false
         bookmarkAskOpen = false
+    }
+    // Back in the search panel stops the search and closes the panel (SPEC.md F-11.5).
+    BackHandler(enabled = search.open) { onCloseSearch() }
+    // Hiding the command bar also closes the search (the search panel lives in the bar).
+    LaunchedEffect(commandsVisible) {
+        if (!commandsVisible && searchOpen) onCloseSearch()
     }
 
     ImmersiveSystemBars(visible = commandsVisible)
@@ -157,7 +176,7 @@ fun ReaderScreen(
                     val key = "$path#$navToken"
                     if (view.tag != key) {
                         view.tag = key
-                        renderer.show(book, path, startScrollY, theme)
+                        renderer.show(book, path, startScrollY, theme, highlight)
                     }
                 },
                 // Nothing of the book stays in the engine once the screen is left.
@@ -209,6 +228,10 @@ fun ReaderScreen(
                             bookmarkAskOpen = false
                             onOpenBookmarks()
                         },
+                        onSearch = {
+                            bookmarkAskOpen = false
+                            onOpenSearch()
+                        },
                         returnAvailable = returnAvailable,
                         onShare = {
                             bookmarkAskOpen = false
@@ -233,22 +256,36 @@ fun ReaderScreen(
                         onClose = { moreOpen = false },
                     )
                 }
-                CommandBar(
-                    progressPercent = progressPercent,
-                    canPrevious = index > 0,
-                    canNext = index < last,
-                    // The bar stays open so that several chapters can be passed in a row.
-                    onPrevious = onPrevious,
-                    onNext = onNext,
-                    onMore = { moreOpen = !moreOpen },
-                    onAskBookmark = {
-                        moreOpen = false
-                        bookmarkAskOpen = true
-                    },
-                    leftHanded = leftHanded,
-                    tocAvailable = tocAvailable,
-                    onTable = onTable,
-                )
+                if (search.open) {
+                    // The search panel takes the place of the command bar while a search is open (SPEC.md F-11).
+                    SearchPanel(
+                        search = search,
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onStart = onSearchStart,
+                        onPrevious = onSearchPrevious,
+                        onNext = onSearchNext,
+                        onClose = onCloseSearch,
+                        leftHanded = leftHanded,
+                    )
+                } else {
+                    CommandBar(
+                        progressPercent = progressPercent,
+                        canPrevious = index > 0,
+                        canNext = index < last,
+                        // The bar stays open so that several chapters can be passed in a row.
+                        onPrevious = onPrevious,
+                        onNext = onNext,
+                        onMore = { moreOpen = !moreOpen },
+                        onAskBookmark = {
+                            moreOpen = false
+                            bookmarkAskOpen = true
+                        },
+                        leftHanded = leftHanded,
+                        tocAvailable = tocAvailable,
+                        onTable = onTable,
+                    )
+                }
             }
         }
     }
@@ -384,6 +421,7 @@ private fun BarAction(
 private fun BookmarkAskPanel(
     onAdd: () -> Unit,
     onOpenBookmarks: () -> Unit,
+    onSearch: () -> Unit,
     returnAvailable: Boolean,
     onShare: () -> Unit,
     onReturn: () -> Unit,
@@ -398,6 +436,7 @@ private fun BookmarkAskPanel(
     ) {
         PanelAction(stringResource(R.string.bookmark_ask_yes), enabled = true, onAdd)
         PanelAction(stringResource(R.string.bookmarks_list), enabled = true, onOpenBookmarks)
+        PanelAction(stringResource(R.string.search_entry), enabled = true, onSearch)
         PanelAction(stringResource(R.string.reader_return), enabled = returnAvailable, onReturn)
         PanelAction(stringResource(R.string.action_share), enabled = true, onShare)
         PanelAction(stringResource(R.string.action_cancel), enabled = true, onCancel)
@@ -407,7 +446,7 @@ private fun BookmarkAskPanel(
 /**
  * The « Plus » panel, opened from the command bar: text size and the return to the previous place.
  * Anchored above the bar, text aligned to the left like the rest of the app.
- * « Rechercher » arrives in session 4b; bookmarks are opened from « * » (DEC-EE-0041); settings and « À propos » are on the start screen.
+ * Bookmarks and search are opened from « * » (DEC-EE-0041, DEC-EE-0042); settings and « À propos » are on the start screen.
  */
 @Composable
 private fun MorePanel(
