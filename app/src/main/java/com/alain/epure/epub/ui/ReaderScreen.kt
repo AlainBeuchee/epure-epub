@@ -84,8 +84,7 @@ fun ReaderScreen(
     leftHanded: Boolean,
     tocAvailable: Boolean,
     onTable: () -> Unit,
-    bookmarkMarked: Boolean,
-    onToggleBookmark: () -> Unit,
+    onAddBookmark: () -> Unit,
     onOpenBookmarks: () -> Unit,
     theme: ReadingTheme,
     onNextTheme: () -> Unit,
@@ -197,10 +196,9 @@ fun ReaderScreen(
                         textStep = textStep,
                         returnAvailable = returnAvailable,
                         onNextTextSize = onNextTextSize,
-                        bookmarkMarked = bookmarkMarked,
-                        onToggleBookmark = {
+                        onAddBookmark = {
                             moreOpen = false
-                            onToggleBookmark()
+                            onAddBookmark()
                         },
                         onOpenBookmarks = {
                             moreOpen = false
@@ -361,8 +359,7 @@ private fun MorePanel(
     textStep: Int,
     returnAvailable: Boolean,
     onNextTextSize: () -> Unit,
-    bookmarkMarked: Boolean,
-    onToggleBookmark: () -> Unit,
+    onAddBookmark: () -> Unit,
     onOpenBookmarks: () -> Unit,
     theme: ReadingTheme,
     onNextTheme: () -> Unit,
@@ -397,11 +394,7 @@ private fun MorePanel(
             enabled = true,
             onToggleKeepScreenOn,
         )
-        PanelAction(
-            stringResource(if (bookmarkMarked) R.string.bookmark_remove else R.string.bookmark_add),
-            enabled = true,
-            onToggleBookmark,
-        )
+        PanelAction(stringResource(R.string.bookmark_add), enabled = true, onAddBookmark)
         PanelAction(stringResource(R.string.bookmarks_open), enabled = true, onOpenBookmarks)
         PanelAction(stringResource(R.string.action_share), enabled = true, onShare)
         PanelAction(stringResource(R.string.reader_return), enabled = returnAvailable, onReturn)

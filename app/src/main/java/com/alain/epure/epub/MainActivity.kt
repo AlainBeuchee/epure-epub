@@ -3,6 +3,7 @@ package com.alain.epure.epub
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import kotlin.math.roundToInt
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -35,6 +36,7 @@ import com.alain.epure.epub.domain.RecentBook
 import com.alain.epure.epub.domain.ReadingTheme
 import com.alain.epure.epub.domain.RecentList
 import com.alain.epure.epub.domain.RefusalReason
+import com.alain.epure.epub.domain.TableOfContents
 import com.alain.epure.epub.domain.TextSizeRules
 import com.alain.epure.epub.domain.TocEntry
 import com.alain.epure.epub.data.AppSettings
@@ -143,6 +145,8 @@ private fun EpureApp(
     val versionName = remember { versionNameOf(context) }
     // Reading state shown by the command bar: progression, text size, and the place left by the last link.
     var progressPercent by remember { mutableIntStateOf(0) }
+    // Position in the chapter currently shown, from 0 to 100 (stored in a new bookmark).
+    var chapterPercent by remember { mutableIntStateOf(0) }
     var textStep by remember { mutableIntStateOf(AppSettings.textSizeStep(context)) }
     var returnTo by remember { mutableStateOf<ReadingPosition?>(null) }
     var readingTheme by remember { mutableStateOf(AppSettings.readingTheme(context)) }
@@ -160,6 +164,7 @@ private fun EpureApp(
     fun goTo(chapterIndex: Int, scrollY: Int) {
         index = chapterIndex
         startScrollY = scrollY
+        chapterPercent = 0
         navToken++
         notice = null
     }
@@ -187,6 +192,7 @@ private fun EpureApp(
         notice = null
         returnTo = null
         progressPercent = 0
+        chapterPercent = 0
         bookmarks = emptyList()
         showingBookmarks = false
         toc = emptyList()
@@ -354,10 +360,14 @@ private fun EpureApp(
     } else {
         ReaderScreen(
             book = current.book,
-            bookmarkMarked = BookmarkRules.isMarked(bookmarks, index),
-            onToggleBookmark = {
-                val here = Bookmark(index, current.position.scrollY, progressPercent)
-                bookmarks = BookmarkRules.toggle(bookmarks, here)
+            onAddBookmark = {
+                val here = Bookmark(
+                    spineIndex = index,
+                    scrollY = current.position.scrollY,
+                    title = TableOfContents.titleOf(toc, index),
+                    chapterPercent = chapterPercent,
+                )
+                bookmarks = BookmarkRules.add(bookmarks, here)
                 BookmarkStore.save(context, current.uri, bookmarks)
             },
             onOpenBookmarks = { showingBookmarks = true },
@@ -404,6 +414,7 @@ private fun EpureApp(
                         fraction,
                     )
                     progressPercent = reading.progress
+                    chapterPercent = (fraction.coerceIn(0f, 1f) * 100f).roundToInt()
                     handler.removeCallbacks(saveLater)
                     handler.postDelayed(saveLater, SAVE_DELAY_MS)
                 }

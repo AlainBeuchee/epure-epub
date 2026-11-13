@@ -68,8 +68,11 @@ fun BookmarksScreen(
                 .verticalScroll(rememberScrollState()),
         ) {
             bookmarks.forEach { bookmark ->
+                val name = bookmark.title ?: stringResource(R.string.bookmark_chapter_untitled, bookmark.spineIndex + 1)
                 Text(
-                    text = stringResource(R.string.bookmark_label, bookmark.spineIndex + 1, bookmark.progressPercent),
+                    text = bookmark.chapterPercent
+                        ?.let { stringResource(R.string.bookmark_label, name, it) }
+                        ?: name,
                     style = MaterialTheme.typography.bodyLarge,
                     color = TextPrimary,
                     modifier = Modifier

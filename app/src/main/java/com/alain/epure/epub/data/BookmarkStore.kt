@@ -28,7 +28,9 @@ object BookmarkStore {
             Bookmark(
                 spineIndex = item.getInt("spine"),
                 scrollY = item.getInt("y"),
-                progressPercent = item.getInt("p"),
+                title = item.optString("t").ifEmpty { null },
+                // Bookmarks saved before this format have no "c": they show no percentage.
+                chapterPercent = if (item.has("c")) item.getInt("c") else null,
             )
         }
     }
@@ -38,7 +40,10 @@ object BookmarkStore {
         val all = readAll(context)
         val array = JSONArray()
         bookmarks.forEach { b ->
-            array.put(JSONObject().put("spine", b.spineIndex).put("y", b.scrollY).put("p", b.progressPercent))
+            val item = JSONObject().put("spine", b.spineIndex).put("y", b.scrollY)
+            b.title?.let { item.put("t", it) }
+            b.chapterPercent?.let { item.put("c", it) }
+            array.put(item)
         }
         all.put(uri, array)
         preferences(context).edit { putString(KEY_BOOKMARKS, all.toString()) }

@@ -1067,6 +1067,25 @@ Les sessions 4a (table des matières, marque-pages) sont validées. La recherche
 **Réversibilité**
 Facile : une fonction de recherche isolée dans le domaine.
 
+## DEC-EE-0039 — Marque-pages : plusieurs par chapitre (lève DEC-EE-0036 sur ce point)
+
+- Date : 13/11/2026
+- Statut : Adoptée, demandée par le porteur et validée sur l'appareil
+- Jalon : 4 (hors session prévue, retour de test)
+- Exigences concernées : F-10.1, F-10.3 ; DEC-EE-0036
+
+**Décision**
+- L'action « Ajouter marque-page » (panneau « Plus ») ajoute la position courante. Plusieurs marque-pages par chapitre sont permis.
+- L'action ne retire plus : le libellé « Retirer le marque-page » est supprimé. On retire depuis l'écran « Marque-pages » par appui long (F-10.3, DEC-0035).
+- Un marque-page déjà présent exactement à la même position (même chapitre, même défilement) n'est pas ajouté une seconde fois.
+- Libellé : « Nom du chapitre, P % », P étant la position dans le chapitre au moment de l'ajout. Le nom vient de la table des matières, ou « Chapitre N » à défaut. Les marque-pages enregistrés avant ce format n'ont pas de pourcentage et n'affichent que le nom.
+
+**Écart à consigner**
+- `SPEC.md` F-10.1 et F-10.2 disent encore « un par chapitre » et « Chapitre 3 — Titre, 42 % » : à mettre à jour par le porteur.
+
+**Réversibilité**
+Facile : la règle est isolée dans `BookmarkRules.add`.
+
 ---
 
 ## Décisions en attente

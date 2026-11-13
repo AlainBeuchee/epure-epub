@@ -1,29 +1,31 @@
 package com.alain.epure.epub.domain
 
 /**
- * A bookmark: an anchor in the book (chapter rank and offset), with the progression at that point
- * (SPEC.md F-10.2). Pure data, no Android dependency.
+ * A bookmark: an anchor in the book (chapter rank and offset), with the chapter title and the
+ * position in that chapter at the time it was set (SPEC.md F-10.2). [title] is null when the chapter
+ * has no table entry; [chapterPercent] is null for bookmarks saved before this format (no percentage shown).
+ * Pure data, no Android dependency.
  */
-data class Bookmark(val spineIndex: Int, val scrollY: Int, val progressPercent: Int)
+data class Bookmark(
+    val spineIndex: Int,
+    val scrollY: Int,
+    val title: String?,
+    val chapterPercent: Int?,
+)
 
 /** Rules for bookmarks (SPEC.md F-10). */
 object BookmarkRules {
 
-    /** True if a bookmark is set in the chapter [spineIndex] (F-10.1: the action then removes it). */
-    fun isMarked(bookmarks: List<Bookmark>, spineIndex: Int): Boolean =
-        bookmarks.any { it.spineIndex == spineIndex }
-
     /**
-     * The list after the action of F-10.1: adds [current] if its chapter is not marked, otherwise
-     * removes the bookmarks of that chapter. Kept sorted by position in the book (F-10.3).
+     * The list after the action « Ajouter marque-page » (F-10.1, DEC-EE-0039): adds [current], several
+     * bookmarks per chapter are allowed. A bookmark already at the same place is not added twice.
+     * Kept sorted by position in the book (F-10.3).
      */
-    fun toggle(bookmarks: List<Bookmark>, current: Bookmark): List<Bookmark> {
-        val updated = if (isMarked(bookmarks, current.spineIndex)) {
-            bookmarks.filter { it.spineIndex != current.spineIndex }
-        } else {
-            bookmarks + current
+    fun add(bookmarks: List<Bookmark>, current: Bookmark): List<Bookmark> {
+        if (bookmarks.any { it.spineIndex == current.spineIndex && it.scrollY == current.scrollY }) {
+            return bookmarks
         }
-        return sorted(updated)
+        return sorted(bookmarks + current)
     }
 
     /** Bookmarks in reading order: by chapter, then by offset. */

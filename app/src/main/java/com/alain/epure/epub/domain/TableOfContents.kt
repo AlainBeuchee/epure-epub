@@ -17,6 +17,10 @@ object TableOfContents {
      * @param baseDir folder of the table document: relative targets are read from there
      * @param spine paths of the chapters, in reading order
      */
+    /** Title of the first table entry that goes to the chapter [spineIndex], or null if there is none. */
+    fun titleOf(toc: List<TocEntry>, spineIndex: Int): String? =
+        toc.firstOrNull { it.spineIndex == spineIndex }?.title
+
     fun resolve(raw: List<RawTocEntry>, baseDir: String, spine: List<String>): List<TocEntry> =
         raw.mapNotNull { entry ->
             val path = ArchivePolicy.resolveHref(baseDir, entry.href) ?: return@mapNotNull null
