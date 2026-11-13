@@ -45,6 +45,9 @@ class BookWebView(
     /** Offset to apply once the chapter is loaded (reopening a book, F-5.3). */
     private var pendingScrollY = 0
 
+    /** Id of the search occurrence to bring into view once the chapter is loaded (F-11.4), if any. */
+    private var pendingFocusId: String? = null
+
 
     private val density = context.resources.displayMetrics.density
     private val minSwipeDistance = SWIPE_DISTANCE_DP * density
@@ -93,7 +96,9 @@ class BookWebView(
     init {
         setBackgroundColor(Color.BLACK)
         settings.apply {
-            javaScriptEnabled = false
+            // Only the app's own snippet runs (DEC-EE-0047); the book's scripts were removed before display.
+            javaScriptEnabled = true
+            javaScriptCanOpenWindowsAutomatically = false
             domStorageEnabled = false
             databaseEnabled = false
             allowFileAccess = false
@@ -147,22 +152,52 @@ class BookWebView(
      * Shows the chapter at [chapterPath] of [openBook]. The chapter starts at the top,
      * or at [startScrollY] when the book is reopened at a saved place.
      */
-    override fun show(openBook: OpenBook, chapterPath: String, startScrollY: Int, theme: ReadingTheme) {
+    override fun show(
+        openBook: OpenBook,
+        chapterPath: String,
+        startScrollY: Int,
+        theme: ReadingTheme,
+        highlight: ChapterHighlight?,
+    ) {
         book = openBook
         pendingScrollY = startScrollY.coerceAtLeast(0)
+        pendingFocusId = highlight?.let { ChapterMarkup.HIT_PREFIX + it.activeHit }
         val bytes = openBook.readEntry(chapterPath)
         if (bytes == null) {
+            pendingFocusId = null
             loadDataWithBaseURL(BASE_URL, "", "text/html", "utf-8", null)
             return
         }
+        // The chapter is cleaned first (DEC-EE-0047), then the search occurrences are marked, then the app's style is added.
+        val html = ChapterMarkup.render(bytes, highlight, theme.background, theme.text)
         loadDataWithBaseURL(
             BASE_URL + chapterPath,
-            withReadingStyle(bytes.toString(Charsets.UTF_8), theme),
+            withReadingStyle(html, theme),
             "text/html",
             "utf-8",
             null,
         )
         scrollTo(0, 0)
+    }
+
+    /**
+     * Brings the element [id] (the search occurrence shown) to the top part of the screen.
+     * Only the app's own snippet runs here (DEC-EE-0047); [id] is built by the app from a number.
+     */
+    private fun scrollToElement(id: String) {
+        val script = "(function(){var e=document.getElementById('$id');" +
+            "if(!e){return -1;}return e.getBoundingClientRect().top+window.pageYOffset;})()"
+        evaluateJavascript(script) { result ->
+            val top = result?.toDoubleOrNull() ?: return@evaluateJavascript
+            if (top < 0) return@evaluateJavascript
+            // The position is in CSS pixels; scale converts it to screen pixels.
+            // The occurrence stays below the title bar and the status bar, which overlay the top of the text
+            // while the search panel is open: the margin is the base margin plus four lines of text.
+            val lineDp = FOCUS_LINE_DP * textZoom / 100f
+            val marginDp = FOCUS_MARGIN_DP + FOCUS_LINES * lineDp
+            val target = (top * scale).toInt() - (marginDp * density).toInt()
+            scrollTo(0, target.coerceAtLeast(0))
+        }
     }
 
     /**
@@ -207,7 +242,13 @@ class BookWebView(
 
         // Once the chapter is laid out, the saved offset can be applied (F-5.3).
         override fun onPageFinished(view: WebView?, url: String?) {
-            if (pendingScrollY > 0) {
+            val focus = pendingFocusId
+            if (focus != null) {
+                // A search occurrence is shown: it takes the place of the saved offset.
+                pendingFocusId = null
+                pendingScrollY = 0
+                this@BookWebView.scrollToElement(focus)
+            } else if (pendingScrollY > 0) {
                 this@BookWebView.scrollTo(0, pendingScrollY)
                 pendingScrollY = 0
             }
@@ -259,6 +300,11 @@ class BookWebView(
         // Bottom band, in dp, where a short tap opens the command bar: about 2 cm (to measure on device).
         const val BOTTOM_BAND_DP = 126f
         const val TEXT_ZOOM_SETTLE_MS = 150L
+        // Space kept above a search occurrence brought into view, in dp.
+        const val FOCUS_MARGIN_DP = 48f
+        // Four lines of text, at 16 sp with a line spacing of 1.4 (100 % zoom), in dp.
+        const val FOCUS_LINES = 4
+        const val FOCUS_LINE_DP = 16f * 1.4f
         // A swipe must cover at least this distance, in dp, to change chapter.
         const val SWIPE_DISTANCE_DP = 96f
     }

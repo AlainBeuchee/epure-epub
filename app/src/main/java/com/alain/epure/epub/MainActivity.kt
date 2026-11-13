@@ -38,13 +38,17 @@ import com.alain.epure.epub.domain.RecentList
 import com.alain.epure.epub.domain.RefusalReason
 import com.alain.epure.epub.domain.TableOfContents
 import com.alain.epure.epub.domain.TextSizeRules
+import com.alain.epure.epub.domain.SearchState
+import com.alain.epure.epub.domain.TextSearch
 import com.alain.epure.epub.domain.TocEntry
+import java.util.concurrent.atomic.AtomicBoolean
 import com.alain.epure.epub.data.AppSettings
 import com.alain.epure.epub.data.BookmarkStore
 import com.alain.epure.epub.data.RecentStore
 import com.alain.epure.epub.system.BookCopy
 import com.alain.epure.epub.system.BookShare
 import com.alain.epure.epub.system.EpubReader
+import com.alain.epure.epub.system.BookSearch
 import com.alain.epure.epub.system.OpenBook
 import com.alain.epure.epub.system.TapSide
 import com.alain.epure.epub.ui.AboutScreen
@@ -160,6 +164,9 @@ private fun EpureApp(
     var showingToc by remember { mutableStateOf(false) }
     // Counts each navigation, so that a return to a chapter already shown reloads it (see ReaderScreen).
     var navToken by remember { mutableIntStateOf(0) }
+    // The search panel and its result (SPEC.md F-11); the cancel flag stops a search still running.
+    var search by remember { mutableStateOf(SearchState()) }
+    var searchCancel by remember { mutableStateOf<AtomicBoolean?>(null) }
 
     fun goTo(chapterIndex: Int, scrollY: Int) {
         index = chapterIndex
@@ -173,6 +180,46 @@ private fun EpureApp(
     fun jumpTo(chapterIndex: Int, scrollY: Int) {
         session?.let { returnTo = it.position }
         goTo(chapterIndex, scrollY)
+    }
+
+    // Stops a running search: its result is then ignored (SPEC.md F-11.5).
+    fun stopSearch() {
+        searchCancel?.set(true)
+        searchCancel = null
+    }
+
+    // Searches the whole book in the background (F-11.3), then shows the first occurrence (F-11.4).
+    fun runSearch(reading: ReadingSession, query: String) {
+        stopSearch()
+        val cancel = AtomicBoolean(false)
+        searchCancel = cancel
+        search = SearchState(open = true, running = true)
+        Thread {
+            val outcome = runCatching { BookSearch.run(reading.book, query) { cancel.get() } }
+            handler.post {
+                if (cancel.get()) return@post
+                searchCancel = null
+                outcome.onSuccess { result ->
+                    search = SearchState(
+                        open = true,
+                        searched = true,
+                        hits = result.hits,
+                        noText = !result.hasText,
+                        query = query,
+                    )
+                    if (result.hits.isNotEmpty()) goTo(result.hits[0], 0)
+                }.onFailure {
+                    search = SearchState(open = true, searched = true)
+                    notice = R.string.search_failed
+                }
+            }
+        }.start()
+    }
+
+    // Moves to another occurrence, « Précédent » or « Suivant » (F-11.4).
+    fun moveSearch(to: Int) {
+        search = search.copy(current = to)
+        goTo(search.hits[to], 0)
     }
 
     fun save(reading: ReadingSession) {
@@ -196,6 +243,8 @@ private fun EpureApp(
         index = 0
         startScrollY = 0
         notice = null
+        stopSearch()
+        search = SearchState()
         returnTo = null
         progressPercent = 0
         chapterPercent = 0
@@ -227,6 +276,7 @@ private fun EpureApp(
                     reading.progress = ReadingRules.progressPercent(place.spineIndex, spineSize, 0f)
                     session = reading
                     returnTo = null
+                    search = SearchState()
                     bookmarks = BookmarkStore.load(context, reading.uri)
                     showingBookmarks = false
                     toc = reading.book.book.toc
@@ -455,6 +505,21 @@ private fun EpureApp(
                 readingTheme = readingTheme.next()
                 AppSettings.setReadingTheme(context, readingTheme)
                 // The chapter is shown again in the new theme, at the same place.
+                goTo(index, current.position.scrollY)
+            },
+            search = search,
+            onOpenSearch = { search = SearchState(open = true) },
+            onSearchStart = { query -> if (query.isNotBlank()) runSearch(current, query) },
+            onSearchPrevious = {
+                if (search.hits.isNotEmpty()) moveSearch(TextSearch.previous(search.current, search.hits.size))
+            },
+            onSearchNext = {
+                if (search.hits.isNotEmpty()) moveSearch(TextSearch.next(search.current, search.hits.size))
+            },
+            onCloseSearch = {
+                stopSearch()
+                search = SearchState()
+                // The chapter is shown again without the marks, at the same place.
                 goTo(index, current.position.scrollY)
             },
         )

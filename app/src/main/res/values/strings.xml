@@ -67,4 +67,13 @@
     <string name="action_cancel">Annuler</string>
     <string name="bookmarks_list">Liste des marque-pages</string>
     <string name="recent_unreadable">Fichier inaccessible. Ouvre-le à nouveau depuis l\'application où il a été ouvert initialement.</string>
+    <string name="search_entry">Rechercher</string>
+    <string name="search_field_label">Texte à rechercher</string>
+    <string name="search_start">Chercher</string>
+    <string name="search_running">Recherche en cours</string>
+    <string name="search_none">Aucun résultat</string>
+    <string name="search_no_text">Ce livre ne contient pas de texte.</string>
+    <string name="search_failed">La recherche n\'a pas pu aboutir.</string>
+    <string name="search_previous">Précédent</string>
+    <string name="search_next">Suivant</string>
 </resources>

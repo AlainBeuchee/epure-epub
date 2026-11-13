@@ -83,7 +83,7 @@ Navigation : état simple géré à la main, sans `navigation-compose` (`CHARTE.
 
 ### F-1 Ouverture d'un livre
 
-**F-1.1 Sélecteur système.** L'action « Ouvrir un fichier » de l'accueil lance `ACTION_OPEN_DOCUMENT` filtré sur `application/epub+zip`. Le livre choisi s'ouvre dans le lecteur.
+**F-1.1 Sélecteur système.** L'action « Ajout » de la barre basse de l'accueil (DEC-EE-0030) lance `ACTION_OPEN_DOCUMENT` filtré sur `application/epub+zip`. Le livre choisi s'ouvre dans le lecteur.
 - Critères : un EPUB choisi dans « Mes fichiers », Google Drive hors ligne ou « Téléchargements » s'ouvre ; annuler le sélecteur ramène à l'accueil sans message.
 - Demande d'une autorisation persistante sur l'URI (lecture seule).
 
@@ -93,7 +93,7 @@ Navigation : état simple géré à la main, sans `navigation-compose` (`CHARTE.
 
 **F-1.3 Droits temporaires.** Comme pour Épure PDF (DEC-0034, DEC-0044) : un droit reçu par `VIEW` peut ne pas être persistant. Le récent devenu illisible affiche « Fichier inaccessible. Ouvre-le à nouveau depuis l'application où il a été ouvert initialement. » (DEC-0021, reprise). **[À VÉRIFIER]** sources réelles à tester sur l'appareil.
 
-**F-1.4 Descripteur non repositionnable.** Un EPUB doit être lu en accès aléatoire (le répertoire central du ZIP est en fin de fichier). Si la source ne fournit pas un descripteur repositionnable : **[À DÉCIDER]** (a) copie temporaire dans le cache privé de l'app, supprimée à la fermeture du livre et au démarrage suivant (proposition, comme DEC-0022) ; (b) message d'erreur.
+**F-1.4 Descripteur non repositionnable.** Un EPUB doit être lu en accès aléatoire (le répertoire central du ZIP est en fin de fichier). Si la source ne fournit pas un descripteur repositionnable : (a) copie temporaire dans le cache privé de l'app, supprimée à la fermeture du livre et au démarrage suivant (retenue, DEC-EE-0018) ; (b) message d'erreur (non retenu).
 
 **F-1.5 Erreurs d'ouverture.** Un message en texte, sans plantage, et retour possible à l'accueil :
 - fichier absent : « Fichier introuvable. » ;
@@ -107,9 +107,9 @@ Navigation : état simple géré à la main, sans `navigation-compose` (`CHARTE.
 
 **F-2.1 Texte recomposable.** Le texte s'adapte à la largeur de l'écran. Les paragraphes, titres, listes, citations, images intégrées et tableaux simples sont affichés. Les styles du livre sont ignorés par défaut (voir F-3.3, F-8.2).
 
-**F-2.2 Mode de défilement. [À DÉCIDER]** (a) défilement vertical continu, chapitre après chapitre ; (b) pagination horizontale, une « page écran » à la fois, avec balayage gauche-droite et boutons « Page suivante » / « Page précédente » dans les commandes (proposition, plus adaptée à la lecture d'un livre).
+**F-2.2 Mode de défilement.** Défilement vertical continu, chapitre après chapitre, avec changement de chapitre par toucher sur les côtés et par glissement horizontal (DEC-EE-0016, DEC-EE-0019). Pas de pagination ; dérogation à `CHARTE.md` B.6 signalée dans DEC-EE-0016.
 
-**F-2.3 Marges et interligne.** Marges latérales de 24 dp (proposition, comme les écrans de Épure) ; interligne de 1,4 fois la taille du texte (proposition). Valeurs non modifiables par l'utilisateur en version 1 (voir F-3.1).
+**F-2.3 Marges et interligne.** Marges latérales de 10 dp (DEC-EE-0027, après 24 dp puis 16 dp). Interligne de 1,4 fois la taille du texte, appliqué au livre (DEC-EE-0024). Longueur de ligne plafonnée à 75 caractères, texte centré ; sans effet en portrait sur téléphone (DEC-EE-0024). Valeurs non modifiables par l'utilisateur en version 1 (voir F-3.1).
 
 **F-2.4 Plein écran.** Pendant la lecture, barres d'état et de navigation masquées (mode immersif), comme F-2.4 de Épure PDF. Elles réapparaissent avec les commandes, ou par balayage depuis le bord.
 - **[À VÉRIFIER]** Comportement sous One UI 8 (gestes et trois boutons).
@@ -120,11 +120,11 @@ Navigation : état simple géré à la main, sans `navigation-compose` (`CHARTE.
 
 ### F-3 Taille du texte et typographie
 
-**F-3.1 Taille du texte.** Réglage de taille à cinq paliers (proposition), accessible dans le menu « Plus » du lecteur. Le réglage est global et mémorisé. Changer la taille conserve le passage lu (ancre, F-5), pas le numéro de page.
+**F-3.1 Taille du texte.** Sept paliers : 12, 14, 16, 18, 20, 22 et 24 sp ; défaut 16 sp (DEC-EE-0027). L'action « Taille du texte » passe au palier suivant à chaque appui, puis revient à 12 sp après 24 sp (DEC-EE-0033). Accessible dans le panneau « Plus » du lecteur et dans Paramètres (DEC-EE-0030). Le réglage est global et mémorisé. Changer la taille conserve le passage lu (ancre, F-5), pas le numéro de page.
 
-**F-3.2 Police. [À DÉCIDER]** (a) police système sans empattement (`FontFamily.Default`), seule police (proposition, conforme à la charte) ; (b) choix entre police système et police avec empattement, réglage global ; (c) polices du livre, si elles sont embarquées et libres (écarté par défaut : sécurité et cohérence).
+**F-3.2 Police.** Police système sans empattement (`FontFamily.Default`), seule police (DEC-EE-0011, reprise en DEC-EE-0021 et DEC-EE-0024). Aucune police n'est embarquée.
 
-**F-3.3 Couleurs du livre. [À DÉCIDER]** Les couleurs, fonds et polices définis par le livre sont ignorés (proposition) : le texte prend les jetons `TextPrimary` sur `Black`, ou l'inverse en mode nuit. Option « Couleurs du livre » désactivée par défaut, si le porteur la souhaite.
+**F-3.3 Couleurs du livre.** Les couleurs, fonds et polices définis par le livre sont ignorés (DEC-EE-0021). Le texte prend les couleurs du thème de lecture choisi (F-8.1). L'option « Couleurs du livre » n'est pas implémentée (DEC-EE-0021).
 
 ### F-4 Fichiers récents
 
@@ -155,9 +155,9 @@ Navigation : état simple géré à la main, sans `navigation-compose` (`CHARTE.
 
 ### F-6 Commandes du lecteur
 
-**F-6.1 Affichage.** Un toucher simple au centre de la page affiche les commandes ; un nouveau toucher les masque. Apparition et disparition immédiates.
+**F-6.1 Affichage.** Un appui court dans la bande basse (environ 2 cm) affiche les commandes et les barres système ; un appui sur le texte ou dans la bande basse les masque. Glisser vers le bas, sur le texte, les affiche. Apparition et disparition immédiates. Le toucher au centre de la page n'a plus d'effet (DEC-EE-0021, DEC-EE-0028).
 
-**F-6.2 Masquage automatique.** Les commandes disparaissent après 4 s sans interaction, ou dès que le texte défile ou change de page (proposition, comme DEC-0031).
+**F-6.2 Défilement.** Le défilement du texte ne ferme plus la barre. Glisser vers le haut fait avancer la lecture et ne change pas la barre (DEC-EE-0028). Le délai de 4 s sans interaction (proposition d'origine) est **abandonné**, confirmé par le porteur le 13/11/2026.
 
 **F-6.3 Contenu.**
 - En haut : titre du livre (`LabelStyle`, `TextPrimary`, passage à la ligne autorisé).
@@ -168,7 +168,7 @@ Navigation : état simple géré à la main, sans `navigation-compose` (`CHARTE.
 
 **F-6.4 Bouton Retour.** Dans l'ordre : ferme la fenêtre ouverte, puis masque les commandes, puis quitte le lecteur (retour à l'accueil, ou à l'app d'origine si ouverture par `VIEW`). Implémentation par `BackHandler`.
 
-**F-6.5 Pages précédente et suivante** (si F-2.2 (b) est retenu) : actions texte « Page précédente » et « Page suivante » dans les commandes, en plus du balayage.
+**F-6.5 Chapitre précédent et suivant.** Les actions « < » et « > » de la barre basse changent de chapitre, et non de page (DEC-EE-0021, amendement du 12/11/2026). Elles s'ajoutent aux appuis sur les côtés et au glissement horizontal (DEC-EE-0016, DEC-EE-0019). Pas de pagination (F-2.2).
 
 ### F-7 Progression et navigation dans le livre
 
@@ -176,19 +176,26 @@ Navigation : état simple géré à la main, sans `navigation-compose` (`CHARTE.
 
 **F-7.2 Aller à un chapitre.** Par la table des matières (F-12) uniquement en version 1. Pas de saut à un pourcentage ou à un numéro de page : un livre reflowable n'a pas de pagination stable (**[À DÉCIDER]** si l'on veut un curseur de progression, voir §9.1).
 
-### F-8 Mode nuit
+### F-8 Thèmes de lecture (remplace le mode nuit, DEC-EE-0025)
 
-**F-8.1** Action « Mode nuit » dans le menu « Plus » et dans les Paramètres. Fond `Black`, texte `TextPrimary`, liens et titres en `TextPrimary`. L'interface reste inchangée.
+**F-8.1 Thème du texte.** Cinq thèmes, choisis par l'action « Thème du texte » (dans « Plus » et dans Paramètres), qui passe au thème suivant à chaque appui. Le passage lu est conservé. Fond / texte :
+- Jour (papier) : `#F8F7F4` / `#222222` ;
+- Sépia : `#F4ECD8` / `#3B3126` ;
+- Nuit (ardoise) : `#1E1F22` / `#D4D4D4` ;
+- Nuit (AMOLED) : `#121212` / `#C4C4C4` ;
+- Nuit (noir) : `#000000` / `#E6E6E6`, **thème par défaut** (DEC-EE-0026).
 
-**F-8.2** Le mode nuit est appliqué par des **styles imposés** au contenu (surcharge CSS, `!important`), et non par un filtre de couleur sur l'écran : le texte garde ses couleurs de rendu et reste lisible quelles que soient les couleurs du livre.
+Seule la page du livre prend le fond du thème. L'interface reste sur les jetons de la charte (`Black`, `TextPrimary`, `TextSecondary`).
 
-**F-8.3 Images. [À DÉCIDER]** (a) images affichées telles quelles (proposition) ; (b) images atténuées ; (c) images inversées, comme Épure PDF (F-8.2 de Épure PDF). Proposition : (a), pour respecter les illustrations.
+**F-8.2** Le thème de lecture est appliqué par des **styles imposés** au contenu (surcharge CSS, `!important`), et non par un filtre de couleur sur l'écran : le texte garde ses couleurs de rendu et reste lisible quelles que soient les couleurs du livre.
 
-**F-8.4** Réglage global, mémorisé, désactivé par défaut (comme DEC-0029).
+**F-8.3 Images.** Affichées telles quelles, sans atténuation ni inversion, pour respecter les illustrations (DEC-EE-0021, DEC-EE-0025).
+
+**F-8.4 Mode nuit retiré.** Le réglage « Mode nuit » n'existe plus (DEC-EE-0025, décision du porteur du 12/11/2026). Le thème Nuit (noir) par défaut en tient lieu (F-8.1).
 
 ### F-9 Écran allumé
 
-Reprise de F-9 de Épure PDF : option « Écran allumé pendant la lecture », activée par défaut (DEC-0030), effet limité au lecteur, aucune permission.
+Reprise de F-9 de Épure PDF : réglage « Reste allumé pendant la lecture : oui / non » (libellé, DEC-EE-0027), activé par défaut (DEC-EE-0025), dans le panneau « Plus » du lecteur (DEC-EE-0042). Effet limité au lecteur, aucune permission.
 
 ### F-10 Marque-pages
 
@@ -204,19 +211,21 @@ Reprise de F-9 de Épure PDF : option « Écran allumé pendant la lecture », a
 
 **F-11.1** Action « Rechercher » : champ de recherche (`CHARTE.md` A.6), clavier ouvert à l'arrivée. Entrée = lancer la recherche.
 
-**F-11.2** Recherche insensible à la casse. Insensibilité aux accents **[À DÉCIDER]**, à vérifier sur l'appareil.
+**F-11.2** Recherche insensible à la casse et aux accents (« ete » trouve « été ») (DEC-EE-0038, option a). À vérifier sur l'appareil.
 
-**F-11.3** Portée. **[À DÉCIDER]** (a) chapitre courant seulement, avec la recherche native de la WebView ; (b) tout le livre, en lisant chaque chapitre à la demande, sans stocker le texte (proposition, fonction annoncée comme telle).
+**F-11.3** Portée : tout le livre, chapitre par chapitre, à la demande, sans stockage du texte (DEC-EE-0038, option b). Le texte est extrait par jsoup (F-11.7, DEC-EE-0045).
 
-**F-11.4** Résultat : saut à la première occurrence ; compteur « 3 / 17 » ; actions « Précédent » et « Suivant » ; « Aucun résultat » si rien n'est trouvé. Signalement de l'occurrence : négatif, comme DEC-0035 (F-11.4 de Épure PDF).
+**F-11.4** Résultat : saut au début du chapitre contenant la première occurrence (comme F-12.1, DEC-EE-0038) ; compteur « 3 / 17 » ; actions « Précédent » et « Suivant » ; « Aucun résultat » si rien n'est trouvé. Signalement de l'occurrence : négatif, sans couleur d'accent, comme DEC-0035 (F-11.4 de Épure PDF) (DEC-EE-0038, confirmé).
 
 **F-11.5** La recherche sur tout le livre ne bloque pas l'interface et peut être interrompue par Retour. Pas d'indicateur animé ; le compteur apparaît à la fin.
 
 **F-11.6** Un livre dont les chapitres ne contiennent pas de texte (images seules) affiche : « Ce livre ne contient pas de texte. »
 
+**F-11.7** Extraction du texte : bibliothèque jsoup (DEC-EE-0045). Aucun script exécuté, aucune connexion réseau, texte non stocké.
+
 ### F-12 Table des matières
 
-**F-12.1** Action « Table » : liste hiérarchique construite à partir du fichier `nav` (EPUB 3) ou du `NCX` (EPUB 2), retrait de 16 dp par niveau, texte seul ; appui court = aller à la position du titre.
+**F-12.1** Action « Table » : liste hiérarchique construite à partir du fichier `nav` (EPUB 3) ou du `NCX` (EPUB 2), retrait de 16 dp par niveau, texte seul ; appui court = aller au début du chapitre (DEC-EE-0037, option 1). Les liens vers un titre à l'intérieur d'un chapitre ne sont pas résolus ; le saut va au début de ce chapitre. Un saut par la table est ajouté à l'historique de retour (F-14.1, DEC-EE-0043).
 
 **F-12.2** Si le livre n'a pas de table des matières, ou si elle est illisible : « Aucune table des matières ». L'action reste visible en `TextSecondary`.
 
@@ -248,9 +257,9 @@ Reprise de F-9 de Épure PDF : option « Écran allumé pendant la lecture », a
 
 ### F-16 Paramètres et « À propos »
 
-**F-16.1 Paramètres** (liste de réglages, `CHARTE.md` A.6) : « Mode nuit », « Écran allumé pendant la lecture », « Liste des livres » (facultative, F-4.2), « À propos ». Rien d'autre sans nouvelle exigence. Taille du texte : dans le menu « Plus » du lecteur (F-3.1), et non dans les Paramètres.
+**F-16.1 Paramètres** (liste de réglages, `CHARTE.md` A.6), de haut en bas : « Liste des livres : activée / désactivée » (facultative, F-4.2, DEC-EE-0022) ; « Thème du texte » ; « Taille du texte » ; « Latéralité : droite / gauche », défaut droite (DEC-EE-0032) ; « À propos » en dernier. La barre basse porte « Retour ». Thème et taille se trouvent aussi dans le panneau « Plus » du lecteur, avec le même réglage (DEC-EE-0030). Rien d'autre sans nouvelle exigence.
 
-**F-16.2 « À propos »** : nom, version, licence GPL v3, lien « Dépôt GitHub » (ouvert par le navigateur, sans permission réseau propre à l'app), section confidentialité et sécurité (texte de T-2 et T-13), licences des bibliothèques et du moteur de rendu (et de la WebView, si retenue).
+**F-16.2 « À propos »**, dernier élément de Paramètres (DEC-EE-0030) ; son retour ramène aux Paramètres. Contenu : nom, version, licence GPL v3, lien « Dépôt GitHub » (ouvert par le navigateur, sans permission réseau propre à l'app), section confidentialité et sécurité (texte de T-2 et T-13), licences des bibliothèques et du moteur de rendu (et de la WebView, si retenue).
 
 ### F-17 Autres formats
 
@@ -304,7 +313,9 @@ Hors de cette app : PDF (Épure PDF), CBZ et CBR (applications séparées, DEC-0
 
 ## 5 bis. Exigences de sécurité du contenu
 
-**S-1 Aucun script.** Le moteur n'exécute aucun JavaScript. Dans une WebView : exécution désactivée. Un livre contenant du script s'ouvre sans lui.
+**S-1 Aucun script venu du livre.** Le livre ne peut exécuter aucun JavaScript. Avant affichage, chaque chapitre est nettoyé : suppression des éléments `script`, `iframe`, `frame`, `frameset`, `object`, `embed`, `applet`, `base` et `meta http-equiv` ; suppression des attributs `on*` ; suppression des adresses `javascript:`, `vbscript:` et `data:text/html`. Un livre qui contient du script s'ouvre sans lui, et son texte reste lisible (F-14.3).
+
+**Exception (DEC-EE-0047).** La WebView exécute JavaScript pour un seul script écrit par l'application, à chaîne fixe. Ce script ne reçoit du livre aucune donnée : seul un numéro d'occurrence, produit par l'application, entre dans son appel. Il ne sert qu'à faire défiler jusqu'à l'occurrence trouvée par la recherche (F-11.4). Le stockage web, les bases de données, les fenêtres ouvertes par le livre et le réseau restent désactivés ou bloqués (S-2, S-7).
 
 **S-2 Aucune ressource hors de l'archive.** Toute requête (image, police, feuille de style, script, iframe) dont l'adresse n'est pas à l'intérieur de l'archive est refusée. Le refus est silencieux pour l'image (F-15.3).
 
@@ -383,23 +394,12 @@ Conséquence : **aucune permission déclarée** (objectif). Pas d'écran d'autor
 
 | Réf. | Sujet | Jalon | Proposition |
 |---|---|---|---|
-| F-1.4 | Copie temporaire si descripteur non repositionnable | 2 | Copie en cache privé, supprimée à la fermeture |
-| F-2.2 | Défilement continu ou pagination | 1 | Pagination horizontale, avec commandes de page |
-| F-3.2 | Police | 3 | Police système sans empattement |
-| F-3.3 | Couleurs du livre | 3 | Ignorées ; option désactivée |
 | F-5.1 | Ancre de position : maison ou CFI | 2 | Ancre maison (rang + décalage) |
-| F-6.5 | Pages précédente et suivante | 3 | Oui, si pagination |
-| F-8.3 | Images en mode nuit | 3 | Affichées telles quelles |
-| F-11.2 | Recherche insensible aux accents | 4 | Si le moteur le permet |
-| F-11.3 | Portée de la recherche | 4 | Tout le livre, sans stockage du texte |
-| F-14.1 | « Retour au passage » après un lien interne | 3 | Oui, une étape |
-| F-16.1 | Liste des livres (facultative) | 2c | Désactivée par défaut, 10 livres |
+| F-4.1 | Titre affiché dans les récents | 2 | Titre du package ; nom du fichier à défaut |
 | S-4, T-6 | Limites de taille et de nombre d'entrées | 5 | Valeurs de la section S-4, à mesurer |
 | T-6 | Taille maximale d'un chapitre | 5 | 5 Mo décompressés |
-| F-3.1 | Nombre de paliers de taille du texte | 3 | Cinq |
-| F-2.3 | Marges et interligne | 3 | 24 dp et 1,4 |
-| F-4.1 | Titre affiché dans les récents | 2 | Titre du package ; nom du fichier à défaut |
-| F-10.2 | Libellé des marque-pages | 4 | Nom du chapitre et position dans le chapitre (DEC-EE-0039) |
+
+Points retirés de ce tableau le 13/11/2026, tranchés et reportés plus haut dans cette spécification : F-1.4 (DEC-0018), F-2.2 (DEC-EE-0016), F-2.3 (DEC-EE-0024, DEC-EE-0027), F-3.1 (DEC-EE-0027, DEC-EE-0033), F-3.2 (DEC-EE-0011), F-3.3 (DEC-EE-0021), F-6.5 (DEC-EE-0021), F-8.3 (DEC-EE-0021, DEC-EE-0025), F-10.2 (DEC-EE-0039), F-11.2 et F-11.3 (DEC-EE-0038), F-14.1 (DEC-EE-0021, DEC-EE-0043), F-16.1 (DEC-EE-0022, DEC-EE-0032).
 
 ### 9.2 [À VÉRIFIER] sur l'appareil
 
@@ -427,7 +427,7 @@ Conservé **hors du dépôt** (aucun livre personnel ou sous droits d'auteur ver
 | 2 | Essai EPUB 2, avec `NCX` et sans `nav` | Compatibilité EPUB 2, table via NCX |
 | 3 | Livre avec images nombreuses et grandes | Mémoire, images, S-6 |
 | 4 | Livre avec tableaux et listes | F-2.1 |
-| 5 | Livre avec JavaScript dans un chapitre | S-1, F-14.3 |
+| 5 | Livre avec JavaScript dans un chapitre : script, gestionnaire `onclick`, `iframe`, redirection `meta refresh` | S-1, F-14.3 (aucun ne doit s'exécuter) |
 | 6 | Livre avec images et feuilles de style distantes (adresses `https://`) | S-2, F-15.3 |
 | 7 | Livre avec liens externes et liens internes | S-3, F-14 |
 | 8 | Livre avec chemins d'archive `../` | S-4, zip slip |
@@ -446,3 +446,4 @@ Conservé **hors du dépôt** (aucun livre personnel ou sous droits d'auteur ver
 - 0.1 (10/11/2026) : première version de déclinaison, à partir de `SPEC.md` d'Épure PDF 0.1 (et de ses jalons 0 à 5). Non validée par le porteur.
 - 0.2 (11/11/2026) : §6 tranché (option A, DEC-EE-0015) ; retrait du point §6 de §9.1. Mise à jour faite par le porteur.
 - 0.3 (11/11/2026) : S-4 « mimetype » tranché (ouverture avec avertissement, DEC-EE-0017) ; retrait du point de §9.1. Mise à jour faite par le porteur.
+- 0.4 (13/11/2026) : S-1 réécrit, avec l'exception du script de l'application pour la recherche (DEC-EE-0047) ; annexe A, livre 5 précisé. Mise à jour faite par l'assistant, sur demande du porteur.

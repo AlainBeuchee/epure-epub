@@ -186,7 +186,7 @@
 
 ### Session 4b — Recherche
 
-> Prochaine session. Points à trancher avant de commencer : DEC-EE-0038 (les autres points sont tranchés). Entrée « Rechercher » à ajouter à la fenêtre « * » (DEC-EE-0042), et non au panneau « Plus ».
+> En cours (13/11/2026). Décisions prises : DEC-EE-0038 (recherche : accents, portée sur tout le livre, signalement négatif), DEC-EE-0045 (extraction du texte par jsoup, mis en place et testé). Logique de recherche, panneau, entrée « Rechercher » dans la fenêtre « * » (DEC-EE-0042) et parcours des chapitres : mis en place et compilés (DEC-EE-0046). Reste : validation sur l'appareil, puis cases à cocher. Aucune case n'est cochée avant validation sur l'appareil.
 
 - [ ] Champ de recherche, clavier ouvert à l'arrivée (F-11.1).
 - [ ] Portée de la recherche selon F-11.3 retenu ; lecture chapitre par chapitre sans stockage du texte.
