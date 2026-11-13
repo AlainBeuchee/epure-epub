@@ -196,7 +196,7 @@
 
 ### Contrôles du jalon 4 (sur l'appareil)
 
-- [ ] Table des matières du document 1 : appui sur un titre, saut au bon passage.
+- [x] Table des matières du document 1 : appui sur un titre, saut au bon passage.
 - [ ] Table du document 2 (NCX) : fonctionnelle.
 - [ ] Marque-page ajouté, puis rouvert depuis la liste : même passage.
 - [ ] Recherche sur le document 1 : compteur juste, navigation correcte.
