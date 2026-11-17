@@ -186,14 +186,14 @@
 
 ### Session 4b — Recherche
 
-> En cours (13/11/2026). Décisions prises : DEC-EE-0038 (recherche : accents, portée sur tout le livre, signalement négatif), DEC-EE-0045 (extraction du texte par jsoup, mis en place et testé). Logique de recherche, panneau, entrée « Rechercher » dans la fenêtre « * » (DEC-EE-0042) et parcours des chapitres : mis en place et compilés (DEC-EE-0046). Reste : validation sur l'appareil, puis cases à cocher. Aucune case n'est cochée avant validation sur l'appareil.
+> Session validée sur l'appareil par le porteur (13/11/2026) : champ, portée, recherche, surlignage, défilement, « Aucun résultat », compteur, « Précédent » / « Suivant », accents, interruption par Retour, livre sans texte. Décisions : DEC-EE-0038, DEC-EE-0045, DEC-EE-0046, DEC-EE-0047.
 
-- [ ] Champ de recherche, clavier ouvert à l'arrivée (F-11.1).
-- [ ] Portée de la recherche selon F-11.3 retenu ; lecture chapitre par chapitre sans stockage du texte.
-- [ ] Compteur à la fin de la recherche, « Précédent » et « Suivant », « Aucun résultat » (F-11.4).
-- [ ] Insensibilité aux accents selon F-11.2 retenu, vérifiée sur l'appareil.
-- [ ] Interruption possible par Retour ; pas d'indicateur animé (F-11.5).
-- [ ] Livre sans texte : « Ce livre ne contient pas de texte. » (F-11.6).
+- [x] Champ de recherche, clavier ouvert à l'arrivée (F-11.1).
+- [x] Portée de la recherche selon F-11.3 retenu ; lecture chapitre par chapitre sans stockage du texte.
+- [x] Compteur à la fin de la recherche, « Précédent » et « Suivant », « Aucun résultat » (F-11.4).
+- [x] Insensibilité aux accents selon F-11.2 retenu, vérifiée sur l'appareil.
+- [x] Interruption possible par Retour ; pas d'indicateur animé (F-11.5).
+- [x] Livre sans texte : « Ce livre ne contient pas de texte. » (F-11.6).
 
 ### Contrôles du jalon 4 (sur l'appareil)
 

@@ -1091,7 +1091,7 @@ Facile : la règle est isolée dans `BookmarkRules.add`.
 ## DEC-EE-0040 — Barre de commandes : bouton « * » pour ajouter un marque-page
 
 - Date : 13/11/2026
-- Statut : Adoptée, demandée par le porteur ; à valider sur l'appareil
+- Statut : Adoptée, demandée par le porteur. « ^ » rejeté sur l'appareil (pointe trop aiguë) ; « ∧ » (signe mathématique « et logique ») retenu, à valider sur l'appareil
 - Jalon : 4 (hors session prévue)
 - Exigences concernées : F-6 (barre de commandes), F-10.1 ; DEC-EE-0021, DEC-EE-0036, DEC-EE-0039 ; `CHARTE.md` (barre basse, fenêtres, confirmations)
 
@@ -1270,6 +1270,25 @@ Facile : le panneau, l'entrée et les trois actions sont isolés dans `ReaderScr
 
 **Réversibilité**
 Facile : remettre `javaScriptEnabled = false` et supprimer l'appel de mesure ; la recherche reste comptée, seul le défilement vers l'occurrence est perdu.
+
+---
+
+## DEC-EE-0048 — Barre de commandes : le symbole « * » devient « ∧ »
+
+- Date : 15/11/2026
+- Statut : Adoptée, demandée par le porteur ; à valider sur l'appareil
+- Jalon : 4 (session 4b, retouche)
+- Exigences concernées : F-6.3 ; DEC-EE-0040, DEC-EE-0042 ; `CHARTE.md` (barre de commandes)
+
+**Décision**
+- Dans la barre de commandes du bas, le symbole du bouton des marque-pages et de la recherche est « ∧ » (U+2227) au lieu de « * ». « ^ » a été essayé : sur le téléphone, sa pointe est trop aiguë par rapport à l'ordinateur.
+- Le libellé d'accessibilité ne change pas (« Ajouter marque-page »). La fenêtre ouverte par ce bouton, son contenu et son comportement sont inchangés (DEC-EE-0040, DEC-EE-0042).
+
+**Conséquences**
+- Dans `SPEC.md`, `CHARTE.md` et les décisions antérieures, « * » désigne ce bouton : lire « ∧ ». Ces documents ne sont pas réécrits ici (`CLAUDE.md` §5).
+
+**Réversibilité**
+Facile : une seule ressource de texte (`reader_bookmark_ask`) ; revenir à « * » en une ligne.
 
 ---
 
