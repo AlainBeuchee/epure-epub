@@ -14,7 +14,7 @@
 | 1 | Lecteur de base : choix du moteur (prototype), ouverture par le sélecteur, texte, pagination, sécurité minimale | À faire |
 | 2 | Ouverture depuis d'autres apps, récents, reprise, « À propos » | À faire |
 | 3 | Confort : commandes, taille du texte, mode nuit, écran allumé, partage | À faire |
-| 4 | Table des matières, marque-pages, recherche | En cours (4a et 4b validées ; contrôles du jalon à passer) |
+| 4 | Table des matières, marque-pages, recherche | Validé sur l'appareil |
 | 5 | Robustesse et sécurité : archives malveillantes, EPUB mal formés, mémoire | À faire |
 | — | Livres protégés par DRM, mise en page fixe, autres formats | Hors feuille de route |
 
@@ -198,10 +198,10 @@
 ### Contrôles du jalon 4 (sur l'appareil)
 
 - [x] Table des matières du document 1 : appui sur un titre, saut au bon passage.
-- [ ] Table du document 2 (NCX) : fonctionnelle.
-- [ ] Marque-page ajouté, puis rouvert depuis la liste : même passage.
-- [ ] Recherche sur le document 1 : compteur juste, navigation correcte.
-- [ ] Recherche sur le document 3 (images) : message de fin, pas de plantage.
+- [x] Table du document 2 (NCX) : fonctionnelle.
+- [x] Marque-page ajouté, puis rouvert depuis la liste : même passage.
+- [x] Recherche sur le document 1 : compteur juste, navigation correcte.
+- [x] Recherche sur le document 3 (images) : message de fin, pas de plantage.
 
 ---
 
