@@ -1091,7 +1091,7 @@ Facile : la règle est isolée dans `BookmarkRules.add`.
 ## DEC-EE-0040 — Barre de commandes : bouton « * » pour ajouter un marque-page
 
 - Date : 13/11/2026
-- Statut : Adoptée, demandée par le porteur. « ^ » rejeté sur l'appareil (pointe trop aiguë) ; « ∧ » (signe mathématique « et logique ») retenu, à valider sur l'appareil
+- Statut : Adoptée, demandée par le porteur. « ^ » rejeté sur l'appareil (pointe trop aiguë) ; « ∧ » retenu et validé sur l'appareil par le porteur
 - Jalon : 4 (hors session prévue)
 - Exigences concernées : F-6 (barre de commandes), F-10.1 ; DEC-EE-0021, DEC-EE-0036, DEC-EE-0039 ; `CHARTE.md` (barre basse, fenêtres, confirmations)
 
